@@ -1,0 +1,130 @@
+.filter-bar {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-icon {
+  color: var(--primary-brown);
+  font-size: 1.125rem;
+}
+
+.filter-header span {
+  font-weight: 600;
+  color: var(--primary-brown);
+  flex: 1;
+}
+
+.clear-filters {
+  background: none;
+  border: none;
+  color: var(--light-brown);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.clear-filters:hover {
+  color: var(--primary-brown);
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  font-size: 0.875rem;
+}
+
+.filter-option:hover {
+  background: var(--cream);
+}
+
+.filter-option input[type="checkbox"] {
+  margin: 0;
+  accent-color: var(--primary-brown);
+}
+
+.filter-option svg {
+  color: var(--primary-brown);
+  font-size: 1rem;
+}
+
+.radius-filter {
+  flex: 1;
+  min-width: 200px;
+}
+
+.radius-filter label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--dark-brown);
+}
+
+.radius-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #ddd;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.radius-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary-brown);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.radius-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary-brown);
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 768px) {
+  .filter-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-option {
+    justify-content: flex-start;
+  }
+  
+  .radius-filter {
+    min-width: 100%;
+  }
+}

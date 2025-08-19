@@ -1,0 +1,49 @@
+.map-view {
+  height: 100%;
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.custom-marker {
+  background: transparent;
+  border: none;
+}
+
+.marker-pin {
+  width: 30px;
+  height: 40px;
+  border-radius: 50% 50% 50% 0;
+  position: relative;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.marker-pin:hover {
+  transform: rotate(-45deg) scale(1.1);
+}
+
+.marker-icon {
+  transform: rotate(45deg);
+  font-size: 16px;
+  color: white;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+.leaflet-popup-content {
+  margin: 1rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.leaflet-popup-tip {
+  background: white;
+}

@@ -1,0 +1,120 @@
+.review-form {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.review-form h3 {
+  color: var(--primary-brown);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.rating-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.rating-category {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rating-category label {
+  font-weight: 500;
+  color: var(--primary-brown);
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  color: var(--primary-brown);
+  margin-bottom: 0.5rem;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.75rem;
+  border: 2px solid #e1e1e1;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  transition: var(--transition);
+}
+
+.form-textarea:focus {
+  border-color: var(--primary-brown);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(107, 68, 35, 0.1);
+}
+
+.dropzone {
+  border: 2px dashed #ddd;
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 1rem;
+}
+
+.dropzone:hover {
+  border-color: var(--primary-brown);
+  background: var(--cream);
+}
+
+.dropzone p {
+  color: var(--light-brown);
+  margin: 0;
+}
+
+.photo-previews {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.photo-preview {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.error {
+  color: var(--danger-red);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .rating-categories {
+    grid-template-columns: 1fr;
+  }
+  
+  .photo-previews {
+    justify-content: center;
+  }
+}

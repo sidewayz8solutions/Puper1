@@ -1,0 +1,22 @@
+:root {
+  --primary-brown: #6B4423;
+  --dark-brown: #4A2F18;
+  --light-brown: #8B5A3C;
+  --medium-wood: #6B4423;
+  --cream: #F5E6D3;
+  --off-white: #FEFEFE;
+  --wood-grain: linear-gradient(135deg, var(--primary-brown), var(--dark-brown));
+  --shadow-wood: 0 8px 16px rgba(45, 24, 16, 0.3);
+  --psychedelic-purple: #9B59B6;
+  --psychedelic-pink: #FF69B4;
+  --psychedelic-orange: #FF6347;
+  --psychedelic-yellow: #FFD700;
+  --psychedelic-green: #00CED1;
+  --success-green: #27AE60;
+  --danger-red: #E74C3C;
+  --shadow: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 20px rgba(0,0,0,0.15);
+  --radius: 10px;
+  --radius-lg: 20px;
+  --transition: all 0.3s ease;
+}

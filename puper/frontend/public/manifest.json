@@ -1,0 +1,22 @@
+{
+  "name": "Püper - Public Restroom Finder",
+  "short_name": "Püper",
+  "description": "Your Guide to Relief - Find clean, accessible restrooms near you",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#2D1810",
+  "background_color": "#4A2F1A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

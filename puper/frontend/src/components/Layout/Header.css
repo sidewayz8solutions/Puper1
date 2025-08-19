@@ -1,0 +1,86 @@
+.header {
+  background: var(--wood-grain);
+  border-bottom: 3px solid var(--psychedelic-cyan);
+  padding: 1rem 2rem;
+  box-shadow: var(--shadow-wood);
+  position: relative;
+  z-index: 1000;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  background: transparent;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border: 2px solid var(--psychedelic-purple);
+  box-shadow: 0 0 10px var(--psychedelic-purple);
+}
+
+.logo-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius);
+}
+
+.app-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 2.5rem;
+  color: var(--cream);
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px var(--psychedelic-yellow);
+}
+
+.tagline {
+  font-size: 0.9rem;
+  color: var(--psychedelic-cyan);
+  text-shadow: 0 0 5px var(--psychedelic-cyan);
+}
+
+.nav-menu {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-item {
+  color: var(--cream);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  transition: var(--transition);
+  background: transparent;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-item:hover {
+  background: rgba(0,0,0,0.2);
+  border-color: var(--psychedelic-pink);
+  color: var(--psychedelic-pink);
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--psychedelic-pink);
+}

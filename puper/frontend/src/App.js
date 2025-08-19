@@ -1,0 +1,40 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './context/AuthContext';
+import { AppProvider } from './context/AppContext';
+import Layout from './components/Layout/Layout';
+import HomePage from './pages/HomePage';
+import MapPage from './pages/MapPage';
+import ProfilePage from './pages/ProfilePage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import AboutPage from './pages/AboutPage';
+import './App.css';
+
+const queryClient = new QueryClient();
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppProvider>
+          <Router>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/map" element={<MapPage />} />
+                <Route path="/profile/:id?" element={<ProfilePage />} />
+                <Route path="/leaderboard" element={<LeaderboardPage />} />
+                <Route path="/about" element={<AboutPage />} />
+              </Routes>
+            </Layout>
+            <Toaster position="bottom-right" />
+          </Router>
+        </AppProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
+
+export default App;

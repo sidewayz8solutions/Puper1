@@ -1,0 +1,53 @@
+.restroom-list {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+}
+
+.restroom-list-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+  background: var(--cream);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.restroom-list-header h3 {
+  color: var(--primary-brown);
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.restroom-list-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.restroom-list-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.restroom-list-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.restroom-list-content::-webkit-scrollbar-thumb {
+  background: var(--light-brown);
+  border-radius: 3px;
+}
+
+.restroom-list-content::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-brown);
+}
+
+@media (max-width: 768px) {
+  .restroom-list {
+    max-height: 400px;
+  }
+}
