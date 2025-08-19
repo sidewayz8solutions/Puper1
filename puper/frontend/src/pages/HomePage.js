@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaRoute, FaPlus, FaTrophy, FaToiletPaper } from 'react-icons/fa';
 import Button from '../components/Common/Button';
-import marbleHeroBg from '../assets/images/marble-hero-bg.png';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -11,7 +10,7 @@ const HomePage = () => {
     <div className="home-page">
       <div className="psychedelic-bg" />
       
-      <section className="hero-section" style={{ backgroundImage: `url(${marbleHeroBg})` }}>
+      <section className="hero-section">
         <div className="container">
           <motion.div 
             className="hero-content"
@@ -20,7 +19,7 @@ const HomePage = () => {
             transition={{ duration: 0.8 }}
           >
             <div className="hero-logo">
-              <FaToiletPaper className="hero-icon" />
+              <img src="/logo.png" alt="Püper Logo" className="hero-logo-image" />
             </div>
             <h1 className="hero-title">PÜPER</h1>
             <p className="hero-subtitle">The Waze of Public Restrooms</p>
