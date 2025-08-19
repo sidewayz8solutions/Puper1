@@ -8,7 +8,8 @@ body {
   font-family: 'Poppins', sans-serif;
   line-height: 1.6;
   color: var(--dark-brown);
-  background: var(--off-white);
+  background: var(--marble-background);
+  background-attachment: fixed;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -140,6 +141,8 @@ input:focus, textarea:focus, select:focus {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+
 
 .error {
   color: var(--danger-red);

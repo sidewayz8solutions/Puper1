@@ -19,7 +19,7 @@ const Header = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <img src="/logo.png" alt="Püper Logo" className="logo-icon" />
+            <img src="/puper-logo.png" alt="Püper Logo" className="logo-icon" />
           </motion.div>
           <div>
             <h1 className="app-title">PÜPER</h1>

@@ -20,16 +20,21 @@ function App() {
       <AuthProvider>
         <AppProvider>
           <Router>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/map" element={<MapPage />} />
-                <Route path="/profile/:id?" element={<ProfilePage />} />
-                <Route path="/leaderboard" element={<LeaderboardPage />} />
-                <Route path="/about" element={<AboutPage />} />
-              </Routes>
-            </Layout>
-            <Toaster position="bottom-right" />
+            <div className="App">
+              {/* Psychedelic background animations */}
+              <div className="psychedelic-bg"></div>
+
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/map" element={<MapPage />} />
+                  <Route path="/profile/:id?" element={<ProfilePage />} />
+                  <Route path="/leaderboard" element={<LeaderboardPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                </Routes>
+              </Layout>
+              <Toaster position="bottom-right" />
+            </div>
           </Router>
         </AppProvider>
       </AuthProvider>

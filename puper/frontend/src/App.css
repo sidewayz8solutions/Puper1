@@ -1,6 +1,7 @@
 .App {
   min-height: 100vh;
-  background: var(--off-white);
+  background: var(--marble-background);
+  background-attachment: fixed;
   position: relative;
 }
 
