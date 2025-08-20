@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaRoute, FaPlus, FaTrophy, FaToiletPaper } from 'react-icons/fa';
+import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
 import Button from '../components/Common/Button';
 import marbleHeroBg from '../assets/images/marble-hero-bg.png';
 import './HomePage.css';
@@ -23,10 +23,10 @@ const HomePage = () => {
               <img src="/puper-logo.png" alt="Püper Logo" className="hero-icon" />
             </div>
             <h1 className="hero-title">Roll With Confidence</h1>
-            <p className="hero-subtitle">The Waze of Public Restrooms</p>
             <p className="hero-description">
-              Find clean, accessible restrooms along your route. 
+              Clean, accessible toilets right at your fingertips.
               Rate, review, and help others in their time of need.
+              Roll On!
             </p>
             
             <div className="hero-actions">

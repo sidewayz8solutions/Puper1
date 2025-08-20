@@ -27,26 +27,40 @@
 }
 
 .hero-logo-image {
-  width: 450px;
-  height: auto;
+  width: 250px;
+  height: 250px;
+  object-fit: contain;
   background: white;
   padding: 3rem;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg), 0 0 30px rgba(0,0,0,0.2);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 30px rgba(0,0,0,0.2),
+    10px 10px 0px #8B4513,
+    15px 15px 0px #654321,
+    20px 20px 0px #4A2C17,
+    25px 25px 40px rgba(0,0,0,0.5);
   border: 4px solid var(--primary-brown);
   transition: var(--transition);
-  transform: scale(1);
+  transform: perspective(800px) rotateX(10deg) rotateY(-5deg) scale(1);
 }
 
 .hero-logo-image:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-lg), 0 0 40px rgba(0,0,0,0.3);
+  transform: perspective(800px) rotateX(15deg) rotateY(-10deg) scale(1.05);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 40px rgba(0,0,0,0.3),
+    15px 15px 0px #8B4513,
+    20px 20px 0px #654321,
+    25px 25px 0px #4A2C17,
+    30px 30px 50px rgba(0,0,0,0.6);
 }
 
 .hero-icon {
   font-size: 4rem;
   background: linear-gradient(135deg, var(--psychedelic-purple), var(--psychedelic-pink));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
 }
@@ -57,7 +71,15 @@
   color: var(--dark-brown);
   letter-spacing: 3px;
   margin-bottom: 1rem;
-  text-shadow: 0 0 20px var(--psychedelic-yellow), 2px 2px 4px rgba(0,0,0,0.3);
+  text-shadow:
+    0 0 20px var(--psychedelic-yellow),
+    2px 2px 4px rgba(255, 191, 81, 0.3),
+    4px 4px 0px #8B4513,
+    6px 6px 0px #654321,
+    8px 8px 0px #4A2C17,
+    10px 10px 20px rgba(0,0,0,0.4);
+  transform: perspective(500px) rotateX(15deg);
+  transform-origin: center bottom;
 }
 
 .hero-subtitle {
@@ -69,11 +91,11 @@
 }
 
 .hero-description {
-  font-size: 1.125rem;
-  color: var(--dark-brown);
+  font: bold 2.7rem 'Bebas Neue', cursive;
+  color: var(--red);
   margin-bottom: 3rem;
   line-height: 1.6;
-  text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+  text-shadow: 3px 3px 1px rgba(167, 100, 0, 0.5);
 }
 
 .hero-actions {
@@ -153,7 +175,7 @@
 
 .cta-section {
   padding: 4rem 0;
-  background: var(--wood-grain);
+  background: var(--dark-purple);
   border-top: 3px solid var(--psychedelic-magenta);
   color: var(--cream);
   text-align: center;
