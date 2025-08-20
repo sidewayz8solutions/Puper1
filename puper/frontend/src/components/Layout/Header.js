@@ -23,7 +23,7 @@ const Header = () => {
           </motion.div>
           <div>
             <h1 className="app-title">PÜPER</h1>
-            <p className="tagline">Your Guide to Relief</p>
+            <p className="tagline">Your Guide to Relief</p> 
           </div>
         </Link>
 

@@ -73,8 +73,8 @@
   margin-bottom: 1rem;
   text-shadow:
     0 0 20px var(--psychedelic-yellow),
-    2px 2px 4px rgba(255, 191, 81, 0.3),
-    4px 4px 0px #8B4513,
+    2px 2px 4px rgba(248, 255, 155, 0.3),
+    4px 4px 0px #dbff78,
     6px 6px 0px #654321,
     8px 8px 0px #4A2C17,
     10px 10px 20px rgba(0,0,0,0.4);
@@ -95,7 +95,14 @@
   color: var(--red);
   margin-bottom: 3rem;
   line-height: 1.6;
-  text-shadow: 3px 3px 1px rgba(167, 100, 0, 0.5);
+  text-shadow:
+    3px 3px 1px rgba(167, 100, 0, 0.5),
+    6px 6px 0px #7b7b7b,
+    6px 6px 0px #aa3030,
+    8px 8px 0px #882020,
+    8px 8px 30px rgba(0,0,0,0.4);
+  transform: perspective(600px) rotateX(8deg);
+  transform-origin: center bottom;
 }
 
 .hero-actions {
@@ -118,6 +125,9 @@
 .features-section {
   padding: 4rem 0;
   background: var(--wood-grain);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border-top: 3px solid var(--psychedelic-green);
   border-bottom: 3px solid var(--psychedelic-orange);
 }

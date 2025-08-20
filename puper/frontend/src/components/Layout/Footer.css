@@ -1,5 +1,8 @@
 .footer {
   background: var(--wood-grain);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border-top: 3px solid var(--psychedelic-lime);
   color: var(--cream);
   padding: 3rem 0 1rem;

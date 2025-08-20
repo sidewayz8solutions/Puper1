@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
 import Button from '../components/Common/Button';
 import marbleHeroBg from '../assets/images/marble-hero-bg.png';
+import woodBg from '../assets/images/wood.png';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -45,7 +46,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="features-section">
+      <section className="features-section" style={{ backgroundImage: `url(${woodBg})` }}>
         <div className="container">
           <motion.h2 
             className="section-title"

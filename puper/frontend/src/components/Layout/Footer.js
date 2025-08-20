@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaHeart, FaGithub, FaTwitter, FaInstagram } from 'react-icons/fa';
+import woodBg from '../../assets/images/wood.png';
 import './Footer.css';
 
 const Footer = () => {
   return (
-    <footer className="footer">
+    <footer className="footer" style={{ backgroundImage: `url(${woodBg})` }}>
       <div className="footer-content">
         <div className="footer-section">
           <h3>Püper</h3>
