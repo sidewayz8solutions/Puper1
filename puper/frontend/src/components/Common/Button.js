@@ -1,31 +1,33 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import clsx from 'clsx';
 import './Button.css';
 
 const Button = ({ 
   children, 
-  onClick, 
-  type = 'button', 
   variant = 'primary', 
-  size = 'medium',
-  loading = false,
+  size = 'medium', 
+  onClick, 
   disabled = false,
-  className,
+  loading = false,
+  type = 'button',
+  className = '',
   ...props 
 }) => {
   return (
     <motion.button
-      type={type}
+      className={`btn btn-${variant} btn-${size} ${loading ? 'btn-loading' : ''} ${className}`}
       onClick={onClick}
       disabled={disabled || loading}
-      className={clsx('btn', `btn-${variant}`, `btn-${size}`, className)}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      type={type}
+      whileHover={!disabled ? { scale: 1.02 } : {}}
+      whileTap={!disabled ? { scale: 0.98 } : {}}
       {...props}
     >
       {loading ? (
-        <span className="btn-loading">Loading...</span>
+        <>
+          <span className="spinner"></span>
+          Loading...
+        </>
       ) : (
         children
       )}
