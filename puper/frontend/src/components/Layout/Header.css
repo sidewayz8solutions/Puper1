@@ -62,7 +62,7 @@
   font: bold 1.5rem 'Bebas Neue', cursive;
   font-size: 1.5rem;
   color: var(--bright-yellow);
-  text-shadow: 0 0 5px var(--marble-white);
+  text-shadow: 0 0 5px var(--dark-purple);
   margin: 0;
   line-height: 1;
   transform: translateY(12px);
