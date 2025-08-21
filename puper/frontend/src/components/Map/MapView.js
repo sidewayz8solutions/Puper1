@@ -3,7 +3,7 @@ import Map, { Marker, Popup } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapView.css';
 
-const MapView = ({ center, restrooms, onMarkerClick }) => {
+const MapView = ({ center, restrooms, onMarkerClick, onMapClick, addMode, addLocation }) => {
   const [selectedRestroom, setSelectedRestroom] = useState(null);
   const [viewState, setViewState] = useState({
     longitude: center ? center[1] : -74.006,
@@ -30,9 +30,11 @@ const MapView = ({ center, restrooms, onMarkerClick }) => {
       <Map
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
+        onClick={addMode ? onMapClick : undefined}
         style={{ width: '100%', height: '100%' }}
         mapStyle="mapbox://styles/mapbox/streets-v12"
         mapboxAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}
+        cursor={addMode ? 'crosshair' : 'default'}
       >
         {restrooms && restrooms.map(restroom => (
           <Marker
@@ -79,6 +81,18 @@ const MapView = ({ center, restrooms, onMarkerClick }) => {
               </button>
             </div>
           </Popup>
+        )}
+
+        {/* Add location marker */}
+        {addMode && addLocation && (
+          <Marker
+            longitude={addLocation.lon}
+            latitude={addLocation.lat}
+          >
+            <div className="add-marker">
+              📍
+            </div>
+          </Marker>
         )}
       </Map>
     </div>

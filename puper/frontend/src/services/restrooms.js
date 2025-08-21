@@ -1,32 +1,31 @@
-import api from './api';
+import { restroomService } from './supabase';
 
 export const getNearbyRestrooms = async (lat, lon, filters = {}) => {
-  const params = new URLSearchParams({
-    lat,
-    lon,
-    radius: filters.radius || 5000,
-    ...filters
-  });
-  const response = await api.get(`/restrooms?${params}`);
-  return response.data;
+  return await restroomService.getNearby(lat, lon, filters.radius || 5000);
 };
 
 export const getRestroom = async (id) => {
-  const response = await api.get(`/restrooms/${id}`);
-  return response.data;
+  return await restroomService.getById(id);
 };
 
 export const createRestroom = async (data) => {
-  const response = await api.post('/restrooms', data);
-  return response.data;
+  return await restroomService.create(data);
 };
 
-export const searchAlongRoute = async (polyline, maxDistance = 1000) => {
-  const response = await api.post('/restrooms/route', { polyline, maxDistance });
-  return response.data;
+export const searchRestrooms = async (query, lat, lon, filters = {}) => {
+  return await restroomService.search(query, lat, lon, filters);
+};
+
+export const addReview = async (restroomId, reviewData) => {
+  return await restroomService.addReview(restroomId, reviewData);
 };
 
 export const reportRestroom = async (id, data) => {
-  const response = await api.post(`/restrooms/${id}/report`, data);
-  return response.data;
+  // For now, we'll implement this as adding a review with a report flag
+  return await restroomService.addReview(id, {
+    ...data,
+    rating: 1,
+    comment: `REPORT: ${data.reason}`,
+    is_report: true
+  });
 };
