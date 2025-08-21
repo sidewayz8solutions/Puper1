@@ -66,7 +66,7 @@
 }
 
 .hero-title {
-  font-family: 'Valentine Script', cursive;
+  font-family: 'Metal Mania', cursive;
   font-size: 4rem;
   color: var(--dark-brown);
   letter-spacing: 3px;
@@ -84,7 +84,7 @@
 }
 
 .hero-subtitle {
-  font-family: 'Great Vibes', cursive;
+  font-family: 'Griffy', cursive;
   font-size: 1.5rem;
   color: var(--psychedelic-cyan);
   margin-bottom: 1rem;
@@ -94,7 +94,7 @@
 }
 
 .hero-description {
-  font-family: 'Grained Regular', cursive;
+  font-family: 'Rye', cursive;
   font-size: 2.7rem;
   font-weight: bold;
   color: var(--red);
