@@ -66,7 +66,7 @@
 }
 
 .hero-title {
-  font-family: 'Blackout Oldskull Regular', cursive;
+  font-family: 'Valentine Script', cursive;
   font-size: 4rem;
   color: var(--dark-brown);
   letter-spacing: 3px;
@@ -84,7 +84,7 @@
 }
 
 .hero-subtitle {
-  font-family: 'Grained Regular', cursive;
+  font-family: 'Great Vibes', cursive;
   font-size: 1.5rem;
   color: var(--psychedelic-cyan);
   margin-bottom: 1rem;
