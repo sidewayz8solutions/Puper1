@@ -10,7 +10,7 @@
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
     "framer-motion": "^10.16.5",
-    "leaflet": "^1.9.0",
+    "leaflet": "^1.9.4",
     "mapbox-gl": "^3.14.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -19,17 +19,22 @@
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.12.0",
     "react-intersection-observer": "^9.5.3",
-    "react-leaflet": "^4.0.0",
+    "react-leaflet": "^4.2.1",
     "react-map-gl": "^7.1.9",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.20.0",
     "zustand": "^4.4.7"
   },
+  "resolutions": {
+    "leaflet": "^1.9.0",
+    "react-leaflet": "^4.0.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "vercel-install": "npm install --legacy-peer-deps && npm install leaflet@^1.9.0 react-leaflet@^4.0.0 --legacy-peer-deps"
   },
   "devDependencies": {
     "@types/mapbox-gl": "^2.7.19",
@@ -38,7 +43,6 @@
     "react-scripts": "^5.0.1",
     "tailwindcss": "^3.4.1"
   },
-
   "browserslist": {
     "production": [
       ">0.2%",
