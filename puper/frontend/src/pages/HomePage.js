@@ -21,7 +21,7 @@ const HomePage = () => {
             transition={{ duration: 0.8 }}
           >
             <div className="hero-logo">
-              <img src="/puper-logo.png" alt="Püper Logo" className="hero-icon" />
+              <img src="/puper-logo.png" alt="Püper Logo" className="hero-logo-image" />
             </div>
             <h1 className="hero-title">Roll With Confidence</h1>
             <p className="hero-description">
