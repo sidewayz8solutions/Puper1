@@ -66,12 +66,13 @@
 }
 
 .hero-title {
-  font-family: 'Apple Chancery', cursive;
-  font-size: 4rem;
+  font-family: 'Dancing Script', 'Brush Script MT', 'Lucida Handwriting', cursive;
+  font-size: 5.5rem;
   color: var(--dark-brown);
-  letter-spacing: 3px;
+  font-weight: 700;
+  letter-spacing: 2px;
   margin-bottom: 1rem;
-  font-style: italic;
+  font-style: normal;
   text-shadow:
     0 0 8px var(--psychedelic-yellow),
     2px 2px 4px rgba(248, 255, 155, 0.3),
@@ -84,7 +85,7 @@
 }
 
 .hero-subtitle {
-  font-family: 'Apple Chancery', cursive;
+  font-family: 'Bebas Neue', cursive;
   font-size: 1.5rem;
   color: var(--psychedelic-cyan);
   margin-bottom: 1rem;
