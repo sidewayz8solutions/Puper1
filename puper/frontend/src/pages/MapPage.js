@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { FaPlus, FaTimes, FaList, FaMap } from 'react-icons/fa';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useRestrooms } from '../hooks/useRestrooms';
-import MapView from '../components/Map/MapView';
+import GoogleMapView from '../components/Map/GoogleMapView';
 import RestroomList from '../components/Restroom/RestroomList';
 import SearchBar from '../components/Search/SearchBar';
 import FilterBar from '../components/Search/FilterBar';
@@ -154,7 +154,7 @@ const MapPage = () => {
       <div className="map-content">
         {viewMode === 'map' ? (
           <div className="map-container">
-            <MapView
+            <GoogleMapView
               center={location ? [location.lat, location.lon] : [40.7128, -74.0060]}
               restrooms={restrooms}
               onMarkerClick={handleMarkerClick}
