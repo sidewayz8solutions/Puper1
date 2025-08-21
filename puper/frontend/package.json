@@ -27,14 +27,24 @@
   },
   "resolutions": {
     "leaflet": "^1.9.0",
-    "react-leaflet": "^4.0.0"
+    "react-leaflet": "^4.0.0",
+    "ajv": "^6.12.6",
+    "ajv-keywords": "^3.5.2",
+    "ajv-formats": "^1.6.1",
+    "schema-utils": "^3.3.0"
+  },
+  "overrides": {
+    "ajv": "^6.12.6",
+    "ajv-keywords": "^3.5.2",
+    "ajv-formats": "^1.6.1",
+    "schema-utils": "^3.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "vercel-install": "npm install --legacy-peer-deps && npm install leaflet@^1.9.0 react-leaflet@^4.0.0 --legacy-peer-deps"
+    "vercel-install": "npm install --force --legacy-peer-deps && npm install ajv@6.12.6 ajv-keywords@3.5.2 ajv-formats@1.6.1 schema-utils@3.3.0 leaflet@1.9.0 react-leaflet@4.0.0 --force --legacy-peer-deps"
   },
   "devDependencies": {
     "@types/mapbox-gl": "^2.7.19",
