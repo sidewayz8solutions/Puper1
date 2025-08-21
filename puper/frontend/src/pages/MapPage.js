@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { motion } from 'framer-motion';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useRestrooms } from '../hooks/useRestrooms';
@@ -9,7 +8,6 @@ import SearchBar from '../components/Search/SearchBar';
 import FilterBar from '../components/Search/FilterBar';
 import RestroomDetail from '../components/Restroom/RestroomDetail';
 import Loading from '../components/Common/Loading';
-import 'leaflet/dist/leaflet.css';
 
 const MapPage = () => {
   const { location, loading: locationLoading } = useGeolocation();
