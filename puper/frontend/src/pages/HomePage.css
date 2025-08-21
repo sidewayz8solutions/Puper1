@@ -73,6 +73,9 @@
   margin-bottom: 1rem;
   text-shadow:
     0 0 20px var(--psychedelic-yellow),
+    0 0 40px var(--psychedelic-yellow),
+    0 0 60px var(--psychedelic-yellow),
+    0 0 80px var(--psychedelic-yellow),
     2px 2px 4px rgba(248, 255, 155, 0.3),
     4px 4px 0px #dbff78,
     6px 6px 0px #654321,
@@ -100,7 +103,10 @@
     6px 6px 0px #7b7b7b,
     6px 6px 0px #aa3030,
     8px 8px 0px #882020,
-    8px 8px 30px rgba(0,0,0,0.4);
+    8px 8px 30px rgba(0,0,0,0.4),
+    0 0 20px var(--red),
+    0 0 40px var(--red),
+    0 0 60px var(--red);
   transform: perspective(600px) rotateX(8deg);
   transform-origin: center bottom;
 }
@@ -196,7 +202,7 @@
 
 .cta-content h2 {
   font: bold 2.7rem 'Bebas Neue', cursive;
-  color: var(--red);
+  color: lightgreen;
   margin-bottom: 1rem;
   line-height: 1.6;
   text-shadow:
@@ -204,14 +210,17 @@
     6px 6px 0px #7b7b7b,
     6px 6px 0px #aa3030,
     8px 8px 0px #882020,
-    8px 8px 30px rgba(0,0,0,0.4);
+    8px 8px 30px rgba(0,0,0,0.4),
+    0 0 20px lightgreen,
+    0 0 40px lightgreen,
+    0 0 60px lightgreen;
   transform: perspective(600px) rotateX(8deg);
   transform-origin: center bottom;
 }
 
 .cta-content p {
   font: bold 2.7rem 'Bebas Neue', cursive;
-  color: var(--red);
+  color: rgb(146, 255, 146);
   margin-bottom: 2rem;
   line-height: 1.6;
   text-shadow:
@@ -219,7 +228,10 @@
     6px 6px 0px #7b7b7b,
     6px 6px 0px #aa3030,
     8px 8px 0px #882020,
-    8px 8px 30px rgba(0,0,0,0.4);
+    8px 8px 30px rgba(0,0,0,0.4),
+    0 0 20px var(--red),
+    0 0 40px var(--red),
+    0 0 60px var(--red);
   transform: perspective(600px) rotateX(8deg);
   transform-origin: center bottom;
 }
@@ -237,4 +249,32 @@
   .features-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Stylish Leaderboard Button */
+.leaderboard-button {
+  font-family: 'Bebas Neue', cursive !important;
+  font-size: 1.5rem !important;
+  letter-spacing: 2px !important;
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    2px 2px 4px rgba(0,0,0,0.5) !important;
+  background: linear-gradient(135deg, #FFD700, #FFA500, #FF8C00) !important;
+  border: 2px solid #FFD700 !important;
+  color: #8B4513 !important;
+  font-weight: bold !important;
+  transition: all 0.3s ease !important;
+}
+
+.leaderboard-button:hover {
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow:
+    0 10px 25px rgba(255, 215, 0, 0.4),
+    0 0 30px #FFD700,
+    0 0 50px #FFD700 !important;
+  text-shadow:
+    0 0 15px currentColor,
+    0 0 30px currentColor,
+    2px 2px 6px rgba(0,0,0,0.7) !important;
 }

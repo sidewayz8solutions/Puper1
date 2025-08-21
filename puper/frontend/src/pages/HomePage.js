@@ -109,7 +109,7 @@ const HomePage = () => {
             <h2>Join the Community</h2>
             <p>Help others find relief by adding and reviewing restrooms in your area.</p>
             <Link to="/leaderboard">
-              <Button size="large">
+              <Button size="large" className="leaderboard-button">
                 <FaTrophy /> View Leaderboard
               </Button>
             </Link>
