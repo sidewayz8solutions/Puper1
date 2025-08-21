@@ -66,16 +66,14 @@
 }
 
 .hero-title {
-  font-family: 'Bebas Neue', cursive;
+  font-family: 'Dancing Script', cursive;
   font-size: 4rem;
   color: var(--dark-brown);
   letter-spacing: 3px;
   margin-bottom: 1rem;
+  font-style: italic;
   text-shadow:
-    0 0 20px var(--psychedelic-yellow),
-    0 0 40px var(--psychedelic-yellow),
-    0 0 60px var(--psychedelic-yellow),
-    0 0 80px var(--psychedelic-yellow),
+    0 0 8px var(--psychedelic-yellow),
     2px 2px 4px rgba(248, 255, 155, 0.3),
     4px 4px 0px #dbff78,
     6px 6px 0px #654321,
@@ -86,27 +84,30 @@
 }
 
 .hero-subtitle {
+  font-family: 'Dancing Script', cursive;
   font-size: 1.5rem;
   color: var(--psychedelic-cyan);
   margin-bottom: 1rem;
   font-weight: 500;
-  text-shadow: 0 0 10px var(--psychedelic-cyan);
+  font-style: italic;
+  text-shadow: 0 0 5px var(--psychedelic-cyan);
 }
 
 .hero-description {
-  font: bold 2.7rem 'Bebas Neue', cursive;
+  font-family: 'Dancing Script', cursive;
+  font-size: 2.7rem;
+  font-weight: bold;
   color: var(--red);
   margin-bottom: 3rem;
   line-height: 1.6;
+  font-style: italic;
   text-shadow:
     3px 3px 1px rgba(167, 100, 0, 0.5),
     6px 6px 0px #7b7b7b,
     6px 6px 0px #aa3030,
     8px 8px 0px #882020,
     8px 8px 30px rgba(0,0,0,0.4),
-    0 0 20px var(--red),
-    0 0 40px var(--red),
-    0 0 60px var(--red);
+    0 0 8px var(--red);
   transform: perspective(600px) rotateX(8deg);
   transform-origin: center bottom;
 }
