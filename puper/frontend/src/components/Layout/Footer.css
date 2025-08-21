@@ -20,12 +20,14 @@
 }
 
 .footer-section h3 {
+  font: bold 1.5rem 'Bebas Neue', cursive;
   color: var(--cream);
   margin-bottom: 1rem;
   font-size: 1.25rem;
 }
 
 .footer-section h4 {
+  font: bold 1.5rem 'Bebas Neue', cursive;
   color: var(--cream);
   margin-bottom: 0.75rem;
   font-size: 1.1rem;
@@ -47,7 +49,7 @@
 }
 
 .footer-section ul li a {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(113, 255, 255, 0.8);
   text-decoration: none;
   transition: var(--transition);
 }
@@ -63,7 +65,7 @@
 }
 
 .social-links a {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(241, 255, 133, 0.8);
   font-size: 1.5rem;
   transition: var(--transition);
 }
@@ -78,7 +80,7 @@
   margin-top: 2rem;
   padding: 1rem 2rem;
   text-align: center;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(108, 255, 240, 0.92);
 }
 
 .footer-bottom p {

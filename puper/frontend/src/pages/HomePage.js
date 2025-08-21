@@ -5,6 +5,7 @@ import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
 import Button from '../components/Common/Button';
 import marbleHeroBg from '../assets/images/marble-hero-bg.png';
 import woodBg from '../assets/images/wood.png';
+import goldleafBg from '../assets/images/goldleaf.png';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -97,7 +98,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="cta-section">
+      <section className="cta-section" style={{ backgroundImage: `url(${goldleafBg})` }}>
         <div className="container">
           <motion.div 
             className="cta-content"
