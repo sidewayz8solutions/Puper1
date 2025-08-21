@@ -66,7 +66,7 @@
 }
 
 .hero-title {
-  font-family: 'Cursive', cursive;
+  font-family: 'Rooster', cursive;
   font-size: 4rem;
   color: var(--dark-brown);
   letter-spacing: 3px;
@@ -84,7 +84,7 @@
 }
 
 .hero-subtitle {
-  font-family: 'Dancing Script', cursive;
+  font-family: 'Rooster', cursive;
   font-size: 1.5rem;
   color: var(--psychedelic-cyan);
   margin-bottom: 1rem;
