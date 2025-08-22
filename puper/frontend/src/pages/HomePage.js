@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
@@ -8,6 +8,28 @@ import ctaBg from '../assets/images/1.png';
 import './HomePage.css';
 
 const HomePage = () => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      // Force video to play
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('Video is playing');
+          })
+          .catch(error => {
+            console.log('Video autoplay failed:', error);
+            // Try to play on user interaction
+            document.addEventListener('click', () => {
+              video.play().catch(e => console.log('Manual play failed:', e));
+            }, { once: true });
+          });
+      }
+    }
+  }, []);
   return (
     <div className="home-page">
       <div className="psychedelic-bg" />
@@ -15,16 +37,29 @@ const HomePage = () => {
       <section className="hero-section video-hero">
         <div className="video-background">
           <video
+            ref={videoRef}
             autoPlay
             muted
             loop
             playsInline
+            preload="metadata"
             className="hero-video"
+            poster="/puper-logo.png"
+            onLoadStart={() => console.log('Video loading started')}
+            onCanPlay={() => console.log('Video can play')}
+            onError={(e) => {
+              console.error('Video error:', e);
+              // Hide video and show fallback
+              e.target.style.display = 'none';
+            }}
+            onLoadedData={() => console.log('Video loaded')}
           >
+            <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
             <source src="/hero-video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <div className="video-overlay"></div>
+          <div className="video-fallback"></div>
         </div>
 
         <div className="container">
