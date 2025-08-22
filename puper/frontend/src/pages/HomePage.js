@@ -9,25 +9,62 @@ import './HomePage.css';
 
 const HomePage = () => {
   const videoRef = useRef(null);
+  const [videoLoaded, setVideoLoaded] = React.useState(false);
+  const [videoError, setVideoError] = React.useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
+      // Set up video event listeners
+      const handleCanPlay = () => {
+        console.log('Video can play');
+        setVideoLoaded(true);
+        setVideoError(false);
+      };
+
+      const handleError = (e) => {
+        console.error('Video error:', e);
+        setVideoError(true);
+        setVideoLoaded(false);
+      };
+
+      const handleLoadedData = () => {
+        console.log('Video loaded');
+        setVideoLoaded(true);
+      };
+
+      video.addEventListener('canplay', handleCanPlay);
+      video.addEventListener('error', handleError);
+      video.addEventListener('loadeddata', handleLoadedData);
+
       // Force video to play
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
             console.log('Video is playing');
+            setVideoLoaded(true);
           })
           .catch(error => {
             console.log('Video autoplay failed:', error);
             // Try to play on user interaction
-            document.addEventListener('click', () => {
-              video.play().catch(e => console.log('Manual play failed:', e));
-            }, { once: true });
+            const handleUserInteraction = () => {
+              video.play().catch(e => {
+                console.log('Manual play failed:', e);
+                setVideoError(true);
+              });
+            };
+            document.addEventListener('click', handleUserInteraction, { once: true });
+            document.addEventListener('touchstart', handleUserInteraction, { once: true });
           });
       }
+
+      // Cleanup
+      return () => {
+        video.removeEventListener('canplay', handleCanPlay);
+        video.removeEventListener('error', handleError);
+        video.removeEventListener('loadeddata', handleLoadedData);
+      };
     }
   }, []);
   return (
@@ -35,31 +72,40 @@ const HomePage = () => {
       <div className="psychedelic-bg" />
       
       <section className="hero-section video-hero">
-        <div className="video-background">
+        <div className={`video-background ${videoLoaded ? 'video-loaded' : ''}`}>
           <video
             ref={videoRef}
             autoPlay
             muted
             loop
             playsInline
-            preload="metadata"
-            className="hero-video"
+            preload="auto"
+            className={`hero-video ${videoError ? 'video-hidden' : ''}`}
             poster="/puper-logo.png"
             onLoadStart={() => console.log('Video loading started')}
-            onCanPlay={() => console.log('Video can play')}
+            onCanPlay={() => {
+              console.log('Video can play');
+              setVideoLoaded(true);
+              setVideoError(false);
+            }}
             onError={(e) => {
               console.error('Video error:', e);
-              // Hide video and show fallback
-              e.target.style.display = 'none';
+              setVideoError(true);
+              setVideoLoaded(false);
             }}
-            onLoadedData={() => console.log('Video loaded')}
+            onLoadedData={() => {
+              console.log('Video loaded');
+              setVideoLoaded(true);
+            }}
           >
+            <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
+            <source src="/hero-video.mp4" type="video/mp4" />
             <source src={`${process.env.PUBLIC_URL}/123.mp4`} type="video/mp4" />
             <source src="/123.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <div className="video-overlay"></div>
-          <div className="video-fallback"></div>
+          <div className={`video-fallback ${videoError || !videoLoaded ? 'show-fallback' : ''}`}></div>
         </div>
 
         <div className="container">

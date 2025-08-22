@@ -1,0 +1,176 @@
+.connection-test {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--marble-background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--primary-brown);
+}
+
+.connection-test h2 {
+  font-family: 'Bebas Neue', cursive;
+  color: var(--primary-brown);
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.connection-test p {
+  text-align: center;
+  color: var(--dark-purple);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.test-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.test-item {
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  transition: var(--transition);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.test-item.testing {
+  border-color: var(--psychedelic-cyan);
+  background: rgba(0, 255, 187, 0.1);
+}
+
+.test-item.success {
+  border-color: var(--psychedelic-lime);
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.test-item.error {
+  border-color: var(--red);
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.test-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.test-icon {
+  font-size: 1.5rem;
+}
+
+.test-header h3 {
+  font-family: 'Bebas Neue', cursive;
+  color: var(--primary-brown);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.test-message {
+  margin: 0;
+  color: var(--dark-purple);
+  font-weight: 500;
+}
+
+.test-data {
+  margin-top: 1rem;
+}
+
+.test-data summary {
+  cursor: pointer;
+  color: var(--psychedelic-purple);
+  font-weight: bold;
+  padding: 0.5rem;
+  background: rgba(111, 2, 214, 0.1);
+  border-radius: var(--radius);
+  border: 1px solid var(--psychedelic-purple);
+}
+
+.test-data summary:hover {
+  background: rgba(111, 2, 214, 0.2);
+}
+
+.test-data pre {
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  border: 1px solid #ddd;
+}
+
+.test-actions {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.retry-button {
+  background: linear-gradient(135deg, var(--primary-brown), var(--psychedelic-purple));
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.retry-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(135deg, var(--psychedelic-purple), var(--primary-brown));
+}
+
+.environment-info {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  border: 2px solid var(--psychedelic-cyan);
+}
+
+.environment-info h3 {
+  font-family: 'Bebas Neue', cursive;
+  color: var(--primary-brown);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.env-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.env-item:last-child {
+  border-bottom: none;
+}
+
+.env-item strong {
+  color: var(--dark-purple);
+}
+
+@media (max-width: 768px) {
+  .connection-test {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  
+  .connection-test h2 {
+    font-size: 2rem;
+  }
+  
+  .test-item {
+    padding: 1rem;
+  }
+}
