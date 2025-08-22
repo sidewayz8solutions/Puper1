@@ -98,38 +98,17 @@ const HomePage = () => {
               setVideoLoaded(true);
             }}
           >
-            <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
-            <source src="/hero-video.mp4" type="video/mp4" />
             <source src={`${process.env.PUBLIC_URL}/123.mp4`} type="video/mp4" />
             <source src="/123.mp4" type="video/mp4" />
+            <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
+            <source src="/hero-video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-          <div className="video-overlay"></div>
+
           <div className={`video-fallback ${videoError || !videoLoaded ? 'show-fallback' : ''}`}></div>
         </div>
 
-        <div className="container">
-          <motion.div
-            className="hero-content video-content"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-          >
 
-            <div className="hero-actions">
-              <Link to="/map">
-                <Button size="large" className="cta-button">
-                  <FaRoute /> Find Restrooms
-                </Button>
-              </Link>
-              <Link to="/map?add=true">
-                <Button variant="secondary" size="large">
-                  <FaPlus /> Add a Restroom
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
       </section>
 
       <section className="features-section" style={{ backgroundImage: `url(${woodBg})` }}>

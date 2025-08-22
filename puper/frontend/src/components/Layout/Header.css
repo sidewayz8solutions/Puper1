@@ -26,29 +26,9 @@
   min-width: 200px;
 }
 
-.logo {
-  width: 60px;
-  height: 60px;
-  background: transparent;
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  border: 2px solid var(--psychedelic-purple);
-  box-shadow: 0 0 10px var(--psychedelic-purple);
-}
-
-.logo-icon {
-  width: 220%;
-  height: 220%;
-  object-fit: relative;
-  border-radius: var(--radius);
-}
-
 .app-title {
   font-family: 'Bebas Neue', cursive;
-  font-size: 4rem;
+  font-size: 5rem;
   object-fit: fill;
   color: var(--marble-white);
   letter-spacing: 0px;
