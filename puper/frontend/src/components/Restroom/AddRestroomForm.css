@@ -1,275 +1,237 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useForm } from 'react-hook-form';
-import { FaTimes, FaMapMarkerAlt, FaWheelchair, FaBaby, FaTransgender, FaDollarSign } from 'react-icons/fa';
-import { createRestroom } from '../../services/restrooms';
-import Button from '../Common/Button';
-import toast from 'react-hot-toast';
-import './AddRestroomForm.css';
+/* Add Restroom Form Styles */
+.add-restroom-form {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
 
-const AddRestroomForm = ({ location, onClose, onSuccess }) => {
-  const [loading, setLoading] = useState(false);
-  const [address, setAddress] = useState('');
-  
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors }
-  } = useForm({
-    defaultValues: {
-      lat: location?.lat,
-      lon: location?.lon,
-      wheelchair_accessible: false,
-      baby_changing: false,
-      gender_neutral: false,
-      requires_fee: false
-    }
-  });
+.form-header {
+  padding: 2rem 2rem 1rem;
+  border-bottom: 1px solid var(--marble-gray);
+  text-align: center;
+}
 
-  const requiresFee = watch('requires_fee');
+.form-header h2 {
+  color: var(--primary-brown);
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+}
 
-  // Reverse geocode to get address
-  useEffect(() => {
-    if (location?.lat && location?.lon) {
-      fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${location.lon},${location.lat}.json?access_token=${process.env.REACT_APP_MAPBOX_TOKEN}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.features?.[0]) {
-            setAddress(data.features[0].place_name);
-            setValue('address', data.features[0].place_name);
-          }
-        })
-        .catch(err => console.error('Geocoding error:', err));
-    }
-  }, [location, setValue]);
+.form-header p {
+  color: var(--dark-brown);
+  opacity: 0.8;
+}
 
-  const onSubmit = async (data) => {
-    setLoading(true);
-    try {
-      // Format opening hours
-      const openingHours = {};
-      ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
-        if (data[`${day}_open`] && data[`${day}_close`]) {
-          openingHours[day] = `${data[`${day}_open`]} - ${data[`${day}_close`]}`;
-        }
-      });
+.restroom-form {
+  padding: 2rem;
+}
 
-      const restroomData = {
-        name: data.name,
-        description: data.description,
-        address: data.address,
-        lat: data.lat,
-        lon: data.lon,
-        wheelchair_accessible: data.wheelchair_accessible,
-        baby_changing: data.baby_changing,
-        gender_neutral: data.gender_neutral,
-        requires_fee: data.requires_fee,
-        price: data.requires_fee ? data.price : null,
-        opening_hours: openingHours
-      };
+.form-section {
+  margin-bottom: 2rem;
+}
 
-      await createRestroom(restroomData);
-      toast.success('Restroom added successfully! +25 points earned!');
-      onSuccess && onSuccess();
-      onClose();
-    } catch (error) {
-      toast.error(error.message || 'Failed to add restroom');
-    } finally {
-      setLoading(false);
-    }
-  };
+.form-section h3 {
+  color: var(--primary-brown);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  border-bottom: 2px solid var(--psychedelic-cyan);
+  padding-bottom: 0.5rem;
+}
 
-  return (
-    <AnimatePresence>
-      <motion.div
-        className="add-restroom-overlay"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      >
-        <motion.div
-          className="add-restroom-form"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="form-header">
-            <h2>Add New Restroom</h2>
-            <button className="close-btn" onClick={onClose}>
-              <FaTimes />
-            </button>
-          </div>
+.form-group {
+  margin-bottom: 1rem;
+}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="form-content">
-            {/* Basic Info */}
-            <div className="form-section">
-              <h3>Basic Information</h3>
-              
-              <div className="form-group">
-                <label>Name *</label>
-                <input
-                  {...register('name', { required: 'Name is required' })}
-                  placeholder="e.g., Starbucks on Main St"
-                />
-                {errors.name && <span className="error">{errors.name.message}</span>}
-              </div>
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--dark-brown);
+  font-weight: 600;
+}
 
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  {...register('description')}
-                  placeholder="Additional details about this restroom..."
-                  rows="3"
-                />
-              </div>
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--marble-gray);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: var(--transition);
+  background: white;
+}
 
-              <div className="form-group">
-                <label>Address</label>
-                <div className="address-input">
-                  <FaMapMarkerAlt />
-                  <input
-                    {...register('address')}
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Loading address..."
-                  />
-                </div>
-              </div>
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--psychedelic-purple);
+  box-shadow: 0 0 0 3px rgba(111, 2, 214, 0.1);
+}
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Latitude</label>
-                  <input
-                    {...register('lat', { required: true })}
-                    type="number"
-                    step="0.000001"
-                    readOnly
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Longitude</label>
-                  <input
-                    {...register('lon', { required: true })}
-                    type="number"
-                    step="0.000001"
-                    readOnly
-                  />
-                </div>
-              </div>
-            </div>
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
 
-            {/* Amenities */}
-            <div className="form-section">
-              <h3>Amenities & Features</h3>
-              
-              <div className="amenities-grid">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    {...register('wheelchair_accessible')}
-                  />
-                  <FaWheelchair />
-                  <span>Wheelchair Accessible</span>
-                </label>
+.location-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
 
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    {...register('baby_changing')}
-                  />
-                  <FaBaby />
-                  <span>Baby Changing</span>
-                </label>
+.location-btn {
+  white-space: nowrap;
+}
 
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    {...register('gender_neutral')}
-                  />
-                  <FaTransgender />
-                  <span>Gender Neutral</span>
-                </label>
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
 
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    {...register('requires_fee')}
-                  />
-                  <FaDollarSign />
-                  <span>Requires Fee</span>
-                </label>
-              </div>
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 2px solid var(--marble-gray);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
 
-              {requiresFee && (
-                <div className="form-group">
-                  <label>Fee Amount ($)</label>
-                  <input
-                    {...register('price', { 
-                      required: requiresFee ? 'Price is required' : false,
-                      min: { value: 0, message: 'Price must be positive' }
-                    })}
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                  />
-                  {errors.price && <span className="error">{errors.price.message}</span>}
-                </div>
-              )}
-            </div>
+.checkbox-item:hover {
+  border-color: var(--psychedelic-purple);
+  background: rgba(111, 2, 214, 0.05);
+}
 
-            {/* Opening Hours */}
-            <div className="form-section">
-              <h3>Opening Hours (Optional)</h3>
-              
-              <div className="hours-grid">
-                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
-                  <div key={day} className="hours-row">
-                    <label>{day}</label>
-                    <div className="hours-inputs">
-                      <input
-                        {...register(`${day.toLowerCase()}_open`)}
-                        type="time"
-                        placeholder="Open"
-                      />
-                      <span>to</span>
-                      <input
-                        {...register(`${day.toLowerCase()}_close`)}
-                        type="time"
-                        placeholder="Close"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+.checkbox-item input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
 
-            {/* Actions */}
-            <div className="form-actions">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onClose}
-                disabled={loading}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={loading}
-                loading={loading}
-              >
-                Add Restroom (+25 pts)
-              </Button>
-            </div>
-          </form>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  );
-};
+.rating-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
 
-export default AddRestroomForm;
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 2rem;
+  border-top: 1px solid var(--marble-gray);
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, var(--psychedelic-purple), var(--psychedelic-magenta)) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(111, 2, 214, 0.3);
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.add-restroom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--primary-brown);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+
+.close-btn:hover {
+  background: var(--marble-gray);
+  color: var(--red);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .add-restroom-overlay {
+    padding: 1rem;
+  }
+
+  .add-restroom-form {
+    max-width: 100%;
+    max-height: 95vh;
+  }
+
+  .form-header {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+
+  .restroom-form {
+    padding: 1.5rem;
+  }
+
+  .location-group {
+    grid-template-columns: 1fr;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rating-group {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .close-btn {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
