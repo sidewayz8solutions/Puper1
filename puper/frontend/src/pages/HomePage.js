@@ -98,10 +98,10 @@ const HomePage = () => {
               setVideoLoaded(true);
             }}
           >
-            <source src={`${process.env.PUBLIC_URL}/123.mp4`} type="video/mp4" />
-            <source src="/123.mp4" type="video/mp4" />
             <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
             <source src="/hero-video.mp4" type="video/mp4" />
+            <source src={`${process.env.PUBLIC_URL}/123.mp4`} type="video/mp4" />
+            <source src="/123.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
 
@@ -116,14 +116,6 @@ const HomePage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <div className="hero-logo">
-              <img src="/puper-logo.png" alt="Püper Logo" className="hero-logo-image" />
-            </div>
-            <h1 className="hero-title">PÜPER</h1>
-            <p className="hero-description">
-              Find clean, accessible restrooms with confidence.
-              Your guide to relief, wherever you go.
-            </p>
 
             <div className="hero-actions">
               <Link to="/map">
