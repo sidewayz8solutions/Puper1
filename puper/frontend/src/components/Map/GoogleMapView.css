@@ -3,7 +3,21 @@
   height: 100%;
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 30px rgba(111, 2, 214, 0.2),
+    inset 0 0 50px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transform: perspective(1000px) rotateX(2deg);
+  transition: all 0.3s ease;
+}
+
+.google-map:hover {
+  transform: perspective(1000px) rotateX(0deg) scale(1.01);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 50px rgba(111, 2, 214, 0.3),
+    inset 0 0 50px rgba(0, 0, 0, 0.05);
 }
 
 .google-map.add-mode {

@@ -26,7 +26,7 @@ export const restroomService = {
         .lte('lat', lat + (radius / 111000))
         .gte('lon', lon - (radius / 111000))
         .lte('lon', lon + (radius / 111000))
-        .eq('is_active', true)
+
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -53,8 +53,7 @@ export const restroomService = {
         .from('restrooms')
         .insert([{
           ...restroomData,
-          created_at: new Date().toISOString(),
-          is_active: true
+          created_at: new Date().toISOString()
         }])
         .select()
         .single();
@@ -130,7 +129,7 @@ export const restroomService = {
             rating
           )
         `)
-        .eq('is_active', true);
+;
 
       // Text search
       if (query) {
