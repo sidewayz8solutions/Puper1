@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
 import Button from '../components/Common/Button';
-import marbleHeroBg from '../assets/images/marble-hero-bg.png';
 import woodBg from '../assets/images/wood.png';
 import ctaBg from '../assets/images/1.png';
 import './HomePage.css';
@@ -13,13 +12,27 @@ const HomePage = () => {
     <div className="home-page">
       <div className="psychedelic-bg" />
       
-      <section className="hero-section" style={{ backgroundImage: `url(${marbleHeroBg})` }}>
+      <section className="hero-section video-hero">
+        <div className="video-background">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="hero-video"
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <div className="video-overlay"></div>
+        </div>
+
         <div className="container">
-          <motion.div 
-            className="hero-content"
+          <motion.div
+            className="hero-content video-content"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
           >
             <div className="hero-logo">
               <img src="/puper-logo.png" alt="Püper Logo" className="hero-logo-image" />
@@ -30,7 +43,7 @@ const HomePage = () => {
               Rate, review, and help others in their time of need.
               Roll On!
             </p>
-            
+
             <div className="hero-actions">
               <Link to="/map">
                 <Button size="large" className="cta-button">
