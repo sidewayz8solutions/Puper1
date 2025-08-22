@@ -98,8 +98,6 @@ const HomePage = () => {
               setVideoLoaded(true);
             }}
           >
-            <source src={`${process.env.PUBLIC_URL}/123.mp4`} type="video/mp4" />
-            <source src="/123.mp4" type="video/mp4" />
             <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
             <source src="/hero-video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
