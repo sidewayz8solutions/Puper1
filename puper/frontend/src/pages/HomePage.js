@@ -5,6 +5,7 @@ import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
 import Button from '../components/Common/Button';
 import woodBg from '../assets/images/wood.png';
 import ctaBg from '../assets/images/1.png';
+import heroVideo from '../assets/videos/hero-video.mp4';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -98,8 +99,7 @@ const HomePage = () => {
               setVideoLoaded(true);
             }}
           >
-            <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
-            <source src="/hero-video.mp4" type="video/mp4" />
+            <source src={heroVideo} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
 
