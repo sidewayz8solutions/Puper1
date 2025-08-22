@@ -115,15 +115,6 @@ const HomePage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <div className="hero-logo">
-              <img src="/puper-logo.png" alt="Püper Logo" className="hero-logo-image" />
-            </div>
-            <h1 className="hero-title">Roll With Confidence</h1>
-            <p className="hero-description">
-              Clean, accessible toilets right at your fingertips.
-              Rate, review, and help others in their time of need.
-              Roll On!
-            </p>
 
             <div className="hero-actions">
               <Link to="/map">
