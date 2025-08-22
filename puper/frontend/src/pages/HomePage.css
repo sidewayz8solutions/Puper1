@@ -16,8 +16,6 @@
 }
 
 .video-hero {
-  background: url(/hero-video.mp4) no-repeat center center;
-  background-size: cover;
   padding: 0;
   min-height: 100vh;
   overflow: hidden;
