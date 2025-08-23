@@ -9,13 +9,11 @@
   height: 100vh;
   display: flex;
   align-items: flex-end;
-  justify-content: center;
   text-align: center;
-  overflow: hidden;
   color: rgb(0, 79, 74);
-  background: url('../assets/images/hero.gif') center center / cover no-repeat;
+  background: url('../assets/images/hero.gif') 
   background-size: cover !important;
-  background-position: center center !important;
+  background-position: center !important;
   background-repeat: no-repeat !important;
   background-attachment: scroll;
   min-height: 100vh;
@@ -44,7 +42,7 @@
   margin-bottom: 0.5rem;
   font-weight: bold;
   font-family: 'Bebas Neue', cursive;
-  color: white;
+  color: rgb(4, 138, 118);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
@@ -205,7 +203,7 @@
 }
 
 .video-content .hero-title {
-  color: white;
+  color: rgb(0, 97, 84);
   text-shadow:
     0 0 30px var(--psychedelic-yellow),
     0 0 60px var(--psychedelic-yellow),
