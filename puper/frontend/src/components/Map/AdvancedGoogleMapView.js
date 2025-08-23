@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { MarkerClusterer } from '@googlemaps/markerclusterer';
+// import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { FaCube, FaTrafficLight, FaCrosshairs, FaExpand, FaRoute, FaCompress } from 'react-icons/fa';
 import './AdvancedGoogleMapView.css';
 
@@ -15,7 +15,7 @@ const AdvancedGoogleMapView = ({
   const mapRef = useRef(null);
   const [map, setMap] = useState(null);
   const [markers, setMarkers] = useState([]);
-  const [markerClusterer, setMarkerClusterer] = useState(null);
+  // const [markerClusterer, setMarkerClusterer] = useState(null);
   const [directionsService, setDirectionsService] = useState(null);
   const [directionsRenderer, setDirectionsRenderer] = useState(null);
   
@@ -77,35 +77,35 @@ const AdvancedGoogleMapView = ({
         setDirectionsService(directionsServiceInstance);
         setDirectionsRenderer(directionsRendererInstance);
 
-        // Initialize marker clusterer
-        const clusterer = new MarkerClusterer({
-          map: newMap,
-          markers: [],
-          algorithm: new window.google.maps.marker.SuperClusterAlgorithm({
-            radius: 100,
-            maxZoom: 16
-          }),
-          renderer: {
-            render: ({ count, position }) => {
-              // Custom cluster marker
-              return new window.google.maps.Marker({
-                position,
-                icon: {
-                  url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                    <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="30" cy="30" r="25" fill="#6B4423" stroke="white" stroke-width="3"/>
-                      <text x="30" y="35" text-anchor="middle" fill="white" font-size="14" font-weight="bold">${count}</text>
-                    </svg>
-                  `),
-                  scaledSize: new window.google.maps.Size(60, 60),
-                  anchor: new window.google.maps.Point(30, 30)
-                },
-                zIndex: 1000
-              });
-            }
-          }
-        });
-        setMarkerClusterer(clusterer);
+        // Initialize marker clusterer (temporarily disabled)
+        // const clusterer = new MarkerClusterer({
+        //   map: newMap,
+        //   markers: [],
+        //   algorithm: new window.google.maps.marker.SuperClusterAlgorithm({
+        //     radius: 100,
+        //     maxZoom: 16
+        //   }),
+        //   renderer: {
+        //     render: ({ count, position }) => {
+        //       // Custom cluster marker
+        //       return new window.google.maps.Marker({
+        //         position,
+        //         icon: {
+        //           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        //             <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+        //               <circle cx="30" cy="30" r="25" fill="#6B4423" stroke="white" stroke-width="3"/>
+        //               <text x="30" y="35" text-anchor="middle" fill="white" font-size="14" font-weight="bold">${count}</text>
+        //             </svg>
+        //           `),
+        //           scaledSize: new window.google.maps.Size(60, 60),
+        //           anchor: new window.google.maps.Point(30, 30)
+        //         },
+        //         zIndex: 1000
+        //       });
+        //     }
+        //   }
+        // });
+        // setMarkerClusterer(clusterer);
 
         // Map click handler for add mode
         if (addMode) {
@@ -168,20 +168,19 @@ const AdvancedGoogleMapView = ({
 
   // Update markers when restrooms change
   useEffect(() => {
-    if (!map || !markerClusterer) return;
+    if (!map) return;
 
     // Clear existing markers
     markers.forEach(marker => marker.setMap(null));
-    markerClusterer.clearMarkers();
 
     // Create new markers
     const newMarkers = restrooms.map(createRestroomMarker);
     setMarkers(newMarkers);
 
-    // Add to clusterer
-    markerClusterer.addMarkers(newMarkers);
+    // Add markers directly to map (clusterer temporarily disabled)
+    newMarkers.forEach(marker => marker.setMap(map));
 
-  }, [map, markerClusterer, restrooms, createRestroomMarker]);
+  }, [map, restrooms, createRestroomMarker]);
 
   // 3D View Toggle
   const toggle3DView = useCallback(() => {

@@ -1,0 +1,297 @@
+/* Advanced Google Map View - State of the Art Design */
+
+.advanced-map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 
+    0 0 30px rgba(0, 255, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.advanced-google-map {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  filter: 
+    contrast(1.1) 
+    saturate(1.2) 
+    brightness(0.9);
+}
+
+/* Advanced Map Controls */
+.advanced-map-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+}
+
+.map-control-btn {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, 
+    rgba(0, 0, 0, 0.8) 0%, 
+    rgba(26, 26, 46, 0.8) 100%
+  );
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00ffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.map-control-btn:hover {
+  background: linear-gradient(135deg, 
+    rgba(0, 255, 255, 0.2) 0%, 
+    rgba(138, 43, 226, 0.2) 100%
+  );
+  border-color: #00ffff;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(0, 255, 255, 0.5);
+  transform: translateY(-2px) scale(1.05);
+}
+
+.map-control-btn.active {
+  background: linear-gradient(135deg, 
+    rgba(0, 255, 255, 0.3) 0%, 
+    rgba(0, 255, 65, 0.3) 100%
+  );
+  border-color: #00ff41;
+  color: #00ff41;
+  box-shadow: 
+    0 6px 25px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(0, 255, 65, 0.6);
+  animation: pulse-glow 2s infinite;
+}
+
+/* Add Mode Indicator */
+.add-mode-indicator {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, 
+    rgba(255, 107, 53, 0.9) 0%, 
+    rgba(255, 20, 147, 0.9) 100%
+  );
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 20, 147, 0.5);
+  border-radius: 25px;
+  padding: 12px 24px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  text-align: center;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(255, 20, 147, 0.4);
+  animation: pulse-indicator 2s infinite;
+  z-index: 200;
+}
+
+/* Custom Map Styles for Futuristic Look */
+.advanced-map-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 98px,
+      rgba(0, 255, 255, 0.05) 100px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 98px,
+      rgba(0, 255, 255, 0.05) 100px
+    );
+  pointer-events: none;
+  z-index: 10;
+  border-radius: 15px;
+}
+
+/* Holographic Border Effect */
+.advanced-map-container::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    #00ffff, 
+    #8a2be2, 
+    #00ff41, 
+    #ff1493, 
+    #00ffff
+  );
+  background-size: 400% 400%;
+  border-radius: 17px;
+  z-index: -1;
+  animation: holographic-border 4s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .advanced-map-controls {
+    top: 10px;
+    right: 10px;
+    gap: 8px;
+  }
+  
+  .map-control-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1rem;
+  }
+  
+  .add-mode-indicator {
+    top: 10px;
+    left: 10px;
+    right: 70px;
+    transform: none;
+    padding: 10px 16px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .advanced-map-controls {
+    flex-direction: row;
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .map-control-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+  
+  .add-mode-indicator {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 
+      0 6px 25px rgba(0, 0, 0, 0.4),
+      0 0 40px rgba(0, 255, 65, 0.6);
+  }
+  50% { 
+    box-shadow: 
+      0 6px 25px rgba(0, 0, 0, 0.4),
+      0 0 60px rgba(0, 255, 65, 0.8);
+  }
+}
+
+@keyframes pulse-indicator {
+  0%, 100% { 
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: translateX(-50%) scale(1.02);
+    opacity: 0.9;
+  }
+}
+
+@keyframes holographic-border {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Map Marker Cluster Styles */
+.cluster-marker {
+  background: radial-gradient(circle, 
+    rgba(0, 255, 255, 0.8) 0%, 
+    rgba(0, 255, 255, 0.4) 70%, 
+    transparent 100%
+  );
+  border: 2px solid #00ffff;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  box-shadow: 
+    0 0 20px rgba(0, 255, 255, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Custom Restroom Marker Styles */
+.restroom-marker {
+  filter: drop-shadow(0 0 10px rgba(107, 68, 35, 0.8));
+  transition: all 0.3s ease;
+}
+
+.restroom-marker:hover {
+  filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.8));
+  transform: scale(1.1);
+}
+
+/* High Rating Marker */
+.restroom-marker.high-rating {
+  filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.8));
+}
+
+/* Medium Rating Marker */
+.restroom-marker.medium-rating {
+  filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.8));
+}
+
+/* Low Rating Marker */
+.restroom-marker.low-rating {
+  filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.8));
+}
+
+/* Accessibility Features */
+.advanced-map-container[data-accessibility="true"] {
+  border: 3px solid #00ff41;
+  box-shadow: 
+    0 0 30px rgba(0, 255, 65, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.advanced-map-container[data-accessibility="true"]::after {
+  background: linear-gradient(45deg, 
+    #00ff41, 
+    #00ffff, 
+    #00ff41
+  );
+}
