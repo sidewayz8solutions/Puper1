@@ -7,11 +7,12 @@
   overflow-x: hidden;
 }
 
-/* Ensure no white space around hero */
-.home-page .hero-section {
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
-  width: 100vw;
+/* Override container constraints for hero section */
+.hero-section .container {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
 }
 
 .hero-section {
