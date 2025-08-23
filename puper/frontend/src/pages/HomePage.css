@@ -11,13 +11,13 @@
   align-items: flex-end;
   justify-content: center;
   text-align: center;
-  overflow: hidden;
+  overflow: relative;
   color: rgba(255, 255, 255, 0);
   background: url('../assets/images/hero.gif') center center / cover no-repeat;
-  background-size: cover !important;
-  background-position: center center !important;
+  background-size: full !important;
+  background-position: center  !important;
   background-repeat: no-repeat !important;
-  background-attachment: fixed;
+  background-attachment: relative;
   min-height: 100vh;
 }
 
