@@ -1,0 +1,51 @@
+.hero-section {
+  padding: 4rem 0 6rem;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  background-image: url('/hero.gif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-button {
+  background: var(--wood-grain);
+  border: 2px solid var(--psychedelic-purple);
+  color: var(--cream);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-purple);
+}
+
+@media (max-width: 768px) {
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 2rem 0 4rem;
+  }
+}
