@@ -1,9 +1,10 @@
 {
+  "name": "puper",
   "scripts": {
     "build": "cross-env DISABLE_CSS_MINIFICATION=true OPTIMIZE_CSS=true react-scripts build",
     "build-no-css-min": "cross-env DISABLE_CSS_MINIFICATION=true react-scripts build",
     "build-no-css-opt": "cross-env DISABLE_CSS_MINIFICATION=true OPTIMIZE_CSS=false react-scripts build"
   }
 }
-  }
-}
+  
+
