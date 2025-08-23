@@ -177,7 +177,7 @@
 }
 
 .custom-marker[data-accessible="true"] .marker-label::before {
-  content: '♿ ';
+  content: 'Accessible ';
 }
 
 /* Responsive Design */

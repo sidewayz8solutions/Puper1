@@ -158,7 +158,7 @@
 
 /* Add mode styling */
 .google-map.add-mode::after {
-  content: '📍 Click to add restroom location';
+  content: 'Click to add restroom location';
   position: absolute;
   top: 10px;
   left: 50%;
