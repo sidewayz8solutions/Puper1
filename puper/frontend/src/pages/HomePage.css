@@ -3,8 +3,18 @@
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  width: 100vw;
+  width: 100%;
   overflow-x: hidden;
+}
+
+/* Make hero section full width, breaking out of any container */
+.hero-section {
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
 }
 
 /* Override container constraints for hero section */
@@ -16,13 +26,11 @@
 }
 
 .hero-section {
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100vw;
   height: 100vh;
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0;
+  padding: 0;
   display: flex;
   align-items: flex-end;
   text-align: center;
@@ -34,7 +42,6 @@
   background-attachment: scroll;
   min-height: 100vh;
   overflow: hidden;
-  z-index: 1;
 }
 
 .video-background {
