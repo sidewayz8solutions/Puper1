@@ -12,21 +12,9 @@ const HomePage = () => {
     <div className="home-page">
       <div className="psychedelic-bg" />
 
-      {/* Hero Section with Video Background */}
-      <section className="hero-section video-hero">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="hero-video"
-          preload="auto"
-          poster="/puper-logo.png"
-        >
-          <source src="/hero-video.mp4" type="video/mp4" />
-          <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+      {/* Hero Section with GIF Background */}
+      <section className="hero-section gif-hero">
+        <div className="hero-gif-background"></div>
 
         <div className="container">
           <motion.div

@@ -14,10 +14,11 @@
   color: white; /* Set a default text color that works over the video */
 }
 
-.video-hero {
+.gif-hero {
   padding: 0;
   min-height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
 .video-background {
@@ -29,17 +30,17 @@
   z-index: -1;
 }
 
-.hero-video {
+.hero-gif-background {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  background-image: url('/gero.gif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: -1;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
 }
 
 .hero-content {
@@ -129,9 +130,10 @@
   z-index: 2;
 }
 
-/* Video loading states */
-.hero-video.video-hidden {
-  opacity: 0;
+/* GIF Hero Styles */
+.gif-hero .hero-content {
+  position: relative;
+  z-index: 2;
 }
 
 .hero-content {
