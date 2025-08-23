@@ -6,11 +6,15 @@
   box-sizing: border-box;
 }
 
+html, body {
+  background: rgb(0, 88, 71) !important;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   line-height: 1.6;
   color: var(--dark-brown);
-  background: var(--marble-background);
+  background: rgb(0, 88, 71) !important;
   background-attachment: fixed;
 }
 
