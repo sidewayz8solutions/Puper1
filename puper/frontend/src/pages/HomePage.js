@@ -10,18 +10,7 @@ import './HomePage.css';
 const HomePage = () => {
   return (
     <div className="home-page">
-      <div className="psychedelic-bg" />
-      
-      <section className="hero-section gif-hero">
-        <div className="gif-background">
-          <img 
-            src="/hero.gif" 
-            alt="Püper Hero Animation" 
-            className="hero-gif"
-          />
-          <div className="hero-overlay"></div>
-        </div>
-
+      <section className="hero-section" style={{ backgroundImage: 'url(/hero.gif)' }}>
         <div className="container">
           <motion.div
             className="hero-content"
@@ -29,30 +18,7 @@ const HomePage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <motion.h1 
-              className="hero-title"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-            >
-              PÜPER
-            </motion.h1>
-            
-            <motion.p 
-              className="hero-subtitle"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.9 }}
-            >
-              Your Guide to Relief, Wherever You Go
-            </motion.p>
-
-            <motion.div 
-              className="hero-actions"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1.1 }}
-            >
+            <div className="hero-actions">
               <Link to="/map">
                 <Button size="large" className="cta-button">
                   <FaRoute /> Find Restrooms
@@ -63,14 +29,15 @@ const HomePage = () => {
                   <FaPlus /> Add a Restroom
                 </Button>
               </Link>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </section>
 
+      {/* Features Section */}
       <section className="features-section" style={{ backgroundImage: `url(${woodBg})` }}>
         <div className="container">
-          <motion.h2 
+          <motion.h2
             className="section-title"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -78,9 +45,9 @@ const HomePage = () => {
           >
             Why Choose Püper?
           </motion.h2>
-          
+
           <div className="features-grid">
-            <motion.div 
+            <motion.div
               className="feature-card"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -91,8 +58,8 @@ const HomePage = () => {
               <h3>Real-time Map</h3>
               <p>Find restrooms near you with our interactive map powered by community data.</p>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="feature-card"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -103,8 +70,8 @@ const HomePage = () => {
               <h3>Community Reviews</h3>
               <p>Read honest reviews about cleanliness, accessibility, and amenities.</p>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="feature-card"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -119,9 +86,10 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* CTA Section */}
       <section className="cta-section" style={{ backgroundImage: `url(${ctaBg})` }}>
         <div className="container">
-          <motion.div 
+          <motion.div
             className="cta-content"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
