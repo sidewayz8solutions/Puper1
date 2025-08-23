@@ -2,162 +2,367 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import {
-  FaPlus, FaTimes, FaList, FaMap, FaSearch, FaFilter, FaUsers,
-  FaMapMarkerAlt, FaStar, FaClock, FaWifi, FaBolt, FaRocket,
-  FaChartLine, FaGlobe, FaLayerGroup, FaExpand
+  FaPlus, FaTimes, FaSearch, FaFilter, FaUsers,
+  FaMapMarkerAlt, FaStar, FaClock, FaWifi, FaBolt,
+  FaChartLine, FaGlobe, FaExpand, FaCompass
 } from 'react-icons/fa';
-import { useGeolocation } from '../hooks/useGeolocation';
-import { useRealtimeRestrooms } from '../hooks/useRealtimeRestrooms';
-import AdvancedGoogleMapView from '../components/Map/AdvancedGoogleMapView';
-import AdvancedSearchPanel from '../components/Map/AdvancedSearchPanel';
-import RestroomList from '../components/Restroom/RestroomList';
-import RestroomDetail from '../components/Restroom/RestroomDetail';
-import AddRestroomForm from '../components/Restroom/AddRestroomForm';
-import Loading from '../components/Common/Loading';
-import toast from 'react-hot-toast';
 import './MapPage.css';
 
 const MapPage = () => {
   const [searchParams] = useSearchParams();
-  const { location, loading: locationLoading, error: locationError } = useGeolocation();
-  const [filters, setFilters] = useState({});
+  const mapRef = useRef(null);
+  const googleMapRef = useRef(null);
+  const markersRef = useRef([]);
+  
+  // State management
+  const [map, setMap] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
-  const [showDetail, setShowDetail] = useState(false);
   const [showAddForm, setShowAddForm] = useState(searchParams.get('add') === 'true');
   const [addLocation, setAddLocation] = useState(null);
-  const [viewMode, setViewMode] = useState('map');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSearchPanel, setShowSearchPanel] = useState(true);
-  const [showStats, setShowStats] = useState(true);
-  const [isCommandMode, setIsCommandMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  
+  // Stats
+  const [stats, setStats] = useState({
+    totalRestrooms: 0,
+    averageRating: '0.0',
+    recentlyAdded: 0,
+    accessibleCount: 0,
+    onlineUsers: 42,
+    networkStatus: 'CONNECTING'
+  });
 
-  // Refs for animations
-  const mapContainerRef = useRef(null);
-  const statsRef = useRef(null);
+  // Mock restroom data (replace with your API)
+  const mockRestrooms = [
+    {
+      id: 1,
+      name: "French Quarter Public Restroom",
+      lat: 29.9584,
+      lng: -90.0644,
+      rating: 4.5,
+      accessible: true,
+      reviews: 23
+    },
+    {
+      id: 2,
+      name: "Jackson Square Facilities",
+      lat: 29.9574,
+      lng: -90.0628,
+      rating: 4.0,
+      accessible: true,
+      reviews: 15
+    },
+    {
+      id: 3,
+      name: "City Park Restroom",
+      lat: 29.9934,
+      lng: -90.0989,
+      rating: 3.8,
+      accessible: false,
+      reviews: 8
+    },
+    {
+      id: 4,
+      name: "Audubon Park Facilities",
+      lat: 29.9289,
+      lng: -90.1284,
+      rating: 4.2,
+      accessible: true,
+      reviews: 12
+    },
+    {
+      id: 5,
+      name: "Bourbon Street Public Restroom",
+      lat: 29.9611,
+      lng: -90.0661,
+      rating: 3.5,
+      accessible: false,
+      reviews: 30
+    }
+  ];
 
-  // Use the advanced realtime hook
-  const {
-    restrooms,
-    loading,
-    isSubscribed,
-    findNearbyRestrooms,
-    addRestroomOptimistic
-  } = useRealtimeRestrooms();
-
-  // Handle URL parameter for adding restroom
+  // Initialize Google Maps
   useEffect(() => {
-    if (searchParams.get('add') === 'true') {
-      setShowAddForm(true);
+    const initializeMap = () => {
+      if (!window.google || !window.google.maps) {
+        // Load Google Maps Script
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=places,marker`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => setupMap();
+        document.head.appendChild(script);
+      } else {
+        setupMap();
+      }
+    };
+
+    const setupMap = () => {
+      if (mapRef.current && !googleMapRef.current) {
+        const mapOptions = {
+          center: { lat: 29.9511, lng: -90.0715 }, // New Orleans
+          zoom: 13,
+          mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+          styles: [
+            {
+              featureType: "all",
+              elementType: "geometry",
+              stylers: [{ color: "#242f3e" }]
+            },
+            {
+              featureType: "all",
+              elementType: "labels.text.stroke",
+              stylers: [{ color: "#242f3e" }]
+            },
+            {
+              featureType: "all",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#746855" }]
+            },
+            {
+              featureType: "water",
+              elementType: "geometry",
+              stylers: [{ color: "#17263c" }]
+            },
+            {
+              featureType: "water",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#515c6d" }]
+            },
+            {
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [{ color: "#38414e" }]
+            },
+            {
+              featureType: "road",
+              elementType: "geometry.stroke",
+              stylers: [{ color: "#212a37" }]
+            },
+            {
+              featureType: "road",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#9ca5b3" }]
+            },
+            {
+              featureType: "road.highway",
+              elementType: "geometry",
+              stylers: [{ color: "#746855" }]
+            },
+            {
+              featureType: "road.highway",
+              elementType: "geometry.stroke",
+              stylers: [{ color: "#1f2835" }]
+            },
+            {
+              featureType: "road.highway",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#f3d19c" }]
+            }
+          ],
+          disableDefaultUI: false,
+          zoomControl: true,
+          mapTypeControl: true,
+          streetViewControl: true,
+          fullscreenControl: true,
+          gestureHandling: 'greedy'
+        };
+
+        const newMap = new window.google.maps.Map(mapRef.current, mapOptions);
+        googleMapRef.current = newMap;
+        setMap(newMap);
+        setMapLoaded(true);
+
+        // Add click listener for adding new restrooms
+        newMap.addListener('click', (event) => {
+          if (showAddForm) {
+            setAddLocation({
+              lat: event.latLng.lat(),
+              lng: event.latLng.lng()
+            });
+            
+            // Add temporary marker
+            new window.google.maps.Marker({
+              position: event.latLng,
+              map: newMap,
+              icon: {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                  <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="#00ff41"/>
+                    <text x="20" y="25" text-anchor="middle" fill="white" font-size="20" font-weight="bold">+</text>
+                  </svg>
+                `),
+                scaledSize: new window.google.maps.Size(40, 50),
+                anchor: new window.google.maps.Point(20, 50)
+              }
+            });
+          }
+        });
+      }
+    };
+
+    initializeMap();
+  }, [showAddForm]);
+
+  // Get user location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setUserLocation(location);
+          
+          // Center map on user location
+          if (googleMapRef.current) {
+            googleMapRef.current.setCenter(location);
+            
+            // Add user location marker
+            new window.google.maps.Marker({
+              position: location,
+              map: googleMapRef.current,
+              icon: {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                  <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="15" cy="15" r="10" fill="#4285F4" stroke="white" stroke-width="3"/>
+                    <circle cx="15" cy="15" r="4" fill="white"/>
+                  </svg>
+                `),
+                scaledSize: new window.google.maps.Size(30, 30),
+                anchor: new window.google.maps.Point(15, 15)
+              },
+              title: 'Your Location'
+            });
+          }
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setLoading(false);
+        }
+      );
     }
-  }, [searchParams]);
+  }, [map]);
 
-  const handleSearch = (searchParams) => {
-    setSearchQuery(searchParams.query || '');
-    setFilters({ ...filters, ...searchParams });
-    refetch();
-  };
+  // Load restrooms and add markers
+  useEffect(() => {
+    if (map && mapLoaded) {
+      // Clear existing markers
+      markersRef.current.forEach(marker => marker.setMap(null));
+      markersRef.current = [];
 
-  const handleMarkerClick = (restroom) => {
-    setSelectedRestroom(restroom);
-    setShowDetail(true);
-  };
+      // Add markers for restrooms
+      const newMarkers = mockRestrooms.map(restroom => {
+        const marker = new window.google.maps.Marker({
+          position: { lat: restroom.lat, lng: restroom.lng },
+          map: map,
+          title: restroom.name,
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#6B4423;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4A2F18;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="url(#grad1)"/>
+                <text x="20" y="25" text-anchor="middle" fill="white" font-size="20">🚽</text>
+              </svg>
+            `),
+            scaledSize: new window.google.maps.Size(40, 50),
+            anchor: new window.google.maps.Point(20, 50)
+          }
+        });
 
-  const handleMapClick = (event) => {
-    if (showAddForm && event.lngLat) {
-      setAddLocation({
-        lat: event.lngLat.lat,
-        lon: event.lngLat.lng
+        // Add click listener to show info window
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: `
+            <div style="padding: 10px; min-width: 200px;">
+              <h3 style="margin: 0 0 10px 0; color: #6B4423;">${restroom.name}</h3>
+              <p style="margin: 5px 0;">⭐ Rating: ${restroom.rating}/5</p>
+              <p style="margin: 5px 0;">📝 ${restroom.reviews} reviews</p>
+              <p style="margin: 5px 0;">${restroom.accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
+              <button onclick="window.open('/restroom/${restroom.id}', '_blank')" 
+                style="background: #6B4423; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                View Details
+              </button>
+            </div>
+          `
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(map, marker);
+          setSelectedRestroom(restroom);
+        });
+
+        return marker;
       });
-      toast.success('Click location set! Fill out the form below.');
+
+      markersRef.current = newMarkers;
+      setRestrooms(mockRestrooms);
+      
+      // Update stats
+      setStats({
+        totalRestrooms: mockRestrooms.length,
+        averageRating: (mockRestrooms.reduce((sum, r) => sum + r.rating, 0) / mockRestrooms.length).toFixed(1),
+        recentlyAdded: 2,
+        accessibleCount: mockRestrooms.filter(r => r.accessible).length,
+        onlineUsers: 42,
+        networkStatus: 'CONNECTED'
+      });
+      
+      setLoading(false);
     }
-  };
+  }, [map, mapLoaded]);
 
-  const handleAddSuccess = (newRestroom) => {
-    setShowAddForm(false);
-    setAddLocation(null);
-    refetch();
-    toast.success('Restroom added successfully!');
-
-    // Show the new restroom details
-    setSelectedRestroom(newRestroom);
-    setShowDetail(true);
-  };
-
-  const handleAddCancel = () => {
-    setShowAddForm(false);
-    setAddLocation(null);
-    setIsCommandMode(false);
-  };
-
-  // Real-time stats calculation
-  const stats = {
-    totalRestrooms: restrooms.length,
-    averageRating: restrooms.length > 0
-      ? (restrooms.reduce((sum, r) => sum + (r.avg_rating || 0), 0) / restrooms.length).toFixed(1)
-      : '0.0',
-    recentlyAdded: restrooms.filter(r =>
-      new Date(r.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
-    ).length,
-    accessibleCount: restrooms.filter(r =>
-      r.accessibility_features?.wheelchair_accessible
-    ).length,
-    onlineUsers: 42, // Mock data - would come from realtime presence
-    networkStatus: isSubscribed ? 'CONNECTED' : 'CONNECTING'
-  };
-
-  // Enhanced handlers for futuristic interface
-  const handleAdvancedSearch = (query, lat, lon, filters) => {
+  // Handle search
+  const handleSearch = (query) => {
     setSearchQuery(query);
-    setFilters(filters);
-    if (lat && lon) {
-      findNearbyRestrooms(lat, lon, filters.radius || 5000);
-    }
-  };
-
-  const handleRadiusChange = (radius) => {
-    if (location) {
-      findNearbyRestrooms(location.lat, location.lon, radius * 1000);
-    }
-  };
-
-  const toggleCommandMode = () => {
-    setIsCommandMode(!isCommandMode);
-  };
-
-  const toggleSearchPanel = () => {
-    setShowSearchPanel(!showSearchPanel);
-  };
-
-  const toggleStats = () => {
-    setShowStats(!showStats);
-  };
-
-  if (locationLoading) {
-    return <Loading message="Getting your location..." />;
-  }
-
-  if (locationError) {
-    return (
-      <div className="map-page error-state">
-        <div className="error-message">
-          <h3>Location Access Required</h3>
-          <p>Please enable location access to find nearby restrooms.</p>
-          <Button onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
-        </div>
-      </div>
+    // Implement search logic here
+    // Filter restrooms based on query
+    const filtered = mockRestrooms.filter(r => 
+      r.name.toLowerCase().includes(query.toLowerCase())
     );
-  }
+    
+    // Update markers visibility
+    markersRef.current.forEach((marker, index) => {
+      marker.setVisible(
+        query === '' || filtered.includes(mockRestrooms[index])
+      );
+    });
+  };
+
+  const handleAddRestroom = (data) => {
+    // Here you would send data to your backend
+    console.log('Adding restroom:', data);
+    setShowAddForm(false);
+    setAddLocation(null);
+    
+    // Add new marker
+    if (map && data.lat && data.lng) {
+      const marker = new window.google.maps.Marker({
+        position: { lat: data.lat, lng: data.lng },
+        map: map,
+        title: data.name,
+        animation: window.google.maps.Animation.DROP
+      });
+      markersRef.current.push(marker);
+    }
+  };
 
   return (
     <motion.div
-      className={`map-page ${isCommandMode ? 'command-mode' : ''}`}
+      className="map-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: 0.5 }}
     >
-      {/* Futuristic Command Header */}
+      {/* Header */}
       <motion.div
         className="command-header"
         initial={{ y: -100 }}
@@ -166,8 +371,8 @@ const MapPage = () => {
       >
         <div className="header-left">
           <div className="logo-section">
-            <FaRocket className="command-icon" />
-            <span className="command-title">PÜPER COMMAND CENTER</span>
+            <FaCompass className="command-icon" />
+            <span className="command-title">PÜPER MAP</span>
           </div>
           <div className="network-status">
             <div className={`status-indicator ${stats.networkStatus.toLowerCase()}`}>
@@ -192,7 +397,7 @@ const MapPage = () => {
             <div className="stat-item">
               <FaClock className="stat-icon" />
               <span className="stat-value">{stats.recentlyAdded}</span>
-              <span className="stat-label">RECENT</span>
+              <span className="stat-label">NEW TODAY</span>
             </div>
             <div className="stat-item">
               <FaUsers className="stat-icon" />
@@ -204,24 +409,8 @@ const MapPage = () => {
 
         <div className="header-right">
           <motion.button
-            className="control-btn"
-            onClick={toggleSearchPanel}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FaSearch />
-          </motion.button>
-          <motion.button
-            className="control-btn"
-            onClick={toggleStats}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FaChartLine />
-          </motion.button>
-          <motion.button
-            className={`control-btn add-btn ${isCommandMode ? 'active' : ''}`}
-            onClick={() => setShowAddForm(true)}
+            className={`control-btn add-btn ${showAddForm ? 'active' : ''}`}
+            onClick={() => setShowAddForm(!showAddForm)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -230,150 +419,189 @@ const MapPage = () => {
         </div>
       </motion.div>
 
-      {/* Main Content Area */}
-      <div className="command-content" ref={mapContainerRef}>
-        {/* Advanced Search Panel */}
-        <AnimatePresence>
-          {showSearchPanel && (
-            <motion.div
-              className="floating-search-panel"
-              initial={{ x: -400, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -400, opacity: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AdvancedSearchPanel
-                onSearch={handleAdvancedSearch}
-                onLocationSearch={(query) => console.log('Location search:', query)}
-                onFiltersChange={handleFilterChange}
-                onRadiusChange={handleRadiusChange}
-                initialRadius={5}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Advanced Map View */}
+      {/* Main Map Container */}
+      <div className="command-content">
         <div className="holographic-map-container">
-          <AdvancedGoogleMapView
-            center={location}
-            restrooms={restrooms}
-            onMarkerClick={handleMarkerClick}
-            onMapClick={handleMapClick}
-            addMode={showAddForm}
-            addLocation={addLocation}
-            userLocation={location}
+          <div 
+            ref={mapRef} 
+            className="map-container"
+            style={{ width: '100%', height: 'calc(100vh - 80px)' }}
           />
-
-          {/* Holographic Overlay */}
+          
+          {/* Holographic Overlay Effects */}
           <div className="holographic-overlay">
             <div className="scan-lines"></div>
             <div className="grid-overlay"></div>
           </div>
         </div>
 
-        {/* Floating Stats Panel */}
-        <AnimatePresence>
-          {showStats && (
-            <motion.div
-              className="floating-stats-panel"
-              initial={{ y: 400, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 400, opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              ref={statsRef}
-            >
-              <div className="stats-header">
-                <FaChartLine className="stats-icon" />
-                <span>REAL-TIME ANALYTICS</span>
-              </div>
-              <div className="stats-grid">
-                <div className="stat-card">
-                  <div className="stat-number">{stats.totalRestrooms}</div>
-                  <div className="stat-description">Total Locations</div>
-                  <div className="stat-trend">+{stats.recentlyAdded} today</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-number">{stats.averageRating}</div>
-                  <div className="stat-description">Network Rating</div>
-                  <div className="stat-trend">Quality Index</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-number">{stats.accessibleCount}</div>
-                  <div className="stat-description">Accessible</div>
-                  <div className="stat-trend">Barrier-Free</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-number">{stats.onlineUsers}</div>
-                  <div className="stat-description">Active Users</div>
-                  <div className="stat-trend">Live Network</div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Search Bar Overlay */}
+        <motion.div
+          className="floating-search-panel"
+          initial={{ x: -400, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          style={{
+            position: 'absolute',
+            top: '2rem',
+            left: '2rem',
+            zIndex: 100,
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(26, 26, 46, 0.9) 100%)',
+            backdropFilter: 'blur(20px)',
+            padding: '1.5rem',
+            borderRadius: '20px',
+            border: '2px solid #8a2be2',
+            boxShadow: '0 0 30px rgba(138, 43, 226, 0.5)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <FaSearch style={{ color: '#00ffff', fontSize: '1.2rem' }} />
+            <input
+              type="text"
+              placeholder="Search for restrooms..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '10px',
+                padding: '0.75rem',
+                color: 'white',
+                fontSize: '1rem',
+                outline: 'none',
+                width: '300px'
+              }}
+            />
+          </div>
+        </motion.div>
+
+        {/* Stats Panel */}
+        <motion.div
+          className="floating-stats-panel"
+          initial={{ y: 400, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="stats-header">
+            <FaChartLine className="stats-icon" />
+            <span>LIVE STATISTICS</span>
+          </div>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-number">{stats.totalRestrooms}</div>
+              <div className="stat-description">Total Locations</div>
+              <div className="stat-trend">+{stats.recentlyAdded} today</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">{stats.averageRating}</div>
+              <div className="stat-description">Average Rating</div>
+              <div className="stat-trend">Quality Score</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">{stats.accessibleCount}</div>
+              <div className="stat-description">Accessible</div>
+              <div className="stat-trend">♿ Enabled</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">{stats.onlineUsers}</div>
+              <div className="stat-description">Active Users</div>
+              <div className="stat-trend">Live Now</div>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
-      {/* Futuristic Modals and Overlays */}
+      {/* Add Restroom Modal */}
       <AnimatePresence>
-        {showDetail && selectedRestroom && (
-          <motion.div
-            className="holographic-modal-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="holographic-modal"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <RestroomDetail
-                restroom={selectedRestroom}
-                onClose={() => setShowDetail(false)}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-
         {showAddForm && (
           <motion.div
             className="command-modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={() => setShowAddForm(false)}
           >
             <motion.div
               className="command-modal"
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
-              transition={{ duration: 0.4 }}
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="modal-header">
                 <FaBolt className="modal-icon" />
-                <span>ADD NEW LOCATION TO NETWORK</span>
+                <span>ADD NEW RESTROOM</span>
                 <button
                   className="close-btn"
-                  onClick={handleAddCancel}
+                  onClick={() => setShowAddForm(false)}
                 >
                   <FaTimes />
                 </button>
               </div>
-              <AddRestroomForm
-                location={addLocation || location}
-                onSuccess={handleRestroomAdded}
-                onClose={handleAddCancel}
-              />
+              <div style={{ padding: '2rem' }}>
+                <p style={{ color: '#00ffff', marginBottom: '1rem' }}>
+                  Click on the map to set location, then fill out the details below.
+                </p>
+                {addLocation && (
+                  <p style={{ color: '#00ff41', marginBottom: '1rem' }}>
+                    ✓ Location set: {addLocation.lat.toFixed(6)}, {addLocation.lng.toFixed(6)}
+                  </p>
+                )}
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.target);
+                  handleAddRestroom({
+                    name: formData.get('name'),
+                    lat: addLocation?.lat,
+                    lng: addLocation?.lng,
+                    accessible: formData.get('accessible') === 'on'
+                  });
+                }}>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Restroom name..."
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      marginBottom: '1rem',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '10px',
+                      color: 'white'
+                    }}
+                  />
+                  <label style={{ display: 'block', marginBottom: '1rem', color: 'white' }}>
+                    <input type="checkbox" name="accessible" style={{ marginRight: '0.5rem' }} />
+                    Wheelchair Accessible
+                  </label>
+                  <button
+                    type="submit"
+                    disabled={!addLocation}
+                    style={{
+                      width: '100%',
+                      padding: '1rem',
+                      background: addLocation ? 'linear-gradient(135deg, #00ff41, #00ff91)' : '#666',
+                      border: 'none',
+                      borderRadius: '10px',
+                      color: addLocation ? '#000' : '#999',
+                      fontWeight: 'bold',
+                      fontSize: '1rem',
+                      cursor: addLocation ? 'pointer' : 'not-allowed'
+                    }}
+                  >
+                    {addLocation ? 'Add Restroom' : 'Click on map first'}
+                  </button>
+                </form>
+              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Loading Overlay */}
-      {(loading || locationLoading) && (
+      {loading && (
         <motion.div
           className="loading-overlay"
           initial={{ opacity: 0 }}
@@ -383,9 +611,7 @@ const MapPage = () => {
             <div className="holographic-loader">
               <FaGlobe className="spinning-globe" />
             </div>
-            <span className="loading-text">
-              {locationLoading ? 'ACQUIRING COORDINATES...' : 'SCANNING NETWORK...'}
-            </span>
+            <span className="loading-text">INITIALIZING MAP...</span>
           </div>
         </motion.div>
       )}

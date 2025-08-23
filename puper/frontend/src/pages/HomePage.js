@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
@@ -8,115 +8,51 @@ import ctaBg from '../assets/images/1.png';
 import './HomePage.css';
 
 const HomePage = () => {
-  const videoRef = useRef(null);
-  const [videoLoaded, setVideoLoaded] = React.useState(false);
-  const [videoError, setVideoError] = React.useState(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      // Set up video event listeners
-      const handleCanPlay = () => {
-        console.log('Video can play');
-        setVideoLoaded(true);
-        setVideoError(false);
-      };
-
-      const handleError = (e) => {
-        console.error('Video error:', e);
-        setVideoError(true);
-        setVideoLoaded(false);
-      };
-
-      const handleLoadedData = () => {
-        console.log('Video loaded');
-        setVideoLoaded(true);
-      };
-
-      video.addEventListener('canplay', handleCanPlay);
-      video.addEventListener('error', handleError);
-      video.addEventListener('loadeddata', handleLoadedData);
-
-      // Force video to play
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('Video is playing');
-            setVideoLoaded(true);
-          })
-          .catch(error => {
-            console.log('Video autoplay failed:', error);
-            // Try to play on user interaction
-            const handleUserInteraction = () => {
-              video.play().catch(e => {
-                console.log('Manual play failed:', e);
-                setVideoError(true);
-              });
-            };
-            document.addEventListener('click', handleUserInteraction, { once: true });
-            document.addEventListener('touchstart', handleUserInteraction, { once: true });
-          });
-      }
-
-      // Cleanup
-      return () => {
-        video.removeEventListener('canplay', handleCanPlay);
-        video.removeEventListener('error', handleError);
-        video.removeEventListener('loadeddata', handleLoadedData);
-      };
-    }
-  }, []);
   return (
     <div className="home-page">
       <div className="psychedelic-bg" />
       
-      <section className="hero-section video-hero">
-        <div className={`video-background ${videoLoaded ? 'video-loaded' : ''}`}>
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            className={`hero-video ${videoError ? 'video-hidden' : ''}`}
-            poster="/puper-logo.png"
-            onLoadStart={() => console.log('Video loading started')}
-            onCanPlay={() => {
-              console.log('Video can play');
-              setVideoLoaded(true);
-              setVideoError(false);
-            }}
-            onError={(e) => {
-              console.error('Video error:', e);
-              setVideoError(true);
-              setVideoLoaded(false);
-            }}
-            onLoadedData={() => {
-              console.log('Video loaded');
-              setVideoLoaded(true);
-            }}
-          >
-            <source src={`${process.env.PUBLIC_URL}/123.mp4`} type="video/mp4" />
-            <source src="/123.mp4" type="video/mp4" />
-            <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
-            <source src="/hero-video.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          <div className="video-overlay"></div>
-          <div className={`video-fallback ${videoError || !videoLoaded ? 'show-fallback' : ''}`}></div>
+      <section className="hero-section gif-hero">
+        <div className="gif-background">
+          <img 
+            src="/hero.gif" 
+            alt="Püper Hero Animation" 
+            className="hero-gif"
+          />
+          <div className="hero-overlay"></div>
         </div>
 
         <div className="container">
           <motion.div
-            className="hero-content video-content"
+            className="hero-content"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
+            <motion.h1 
+              className="hero-title"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+            >
+              PÜPER
+            </motion.h1>
+            
+            <motion.p 
+              className="hero-subtitle"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.9 }}
+            >
+              Your Guide to Relief, Wherever You Go
+            </motion.p>
 
-            <div className="hero-actions">
+            <motion.div 
+              className="hero-actions"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.1 }}
+            >
               <Link to="/map">
                 <Button size="large" className="cta-button">
                   <FaRoute /> Find Restrooms
@@ -127,7 +63,7 @@ const HomePage = () => {
                   <FaPlus /> Add a Restroom
                 </Button>
               </Link>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
