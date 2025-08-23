@@ -15,9 +15,9 @@ import RestroomDetail from '../components/Restroom/RestroomDetail';
 import AddRestroomForm from '../components/Restroom/AddRestroomForm';
 import Loading from '../components/Common/Loading';
 import toast from 'react-hot-toast';
-import './FuturisticMapPage.css';
+import './MapPage.css';
 
-const FuturisticMapPage = () => {
+const MapPage = () => {
   const [searchParams] = useSearchParams();
   const { location, loading: locationLoading, error: locationError } = useGeolocation();
   const [filters, setFilters] = useState({});
@@ -152,7 +152,7 @@ const FuturisticMapPage = () => {
 
   return (
     <motion.div
-      className={`futuristic-map-page ${isCommandMode ? 'command-mode' : ''}`}
+      className={`map-page ${isCommandMode ? 'command-mode' : ''}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
@@ -393,4 +393,4 @@ const FuturisticMapPage = () => {
   );
 };
 
-export default FuturisticMapPage;
+export default MapPage;
