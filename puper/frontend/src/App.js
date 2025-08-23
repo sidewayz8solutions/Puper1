@@ -18,6 +18,10 @@ import './App.css';
 const queryClient = new QueryClient();
 
 function App() {
+  // Global initMap function for Google Maps API callback (from demo integration)
+  window.initMap = () => {
+    console.log("Google Maps API has loaded.");
+  };
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

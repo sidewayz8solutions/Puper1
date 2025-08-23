@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puper</title>
-
-    <!-- Google Maps API Script -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC07tp53REg-Pvpde-draNRRZkiy9_dB8k&libraries=places&callback=initMap" async defer></script>
-
+    <title>Puper - Functional 3D Map & GIF Hero</title>
+    
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-
+    
+    <!-- Google Maps API Script -->
+    <!-- IMPORTANT: Replace YOUR_GOOGLE_MAPS_API_KEY with your actual key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap" async defer></script>
+    
     <!-- React and Babel for running JSX in the browser -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
+    
     <style>
         /* Custom styles for the GIF background */
         .hero-background {
@@ -51,8 +52,8 @@
             //    import heroGif from '../assets/hero.gif';
             // 3. Use it in the `src` attribute: `src={heroGif}`
             
-            // Using your local hero.gif file
-            const gifSrc = "/hero.gif";
+            // Using a placeholder URL for this demo
+            const gifSrc = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdG5oZ3h0eXN1aG1pZ3N5ZzZ6d3lsc256bXR0ZWV2b2JtN2xxaHJiMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5aYf2gE3A2o6I/giphy.gif";
 
             return (
                 <div className="relative h-screen w-full flex items-center justify-center overflow-hidden">
@@ -95,7 +96,7 @@
                         zoom: 16,
                         tilt: 45,
                         heading: 90,
-                        mapId: 'faee9c07df291235bae84d6c', // Your custom Map ID for styling
+                        mapId: 'YOUR_CUSTOM_MAP_ID', // Use a custom Map ID for styling
                         disableDefaultUI: true,
                         gestureHandling: 'greedy'
                     });

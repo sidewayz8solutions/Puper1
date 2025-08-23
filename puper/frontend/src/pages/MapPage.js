@@ -16,6 +16,7 @@ const MapPage = () => {
   
   // State management
   const [map, setMap] = useState(null);
+  const [infoWindow, setInfoWindow] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
@@ -24,6 +25,7 @@ const MapPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapsApiLoaded, setMapsApiLoaded] = useState(false);
   
   // Stats
   const [stats, setStats] = useState({
@@ -84,6 +86,9 @@ const MapPage = () => {
     }
   ];
 
+  // Set up global initMap function for Google Maps API callback
+  window.initMap = () => setMapsApiLoaded(true);
+
   // Initialize Google Maps
   useEffect(() => {
     const initializeMap = () => {
@@ -104,7 +109,10 @@ const MapPage = () => {
       if (mapRef.current && !googleMapRef.current) {
         const mapOptions = {
           center: { lat: 29.9511, lng: -90.0715 }, // New Orleans
-          zoom: 13,
+          zoom: 16,
+          tilt: 45,
+          heading: 90,
+          mapId: process.env.REACT_APP_GOOGLE_MAPS_MAP_ID,
           mapTypeId: window.google.maps.MapTypeId.ROADMAP,
           styles: [
             {
@@ -174,6 +182,7 @@ const MapPage = () => {
         const newMap = new window.google.maps.Map(mapRef.current, mapOptions);
         googleMapRef.current = newMap;
         setMap(newMap);
+        setInfoWindow(new window.google.maps.InfoWindow());
         setMapLoaded(true);
 
         // Add click listener for adding new restrooms
