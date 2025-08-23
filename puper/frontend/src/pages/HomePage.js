@@ -12,12 +12,7 @@ const HomePage = () => {
     <div className="home-page">
       <section className="hero-section" style={{ backgroundImage: 'url(/hero.gif)' }}>
         <div className="container">
-          <motion.div
-            className="hero-content"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-          >
+          <div className="hero-content">
             <div className="hero-actions">
               <Link to="/map">
                 <Button size="large" className="cta-button">
@@ -30,7 +25,7 @@ const HomePage = () => {
                 </Button>
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
