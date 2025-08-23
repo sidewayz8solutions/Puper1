@@ -1,6 +1,6 @@
 .App {
   min-height: 100vh;
-  background: var(--marble-background);
+  background: rgb(0, 88, 71) !important;
   background-attachment: fixed;
   position: relative;
 }
