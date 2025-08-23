@@ -12,7 +12,7 @@
   text-align: center;
   overflow: hidden;
   color: white;
-  background: url('../../../public/hero.gif') center center / cover no-repeat;
+  background: url('../assets/images/hero.gif') center center / cover no-repeat;
 }
 
 .video-background {
