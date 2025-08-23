@@ -13,11 +13,7 @@ const HomePage = () => {
       <div className="psychedelic-bg" />
 
       {/* Hero Section with GIF Background */}
-      <section className="hero-section gif-hero">
-        <div
-          className="hero-gif-background"
-          style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/hero.gif)` }}
-        ></div>
+      <section className="hero-section">
 
         <div className="container">
           <motion.div
