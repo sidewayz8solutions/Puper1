@@ -1,12 +1,19 @@
 # 🗺️ Supabase PostGIS Setup for Puper
 
-## Quick Setup Steps
+## 🚀 Quick Setup Steps
 
 ### 1. Enable PostGIS in Supabase
-1. Go to your Supabase dashboard: https://supabase.com/dashboard/project/qunaiicjcelvdunluwqh
+1. Go to your Supabase dashboard: https://supabase.com/dashboard/project/qunaiicjcelvdunluwqh/sql
 2. Navigate to **SQL Editor**
 3. Copy and paste the entire content from `supabase-geospatial-setup.sql`
 4. Click **Run** to execute all the setup commands
+5. Uncomment the last line to insert sample data: `SELECT insert_sample_restrooms();`
+
+### 2. Test Your Setup
+1. Visit `/geospatial` in your app: http://localhost:3000/geospatial
+2. Click "Use My Location" or enter coordinates for New Orleans (29.9511, -90.0715)
+3. Click "Find Nearby Restrooms" to test PostGIS queries
+4. Try different search radii and search terms
 
 ### 2. What This Setup Does
 

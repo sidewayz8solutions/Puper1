@@ -4,15 +4,14 @@
 }
 
 .hero-section {
-  padding: 4rem 0 6rem;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-  background-size: cover;
-  background-position: center;
-  min-height: 100vh;
+  position: relative; /* This is the anchor for the absolute positioned video */
+  height: 100vh; /* Make the hero section take the full height of the viewport */
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden; /* Hide any part of the video that might overflow */
+  color: white; /* Set a default text color that works over the video */
 }
 
 .video-hero {
@@ -31,10 +30,63 @@
 }
 
 .hero-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -1; /* Place the video BEHIND the content */
+  object-fit: cover; /* This will cover the entire container, cropping as needed */
+}
+
+.hero-content {
+  position: relative; /* Ensures this content stays on top of the video */
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.5); /* Optional: dark overlay for text readability */
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  font-family: 'Bebas Neue', cursive;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.hero-button {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  color: white;
+  background: linear-gradient(135deg, var(--primary-brown), var(--psychedelic-purple));
+  border: none;
+  border-radius: 50px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Bebas Neue', cursive;
+  font-weight: bold;
+  letter-spacing: 1px;
+  box-shadow: var(--shadow);
+  display: inline-block;
+}
+
+.hero-button:hover {
+  background: linear-gradient(135deg, var(--psychedelic-purple), var(--primary-brown));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .video-overlay {

@@ -11,6 +11,7 @@ import ProfilePage from './pages/ProfilePage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import AboutPage from './pages/AboutPage';
 import ConnectionTest from './components/Debug/ConnectionTest';
+import GeospatialTest from './components/Debug/GeospatialTest';
 import DemoPage from './pages/DemoPage';
 import './App.css';
 
@@ -34,6 +35,7 @@ function App() {
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/test" element={<ConnectionTest />} />
+                  <Route path="/geospatial" element={<GeospatialTest />} />
                   <Route path="/demo" element={<DemoPage />} />
                 </Routes>
               </Layout>
