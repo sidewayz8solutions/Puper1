@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { FaRoute, FaPlus, FaUser, FaTrophy } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import LoginModal from '../User/LoginModal';
@@ -14,16 +13,9 @@ const Header = () => {
     <header className="header">
       <div className="header-content">
         <Link to="/" className="logo-section">
-          <motion.div 
-            className="logo"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <img src="/puper-logo.png" alt="Püper Logo" className="logo-icon" />
-          </motion.div>
           <div>
             <h1 className="app-title">PÜPER</h1>
-            <p className="tagline">Your Guide to Relief</p> 
+            <p className="tagline">Your Guide to Relief</p>
           </div>
         </Link>
 
