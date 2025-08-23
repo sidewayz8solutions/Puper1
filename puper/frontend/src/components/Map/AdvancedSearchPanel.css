@@ -202,12 +202,11 @@
     var(--psychedelic-cyan) 100%
   );
   outline: none;
-  -webkit-appearance: none;
+  appearance: none;
   margin-bottom: 0.5rem;
 }
 
 .radius-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
   appearance: none;
   width: 20px;
   height: 20px;

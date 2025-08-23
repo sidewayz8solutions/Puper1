@@ -90,11 +90,10 @@
   border-radius: 3px;
   background: #ddd;
   outline: none;
-  -webkit-appearance: none;
+
 }
 
 .radius-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
   appearance: none;
   width: 18px;
   height: 18px;
