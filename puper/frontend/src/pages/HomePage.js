@@ -99,7 +99,14 @@ const HomePage = () => {
               setVideoLoaded(true);
             }}
           >
+            {/* Multiple fallback paths for different environments */}
             <source src={heroVideo} type="video/mp4" />
+            <source src="public/hero-video.mp4" type="video/mp4" />
+            <source src="/hero-video.mp4" type="video/mp4" />
+            <source src="./hero-video.mp4" type="video/mp4" />
+            <source src="/public/hero-video.mp4" type="video/mp4" />
+            <source src={`${process.env.PUBLIC_URL}/hero-video.mp4`} type="video/mp4" />
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
 
