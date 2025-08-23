@@ -7,12 +7,13 @@
   position: relative;
   height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  color: white;
+  color: rgba(255, 255, 255, 0);
   background: url('../assets/images/hero.gif') center center / cover no-repeat;
+  background-attachment: fixed;
 }
 
 .video-background {
@@ -27,11 +28,10 @@
 
 
 .hero-content {
-  position: relative; /* Ensures this content stays on top of the video */
+  position: relative;
   z-index: 1;
-  background-color: rgba(0, 0, 0, 0.5); /* Optional: dark overlay for text readability */
-  padding: 2rem;
-  border-radius: 10px;
+  width: 100%;
+  padding: 0 2rem 4rem 2rem;
 }
 
 .hero-title {
@@ -250,9 +250,27 @@
 
 .hero-actions {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+.hero-actions .cta-button,
+.hero-actions button {
+  box-shadow:
+    0 0 20px rgba(107, 68, 35, 0.8),
+    0 0 40px rgba(107, 68, 35, 0.6),
+    0 0 60px rgba(107, 68, 35, 0.4);
+  transition: all 0.3s ease;
+}
+
+.hero-actions .cta-button:hover,
+.hero-actions button:hover {
+  box-shadow:
+    0 0 30px rgba(107, 68, 35, 1),
+    0 0 60px rgba(107, 68, 35, 0.8),
+    0 0 90px rgba(107, 68, 35, 0.6);
+  transform: translateY(-3px);
 }
 
 .cta-button {
