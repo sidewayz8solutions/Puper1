@@ -31,15 +31,15 @@
 
 .hero-video {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  z-index: -1; /* Place the video BEHIND the content */
-  object-fit: cover; /* This will cover the entire container, cropping as needed */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .hero-content {
@@ -129,17 +129,9 @@
   z-index: 2;
 }
 
-/* Ensure video is visible */
-.hero-video {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  transition: opacity 0.5s ease-in-out;
-}
-
+/* Video loading states */
 .hero-video.video-hidden {
   opacity: 0;
-  z-index: 0;
 }
 
 .hero-content {
