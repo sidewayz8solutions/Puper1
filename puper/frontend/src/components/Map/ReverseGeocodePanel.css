@@ -1,0 +1,306 @@
+/* Reverse Geocode Panel Component */
+
+.reverse-geocode-panel {
+  background: var(--marble-background);
+  border: 2px solid var(--primary-brown);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  max-width: 400px;
+  width: 100%;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(107, 68, 35, 0.2);
+}
+
+.header-icon {
+  color: var(--primary-brown);
+  font-size: 1.25rem;
+}
+
+.panel-header h3 {
+  margin: 0;
+  color: var(--primary-brown);
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+}
+
+/* Coordinate Input Section */
+.coordinate-input-section {
+  margin-bottom: 1.5rem;
+}
+
+.coordinate-input-section label {
+  display: block;
+  color: var(--dark-purple);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.coordinate-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid var(--primary-brown);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-family: 'Courier New', monospace;
+  background: white;
+  transition: var(--transition);
+}
+
+.coordinate-input:focus {
+  outline: none;
+  border-color: var(--psychedelic-purple);
+  box-shadow: 0 0 0 3px rgba(111, 2, 214, 0.1);
+}
+
+.coordinate-input:disabled {
+  background: rgba(0, 0, 0, 0.05);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.coordinate-input::placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Copy Button */
+.copy-button {
+  background: rgba(111, 2, 214, 0.1);
+  border: 2px solid var(--psychedelic-purple);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  color: var(--psychedelic-purple);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 45px;
+}
+
+.copy-button:hover:not(:disabled) {
+  background: var(--psychedelic-purple);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.copy-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.geocode-button,
+.current-location-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.geocode-button {
+  background: linear-gradient(135deg, var(--primary-brown), var(--psychedelic-purple));
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.geocode-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--psychedelic-purple), var(--primary-brown));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.current-location-button {
+  background: rgba(0, 255, 255, 0.1);
+  border: 2px solid var(--psychedelic-cyan);
+  color: var(--psychedelic-cyan);
+}
+
+.current-location-button:hover:not(:disabled) {
+  background: var(--psychedelic-cyan);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.geocode-button:disabled,
+.current-location-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Error Message */
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 2px solid var(--red);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--red);
+  font-size: 0.9rem;
+}
+
+.error-message strong {
+  font-weight: 700;
+}
+
+/* Address Result */
+.address-result {
+  margin-bottom: 1.5rem;
+}
+
+.address-result label {
+  display: block;
+  color: var(--dark-purple);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.address-display {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: rgba(0, 255, 65, 0.1);
+  border: 2px solid var(--psychedelic-green);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+}
+
+.address-text {
+  flex: 1;
+  color: var(--text-primary);
+  font-weight: 500;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* Instructions */
+.instructions {
+  background: rgba(111, 2, 214, 0.1);
+  border-left: 4px solid var(--psychedelic-purple);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.instructions p {
+  margin: 0;
+}
+
+.instructions strong {
+  color: var(--psychedelic-purple);
+  font-weight: 700;
+}
+
+.instructions code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: var(--primary-brown);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .reverse-geocode-panel {
+    padding: 1rem;
+    max-width: 100%;
+  }
+
+  .panel-header h3 {
+    font-size: 1.2rem;
+  }
+
+  .coordinate-input {
+    font-size: 0.9rem;
+    padding: 0.6rem;
+  }
+
+  .geocode-button,
+  .current-location-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .instructions {
+    font-size: 0.8rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .reverse-geocode-panel {
+    padding: 0.75rem;
+  }
+
+  .input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .copy-button {
+    align-self: flex-end;
+    min-width: auto;
+    width: 45px;
+  }
+
+  .address-display {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .address-display .copy-button {
+    align-self: flex-start;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .reverse-geocode-panel {
+    border-width: 3px;
+  }
+  
+  .coordinate-input:focus {
+    border-width: 3px;
+  }
+  
+  .copy-button,
+  .current-location-button {
+    border-width: 3px;
+  }
+}

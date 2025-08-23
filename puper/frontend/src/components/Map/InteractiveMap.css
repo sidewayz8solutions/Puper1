@@ -1,0 +1,475 @@
+/* Interactive Map Component */
+
+.interactive-map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Map Container */
+.map-container {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-lg);
+}
+
+/* Map Controls */
+.map-controls {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 1000;
+}
+
+.map-control {
+  background: var(--marble-background);
+  border: 2px solid var(--primary-brown);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+/* Add Restroom Button */
+.add-restroom-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 600;
+  color: var(--primary-brown);
+  font-family: inherit;
+  min-width: 140px;
+}
+
+.add-restroom-btn:hover {
+  background: rgba(107, 68, 35, 0.1);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.add-restroom-btn.active {
+  background: var(--red);
+  color: white;
+  border-color: var(--red);
+}
+
+.add-restroom-btn.active:hover {
+  background: #DC2626;
+}
+
+/* Current Location Button */
+.current-location-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--psychedelic-cyan);
+  font-size: 1.2rem;
+}
+
+.current-location-btn:hover {
+  background: rgba(0, 255, 255, 0.1);
+  color: var(--psychedelic-cyan);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Add Restroom Instructions */
+.add-restroom-instructions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(111, 2, 214, 0.95);
+  color: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.instructions-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.instructions-icon {
+  color: var(--psychedelic-cyan);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Context Menu */
+.context-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 1500;
+}
+
+.context-menu {
+  position: fixed;
+  background: white;
+  border: 2px solid var(--primary-brown);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 1501;
+  min-width: 200px;
+  overflow: hidden;
+  animation: context-menu-appear 0.2s ease-out;
+}
+
+@keyframes context-menu-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.context-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--primary-brown), var(--psychedelic-purple));
+  color: white;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.close-context-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.close-context-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.context-menu-items {
+  padding: 0.5rem 0;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.context-menu-item:hover {
+  background: rgba(111, 2, 214, 0.1);
+  color: var(--psychedelic-purple);
+}
+
+.context-icon {
+  color: var(--primary-brown);
+  font-size: 1rem;
+  width: 16px;
+  flex-shrink: 0;
+}
+
+.context-menu-item:hover .context-icon {
+  color: var(--psychedelic-purple);
+}
+
+.context-menu-footer {
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-top: 1px solid rgba(107, 68, 35, 0.2);
+}
+
+.coordinates {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Selected Restroom Info */
+.selected-restroom-info {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  background: white;
+  border: 2px solid var(--primary-brown);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  max-width: 400px;
+  animation: slide-up 0.3s ease-out;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.restroom-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary-brown), var(--psychedelic-purple));
+  color: white;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.restroom-info-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-family: 'Bebas Neue', cursive;
+  letter-spacing: 1px;
+}
+
+.close-info-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.close-info-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.restroom-info-content {
+  padding: 1rem;
+}
+
+.restroom-address {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.restroom-rating {
+  margin-bottom: 1rem;
+  color: var(--psychedelic-purple);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.restroom-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, var(--primary-brown), var(--psychedelic-purple));
+  color: white;
+}
+
+.action-btn.primary:hover {
+  background: linear-gradient(135deg, var(--psychedelic-purple), var(--primary-brown));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.action-btn.secondary {
+  background: rgba(111, 2, 214, 0.1);
+  border: 2px solid var(--psychedelic-purple);
+  color: var(--psychedelic-purple);
+}
+
+.action-btn.secondary:hover {
+  background: var(--psychedelic-purple);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Click Debug (development only) */
+.click-debug {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  z-index: 1000;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .map-controls {
+    top: 0.75rem;
+    left: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .add-restroom-btn {
+    padding: 0.6rem 0.8rem;
+    min-width: 120px;
+    font-size: 0.9rem;
+  }
+
+  .current-location-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+
+  .add-restroom-instructions {
+    top: 0.75rem;
+    right: 0.75rem;
+    left: 0.75rem;
+  }
+
+  .instructions-content {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .selected-restroom-info {
+    bottom: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .restroom-actions {
+    flex-direction: column;
+  }
+
+  .context-menu {
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-controls {
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+
+  .add-restroom-btn {
+    padding: 0.5rem 0.7rem;
+    min-width: 100px;
+    font-size: 0.8rem;
+  }
+
+  .current-location-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .add-restroom-instructions {
+    top: 0.5rem;
+    right: 0.5rem;
+    left: 0.5rem;
+  }
+
+  .instructions-content {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .selected-restroom-info {
+    bottom: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .restroom-info-header h3 {
+    font-size: 1rem;
+  }
+
+  .action-btn {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
