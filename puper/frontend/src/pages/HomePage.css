@@ -1,3 +1,18 @@
+/* Remove all margins and padding from root elements */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
 .home-page {
   position: relative;
   min-height: 100vh;
@@ -8,7 +23,9 @@
 }
 
 .hero-section {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   margin: 0;
