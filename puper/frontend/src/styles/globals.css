@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Allura:wght@400&family=Pacifico:wght@400&family=Satisfy&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: rgb(0, 88, 71) !important;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: var(--dark-brown);
+  background: rgb(0, 88, 71) !important;
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--psychedelic-cyan);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--psychedelic-yellow);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: var(--transition);
+}
+
+input, textarea, select {
+  font-family: inherit;
+  border: 2px solid var(--light-brown);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  background: var(--cream);
+  color: var(--dark-brown);
+  transition: var(--transition);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--psychedelic-cyan);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 500;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: var(--transition);
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--wood-grain);
+  color: var(--cream);
+  border: 2px solid var(--psychedelic-cyan);
+  box-shadow: var(--shadow-wood);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), 0 0 20px var(--psychedelic-cyan);
+  border-color: var(--psychedelic-yellow);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--psychedelic-pink);
+  border: 2px solid var(--psychedelic-pink);
+}
+
+.btn-secondary:hover {
+  background: var(--psychedelic-pink);
+  color: var(--dark-wood);
+  box-shadow: 0 0 15px var(--psychedelic-pink);
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-large {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+.card {
+  background: var(--wood-grain);
+  border: 2px solid var(--medium-wood);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-wood);
+  transition: var(--transition);
+  color: var(--cream);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg), 0 0 15px var(--psychedelic-purple);
+  transform: translateY(-2px);
+  border-color: var(--psychedelic-purple);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--medium-wood);
+  border-top: 4px solid var(--psychedelic-cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  color: var(--danger-red);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.success {
+  color: var(--success-green);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
