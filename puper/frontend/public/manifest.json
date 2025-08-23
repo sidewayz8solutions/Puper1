@@ -1,22 +1,50 @@
 {
-  "name": "Püper - Public Restroom Finder",
-  "short_name": "Püper",
-  "description": "Your Guide to Relief - Find clean, accessible restrooms near you",
+  "name": "PÜPER - Your Guide to Relief",
+  "short_name": "PÜPER",
+  "description": "Find clean, accessible public restrooms with confidence. Rate, review, and discover restrooms in your area.",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#2D1810",
-  "background_color": "#4A2F1A",
-  "orientation": "portrait",
+  "theme_color": "#6B4423",
+  "background_color": "#F5F5DC",
+  "orientation": "portrait-primary",
+  "categories": ["navigation", "utilities", "travel"],
+  "lang": "en-US",
+  "scope": "/",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/puper-logo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/logo.png",
+      "src": "/puper-logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find Nearby Restrooms",
+      "short_name": "Find",
+      "description": "Quickly find restrooms near your location",
+      "url": "/map",
+      "icons": [{ "src": "/puper-logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Add Restroom",
+      "short_name": "Add",
+      "description": "Add a new restroom location",
+      "url": "/map?add=true",
+      "icons": [{ "src": "/puper-logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Leaderboard",
+      "short_name": "Leaderboard",
+      "description": "View community contributors",
+      "url": "/leaderboard",
+      "icons": [{ "src": "/puper-logo.png", "sizes": "192x192" }]
     }
   ]
 }

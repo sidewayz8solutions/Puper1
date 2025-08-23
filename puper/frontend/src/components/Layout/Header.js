@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { FaRoute, FaPlus, FaUser, FaTrophy } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import LoginModal from '../User/LoginModal';

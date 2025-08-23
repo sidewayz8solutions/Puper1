@@ -9,6 +9,9 @@ const GoogleMapComponent = ({ center, restrooms, onMarkerClick, onMapClick, addM
   const [markers, setMarkers] = useState([]);
   const [addMarker, setAddMarker] = useState(null);
   const [infoWindow, setInfoWindow] = useState(null);
+  const [is3DMode, setIs3DMode] = useState(false);
+  const [trafficLayer, setTrafficLayer] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Initialize map
   useEffect(() => {
@@ -55,8 +58,13 @@ const GoogleMapComponent = ({ center, restrooms, onMarkerClick, onMapClick, addM
         const newMap = new window.google.maps.Map(mapRef.current, mapOptions);
         setMap(newMap);
 
-        // Enable 3D buildings
+        // Initialize traffic layer
+        const traffic = new window.google.maps.TrafficLayer();
+        setTrafficLayer(traffic);
+
+        // Enable 3D buildings by default
         newMap.setTilt(45);
+        setIs3DMode(true);
 
         // Add 3D controls
         const rotateControl = document.createElement('div');
@@ -227,12 +235,135 @@ const GoogleMapComponent = ({ center, restrooms, onMarkerClick, onMapClick, addM
     }
   }, [map, addMode, addLocation, addMarker]);
 
+  // 3D View Toggle Function
+  const toggle3DView = () => {
+    if (map) {
+      if (is3DMode) {
+        map.setTilt(0);
+        setIs3DMode(false);
+      } else {
+        map.setTilt(45);
+        setIs3DMode(true);
+      }
+    }
+  };
+
+  // Traffic Layer Toggle Function
+  const toggleTraffic = () => {
+    if (trafficLayer) {
+      if (trafficLayer.getMap()) {
+        trafficLayer.setMap(null);
+      } else {
+        trafficLayer.setMap(map);
+      }
+    }
+  };
+
+  // Center on User Location Function
+  const centerOnUser = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          map.setCenter(userLocation);
+          map.setZoom(18);
+
+          // Add user location marker
+          new window.google.maps.Marker({
+            position: userLocation,
+            map: map,
+            title: 'Your Location',
+            icon: {
+              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="8" fill="#4285F4" stroke="white" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" fill="white"/>
+                </svg>
+              `),
+              scaledSize: new window.google.maps.Size(24, 24),
+              anchor: new window.google.maps.Point(12, 12)
+            }
+          });
+        },
+        (error) => {
+          console.error('Error getting user location:', error);
+          alert('Unable to get your location. Please check your browser settings.');
+        }
+      );
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+  };
+
+  // Fullscreen Toggle Function
+  const toggleFullscreen = () => {
+    const mapContainer = mapRef.current?.parentElement;
+    if (!mapContainer) return;
+
+    if (!isFullscreen) {
+      if (mapContainer.requestFullscreen) {
+        mapContainer.requestFullscreen();
+      } else if (mapContainer.webkitRequestFullscreen) {
+        mapContainer.webkitRequestFullscreen();
+      } else if (mapContainer.msRequestFullscreen) {
+        mapContainer.msRequestFullscreen();
+      }
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+      setIsFullscreen(false);
+    }
+  };
+
   return (
-    <div 
-      ref={mapRef} 
-      className={`google-map ${addMode ? 'add-mode' : ''}`}
-      style={{ width: '100%', height: '100%' }}
-    />
+    <div className="map-container-wrapper" style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div
+        ref={mapRef}
+        className={`google-map ${addMode ? 'add-mode' : ''}`}
+        style={{ width: '100%', height: '100%' }}
+      />
+
+      {/* 3D Map Controls */}
+      <div className="map-controls">
+        <button
+          className={`map-control-btn ${is3DMode ? 'active' : ''}`}
+          onClick={toggle3DView}
+          title="Toggle 3D View"
+        >
+          <i className="fas fa-cube"></i>
+        </button>
+        <button
+          className={`map-control-btn ${trafficLayer?.getMap() ? 'active' : ''}`}
+          onClick={toggleTraffic}
+          title="Toggle Traffic"
+        >
+          <i className="fas fa-traffic-light"></i>
+        </button>
+        <button
+          className="map-control-btn"
+          onClick={centerOnUser}
+          title="Center on My Location"
+        >
+          <i className="fas fa-crosshairs"></i>
+        </button>
+        <button
+          className={`map-control-btn ${isFullscreen ? 'active' : ''}`}
+          onClick={toggleFullscreen}
+          title="Fullscreen"
+        >
+          <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'}`}></i>
+        </button>
+      </div>
+    </div>
   );
 };
 

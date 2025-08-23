@@ -1,0 +1,260 @@
+.geospatial-test {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--marble-background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--primary-brown);
+}
+
+.geospatial-test h2 {
+  font-family: 'Bebas Neue', cursive;
+  color: var(--primary-brown);
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.error-banner {
+  background: rgba(255, 0, 0, 0.1);
+  border: 2px solid var(--red);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-banner p {
+  margin: 0;
+  color: var(--red);
+  font-weight: bold;
+}
+
+.error-banner button {
+  background: var(--red);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.error-banner button:hover {
+  background: darkred;
+}
+
+.test-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.location-controls,
+.search-controls {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  border: 2px solid var(--psychedelic-cyan);
+}
+
+.location-controls h3,
+.search-controls h3 {
+  font-family: 'Bebas Neue', cursive;
+  color: var(--primary-brown);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.input-group label {
+  display: block;
+  color: var(--dark-purple);
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--primary-brown);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--psychedelic-purple);
+  box-shadow: 0 0 0 3px rgba(111, 2, 214, 0.1);
+}
+
+.location-btn {
+  background: linear-gradient(135deg, var(--psychedelic-cyan), var(--psychedelic-purple));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: bold;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.location-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.test-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.test-btn {
+  background: linear-gradient(135deg, var(--primary-brown), var(--psychedelic-purple));
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.test-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(135deg, var(--psychedelic-purple), var(--primary-brown));
+}
+
+.test-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(111, 2, 214, 0.1);
+  border-radius: var(--radius);
+  margin-bottom: 2rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(111, 2, 214, 0.3);
+  border-top: 4px solid var(--psychedelic-purple);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.results h3 {
+  font-family: 'Bebas Neue', cursive;
+  color: var(--primary-brown);
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.no-results {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius);
+}
+
+.restroom-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.restroom-card {
+  background: white;
+  border: 2px solid var(--psychedelic-cyan);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.restroom-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--psychedelic-purple);
+}
+
+.restroom-card h4 {
+  color: var(--primary-brown);
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.restroom-card .description {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.restroom-details p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--dark-purple);
+}
+
+.features {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: rgba(111, 2, 214, 0.1);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .geospatial-test {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .test-controls {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .test-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .restroom-list {
+    grid-template-columns: 1fr;
+  }
+
+  .geospatial-test h2 {
+    font-size: 2rem;
+  }
+}
