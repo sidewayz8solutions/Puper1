@@ -12,7 +12,7 @@
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  color: rgba(255, 255, 255, 0);
+  color: rgb(0, 79, 74);
   background: url('../assets/images/hero.gif') center center / cover no-repeat;
   background-size: cover !important;
   background-position: center center !important;
