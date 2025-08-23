@@ -17,20 +17,11 @@ const HomePage = () => {
 
         <div className="container">
           <motion.div
-            className="hero-content video-content"
+            className="hero-content"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <div className="hero-logo">
-              <img src="/puper-logo.png" alt="Püper Logo" className="hero-logo-image" />
-            </div>
-            <h1 className="hero-title">PÜPER</h1>
-            <p className="hero-description">
-              Find clean, accessible restrooms with confidence.
-              Your guide to relief, wherever you go.
-            </p>
-
             <div className="hero-actions">
               <Link to="/map">
                 <Button size="large" className="cta-button">
