@@ -56,54 +56,7 @@
     background: linear-gradient(135deg, var(--psychedelic-purple), var(--psychedelic-cyan));
 }
 
-/* Responsive Design for Hero */
-@media (max-width: 768px) {
-    .hero-content {
-        padding: 1.5rem 2rem;
-    }
-
-    .hero-content h1 {
-        font-size: 3rem;
-    }
-
-    .hero-content p {
-        font-size: 1.2rem;
-    }
-
-    .hero-button {
-        padding: 0.8rem 2rem;
-        font-size: 1.1rem;
-    }
-}
-.psychedelic-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0.08;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 15% 30%, var(--psychedelic-purple) 0%, transparent 40%),
-    radial-gradient(circle at 85% 70%, var(--psychedelic-pink) 0%, transparent 40%),
-    radial-gradient(circle at 50% 10%, var(--psychedelic-orange) 0%, transparent 40%),
-    radial-gradient(circle at 20% 80%, var(--psychedelic-green) 0%, transparent 40%),
-    radial-gradient(circle at 70% 40%, var(--psychedelic-cyan) 0%, transparent 40%),
-    radial-gradient(circle at 40% 60%, var(--psychedelic-magenta) 0%, transparent 40%);
-  animation: psychedelicMove 25s ease-in-out infinite;
-}
-
-@keyframes psychedelicMove {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  25% { transform: scale(1.1) rotate(90deg); }
-  50% { transform: scale(0.9) rotate(180deg); }
-  75% { transform: scale(1.05) rotate(270deg); }
-}
-
-/* Hero Section - Styles moved to Hero.css component */
-
-/* Features Section */
-.features-section {
+ .features-section {
   padding: 5rem 0;
   background-size: cover;
   background-position: center;
