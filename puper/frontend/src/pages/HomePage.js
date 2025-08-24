@@ -6,20 +6,23 @@ import Button from '../components/Common/Button';
 import woodBg from '../assets/images/wood.png';
 import ctaBg from '../assets/images/1.png';
 import './HomePage.css';
+import '../components/Hero/Hero.css';
 
 const Hero = () => {
   return (
     <section className="hero-section">
       {/* YouTube Background Video */}
-      <iframe
-        className="hero-background-video"
-        src="https://www.youtube.com/embed/ElA01pd6jrE?autoplay=1&mute=1&loop=1&playlist=ElA01pd6jrE&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
-        title="Hero Background Video"
-        style={{ border: 'none' }}
-        allow="autoplay; encrypted-media"
-        allowFullScreen
-      ></iframe>
-      <div className="container">
+      <div className="hero-video-wrapper">
+        <iframe
+          className="hero-video"
+          src="https://www.youtube.com/embed/ElA01pd6jrE?autoplay=1&mute=1&loop=1&playlist=ElA01pd6jrE&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
+          title="Hero Background Video"
+          style={{ border: 'none' }}
+          allow="autoplay; encrypted-media; fullscreen"
+          allowFullScreen
+        ></iframe>
+      </div>
+      <div className="container hero-content">
         {/* Main Title */}
         <motion.h1 
           className="hero-title"
