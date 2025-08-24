@@ -5,7 +5,7 @@ import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
 import Button from '../components/Common/Button';
 import woodBg from '../assets/images/wood.png';
 import ctaBg from '../assets/images/1.png';
-import './Homepage.css';
+import './HomePage.css';
 import '../components/Hero/Hero.css';
 
 // Stats data could be fetched from an API or updated periodically for accuracy.
@@ -18,55 +18,31 @@ const stats = [
 
 const Hero = () => {
   return (
-    <section className="hero-section">
-      {/* Local MP4 Background Video */}
-      <div className="hero-video-wrapper">
-        <video
-          className="hero-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-        >
-          <source src="/hero-video.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      </div>
-      
-      {/* Wrap the CTA links and scroll indicator in a motion.div */}
-      <motion.div>
-        <Link to="/map" className="hero-link">
-          <Button size="large" className="hero-cta-button primary-cta">
-            <FaRoute className="button-icon" /> 
-            <span>Find Restrooms</span>
-          </Button>
-        </Link>
-        
-        <Link to="/map?add=true" className="hero-link">
-          <Button variant="secondary" size="large" className="hero-cta-button secondary-cta">
-            <FaPlus className="button-icon" /> 
-            <span>Add a Restroom</span>
-          </Button>
-        </Link>
-      </motion.div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        className="scroll-indicator"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1.5 }}
+    <div className="hero-container">
+      {/* Video Background */}
+      <video
+        className="hero-background"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
       >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <span className="scroll-text">Scroll to explore</span>
-          <div className="scroll-arrow">↓</div>
-        </motion.div>
-      </motion.div>
-    </section>
+        <source src="/hero-movie.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      {/* Overlay Content */}
+      <div className="hero-overlay">
+        <h1 className="hero-title">PÜPER</h1>
+        <p className="hero-subtitle">Find the best public restrooms, wherever you go.</p>
+        <Link to="/map">
+          <button className="hero-button">
+            Find Restrooms Near Me
+          </button>
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -77,7 +53,7 @@ function HomePage() {
       <Hero />
 
       {/* Features Section */}
-      <section className="features-section" style={{ backgroundImage: `url(${woodBg})` }}>
+      <section className="features-section marble-background">
         <div className="container">
           <motion.h2
             className="section-title"
@@ -129,7 +105,7 @@ function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="cta-section" style={{ backgroundImage: `url(${ctaBg})` }}>
+      <section className="cta-section marble-background">
         <div className="container">
           <motion.div
             className="cta-content"

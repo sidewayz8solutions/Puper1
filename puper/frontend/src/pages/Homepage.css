@@ -1,38 +1,35 @@
-/* Hero Section Styles */
-.hero-section {
+/* Hero Section Styles - Based on index.html */
+.hero-container {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* Prevents video from leaking into other sections */
-  isolation: isolate; /* Creates a new stacking context */
+  overflow: hidden;
 }
 
-/* Video Wrapper - Positioned at the end of hero section */
-.hero-video-wrapper {
+/* GIF Background */
+.hero-background {
   position: absolute;
-  top: 0; /* Flush with the header/nav */
+  top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 0; /* Behind the content */
-  overflow: visible; /* Ensures video doesn't overflow */
+  object-fit: cover;
+  z-index: -1;
 }
 
-/* Video Element with Brightness Filter */
-.hero-video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100vw;
-  height: 56.25vw; /* 16:9 aspect ratio */
-  min-width: 177.78vh; /* 16:9 aspect ratio */
-  min-height: 100vh;
-  transform: translate(-50%, -50%);
-  object-fit: cover;
-  filter: brightness(1.25); /* 25% brighter */
-  pointer-events: none; /* Prevents interaction with iframe */
+/* Overlay Content */
+.hero-overlay {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 /* Ensures video scales properly */
