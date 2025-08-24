@@ -20,14 +20,13 @@ const Hero = () => {
   return (
     <section className="hero-section">
       {/* YouTube Background Video - Removed loop and playlist parameters */}
-      <div className="hero-video-wrapper">
+      <div className="hero-video-container">
         <iframe
           className="hero-video"
           src="https://www.youtube.com/embed/ElA01pd6jrE?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
           title="Hero Background Video"
-          style={{ border: '4px solid #5ef6a5ff' }}
-         allow="autoplay; encrypted-media; fullscreen"
-          allowFullScreen
+          style={{ border: '32px solid #5ef6a5ff' }}
+         allow="replay; autoplay; encrypted-media;"
         ></iframe>
       </div>
       
@@ -71,7 +70,7 @@ const Hero = () => {
 function HomePage() {
   return (
     <div className="home-page">
-      <Hero />
+      <Hero />.
 
       {/* Features Section */}
       <section className="features-section" style={{ backgroundImage: `url(${woodBg})` }}>
