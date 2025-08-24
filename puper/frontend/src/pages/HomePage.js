@@ -5,7 +5,7 @@ import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
 import Button from '../components/Common/Button';
 import woodBg from '../assets/images/wood.png';
 import ctaBg from '../assets/images/1.png';
-import './HomePage.css';
+import './Homepage.css';
 import '../components/Hero/Hero.css';
 
 // Stats data could be fetched from an API or updated periodically for accuracy.
@@ -25,6 +25,7 @@ const Hero = () => {
           className="hero-video"
           autoPlay
           muted
+          loop
           playsInline
           preload="auto"
         >
@@ -73,7 +74,7 @@ const Hero = () => {
 function HomePage() {
   return (
     <div className="home-page">
-      <Hero />.
+      <Hero />
 
       {/* Features Section */}
       <section className="features-section" style={{ backgroundImage: `url(${woodBg})` }}>
