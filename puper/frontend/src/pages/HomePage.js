@@ -71,24 +71,6 @@ const Hero = () => {
           </Link>
         </motion.div>
 
-        {/* Stats Row */}
-        <motion.div
-          className="hero-stats"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.1 }}
-        >
-          {stats.map((stat, idx) => (
-            <React.Fragment key={stat.label}>
-              <div className="stat-item">
-                <span className="stat-number">{stat.number}</span>
-                <span className="stat-label">{stat.label}</span>
-              </div>
-              {idx < stats.length - 1 && <div className="stat-divider"></div>}
-            </React.Fragment>
-          ))}
-        </motion.div>
-
         {/* Scroll Indicator */}
         <motion.div
           className="scroll-indicator"
