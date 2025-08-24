@@ -18,7 +18,7 @@
   z-index: 0;
   background: #000; /* in case of slow load */
 }
-/* Dark overlay above the video, below content */
+/* Light overlay above the video, below content */
 .hero-video-wrapper::after {
   content: '';
   position: absolute;
@@ -26,8 +26,8 @@
   z-index: 1;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.45) 0%,
-    rgba(0, 0, 0, 0.45) 100%
+    rgba(0, 0, 0, 0.15) 0%,
+    rgba(0, 0, 0, 0.25) 100%
   );
 }
 .hero-video {

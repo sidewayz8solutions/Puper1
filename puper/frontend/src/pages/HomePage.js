@@ -23,7 +23,7 @@ const Hero = () => {
       <div className="hero-video-wrapper">
         <iframe
           className="hero-video"
-          src="https://www.youtube.com/embed/ElA01pd6jrE?autoplay=1&mute=1&loop=1&playlist=ElA01pd6jrE&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
+          src="https://www.youtube.com/embed/ElA01pd6jrE?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
           title="Hero Background Video"
           style={{ border: 'none' }}
           allow="autoplay; encrypted-media; fullscreen"

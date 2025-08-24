@@ -1,6 +1,6 @@
 .header {
   background: linear-gradient(to right, #808080 35%, #f5f5f5 100%);
-  border-bottom: 3px solid var(--psychedelic-cyan);
+  border-bottom: 3px solid var(--psychedelic-purple);
   padding: 1rem 2rem;
   box-shadow: var(--shadow-wood);
   position: relative;
