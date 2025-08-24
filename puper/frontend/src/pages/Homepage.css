@@ -1,6 +1,6 @@
 /* Hero Section Styles */
 .hero-section {
-  position: relative;
+  position: fixed;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -16,14 +16,14 @@
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Behind the content */
-  overflow: hidden; /* Ensures video doesn't overflow */
+  z-index: 0; /* Behind the content */
+  overflow: visible; /* Ensures video doesn't overflow */
 }
 
 /* Video Element with Brightness Filter */
 .hero-video {
   position: absolute;
-  top: 50%;
+  top: 100%;
   left: 50%;
   width: 100%;
   height: 100%;
@@ -39,7 +39,7 @@
 @media (aspect-ratio: 16/9) {
   .hero-video {
     width: 100%;
-    height: auto;
+    height: 100%;
   }
 }
 
