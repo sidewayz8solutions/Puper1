@@ -19,7 +19,7 @@ const stats = [
 const Hero = () => {
   return (
     <section className="hero-section">
-      {/* YouTube Background Video */}
+      {/* YouTube Background Video - Removed loop and playlist parameters */}
       <div className="hero-video-wrapper">
         <iframe
           className="hero-video"
@@ -31,19 +31,45 @@ const Hero = () => {
         ></iframe>
       </div>
     
-        <Link to="/map" className="hero-link">
-          <Button size="large" className="hero-cta-button primary-cta">
-            <FaRoute className="button-icon" /> 
-            <span>Find Restrooms</span>
-          </Button>
-        </Link>
+      <div className="container hero-content">
+        <motion.h1
+          className="hero-title"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          Find Relief Anywhere
+        </motion.h1>
         
-        <Link to="/map?add=true" className="hero-link">
-          <Button variant="secondary" size="large" className="hero-cta-button secondary-cta">
-            <FaPlus className="button-icon" /> 
-            <span>Add a Restroom</span>
-          </Button>
-        </Link>
+        <motion.p
+          className="hero-subtitle"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          Never worry about finding a clean restroom again
+        </motion.p>
+        
+        <motion.div
+          className="hero-buttons"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <Link to="/map" className="hero-link">
+            <Button size="large" className="hero-cta-button primary-cta">
+              <FaRoute className="button-icon" /> 
+              <span>Find Restrooms</span>
+            </Button>
+          </Link>
+          
+          <Link to="/map?add=true" className="hero-link">
+            <Button variant="secondary" size="large" className="hero-cta-button secondary-cta">
+              <FaPlus className="button-icon" /> 
+              <span>Add a Restroom</span>
+            </Button>
+          </Link>
+        </motion.div>
 
         {/* Stats Row */}
         <motion.div
@@ -78,8 +104,10 @@ const Hero = () => {
             <div className="scroll-arrow">↓</div>
           </motion.div>
         </motion.div>
+      </div>
     </section>
-        );
+  );
+};
 
 function HomePage() {
   return (
@@ -160,6 +188,5 @@ function HomePage() {
     </div>
   );
 }
-}
-export default HomePage;
 
+export default HomePage;
