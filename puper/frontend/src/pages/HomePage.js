@@ -8,6 +8,14 @@ import ctaBg from '../assets/images/1.png';
 import './HomePage.css';
 import '../components/Hero/Hero.css';
 
+// Stats data could be fetched from an API or updated periodically for accuracy.
+// For now, these are hardcoded demo values.
+const stats = [
+  { number: '10K+', label: 'Restrooms' },
+  { number: '25K+', label: 'Reviews' },
+  { number: '5K+', label: 'Users' }
+];
+
 const Hero = () => {
   return (
     <section className="hero-section">
@@ -22,58 +30,20 @@ const Hero = () => {
           allowFullScreen
         ></iframe>
       </div>
-      <div className="container hero-content">
-        {/* Main Title */}
-        <motion.h1 
-          className="hero-title"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          PÜPER
-        </motion.h1>
+    
+        <Link to="/map" className="hero-link">
+          <Button size="large" className="hero-cta-button primary-cta">
+            <FaRoute className="button-icon" /> 
+            <span>Find Restrooms</span>
+          </Button>
+        </Link>
         
-        {/* Subtitle */}
-        <motion.p 
-          className="hero-subtitle"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-        >
-          Your Guide to Relief, Wherever You Go
-        </motion.p>
-
-        {/* Tagline */}
-        <motion.p
-          className="hero-tagline"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          Find the best public restrooms with our community-driven platform
-        </motion.p>
-
-        {/* Action Buttons */}
-        <motion.div 
-          className="hero-actions"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
-        >
-          <Link to="/map" className="hero-link">
-            <Button size="large" className="hero-cta-button primary-cta">
-              <FaRoute className="button-icon" /> 
-              <span>Find Restrooms</span>
-            </Button>
-          </Link>
-          
-          <Link to="/map?add=true" className="hero-link">
-            <Button variant="secondary" size="large" className="hero-cta-button secondary-cta">
-              <FaPlus className="button-icon" /> 
-              <span>Add a Restroom</span>
-            </Button>
-          </Link>
-        </motion.div>
+        <Link to="/map?add=true" className="hero-link">
+          <Button variant="secondary" size="large" className="hero-cta-button secondary-cta">
+            <FaPlus className="button-icon" /> 
+            <span>Add a Restroom</span>
+          </Button>
+        </Link>
 
         {/* Stats Row */}
         <motion.div
@@ -82,20 +52,15 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.1 }}
         >
-          <div className="stat-item">
-            <span className="stat-number">10K+</span>
-            <span className="stat-label">Restrooms</span>
-          </div>
-          <div className="stat-divider"></div>
-          <div className="stat-item">
-            <span className="stat-number">25K+</span>
-            <span className="stat-label">Reviews</span>
-          </div>
-          <div className="stat-divider"></div>
-          <div className="stat-item">
-            <span className="stat-number">5K+</span>
-            <span className="stat-label">Users</span>
-          </div>
+          {stats.map((stat, idx) => (
+            <React.Fragment key={stat.label}>
+              <div className="stat-item">
+                <span className="stat-number">{stat.number}</span>
+                <span className="stat-label">{stat.label}</span>
+              </div>
+              {idx < stats.length - 1 && <div className="stat-divider"></div>}
+            </React.Fragment>
+          ))}
         </motion.div>
 
         {/* Scroll Indicator */}
@@ -113,12 +78,10 @@ const Hero = () => {
             <div className="scroll-arrow">↓</div>
           </motion.div>
         </motion.div>
-      </div>
     </section>
-  );
-};
+        );
 
-const HomePage = () => {
+function HomePage() {
   return (
     <div className="home-page">
       <Hero />
@@ -196,7 +159,7 @@ const HomePage = () => {
       </section>
     </div>
   );
-};
-
+}
+}
 export default HomePage;
 
