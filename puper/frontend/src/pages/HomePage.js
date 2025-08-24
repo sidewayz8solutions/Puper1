@@ -19,15 +19,18 @@ const stats = [
 const Hero = () => {
   return (
     <section className="hero-section">
-      {/* YouTube Background Video - Removed loop and playlist parameters */}
-      <div className="hero-video-container">
-        <iframe
+      {/* Local MP4 Background Video */}
+      <div className="hero-video-wrapper">
+        <video
           className="hero-video"
-          src="https://www.youtube.com/embed/ElA01pd6jrE?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
-          title="Hero Background Video"
-          style={{ border: '32px solid #5ef6a5ff' }}
-         allow="replay; autoplay; encrypted-media;"
-        ></iframe>
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+        >
+          <source src="/hero-video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       </div>
       
       {/* Wrap the CTA links and scroll indicator in a motion.div */}
