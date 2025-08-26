@@ -263,7 +263,7 @@ const clusterCountLayer = {
             <div className="popup-content">
               <h3>{selectedRestroom.name}</h3>
               <div className="popup-rating">
-                <span className="stars">⭐ {selectedRestroom.avg_rating?.toFixed(1) || 'N/A'}</span>
+                <span className="stars">🚽 {selectedRestroom.avg_rating?.toFixed(1) || 'N/A'}</span>
                 <span className="reviews">({selectedRestroom.review_count || 0} reviews)</span>
               </div>
               <div className="popup-amenities">

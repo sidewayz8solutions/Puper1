@@ -159,7 +159,7 @@ const AdvancedSearchPanel = ({
             <span>25km</span>
             <span>50km</span>
           </div>
-        </div>
+  f      </div>
       </div>
     </div>
   );
