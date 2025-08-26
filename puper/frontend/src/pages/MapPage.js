@@ -215,8 +215,25 @@ const MapPage = () => {
         script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=places,marker`;
         script.async = true;
         script.defer = true;
-        script.onload = () => setupMap();
+        script.onload = () => {
+          console.info('✅ Google Maps JS loaded');
+          setupMap();
+        };
+        script.onerror = (e) => {
+          console.error('❌ Failed to load Google Maps JS', e);
+          setLoading(false);
+          alert('Failed to load Google Maps. Check your API key, billing, and allowed referrers for your Vercel domain.');
+        };
         document.head.appendChild(script);
+
+        // Watchdog: if Maps hasn\'t loaded in 12s, show a helpful message
+        setTimeout(() => {
+          if (!window.google || !window.google.maps) {
+            console.warn('Google Maps still not available after 12s');
+            setLoading(false);
+            alert('Google Maps is taking too long to load. Verify REACT_APP_GOOGLE_MAPS_API_KEY on Vercel and referrer restrictions.');
+          }
+        }, 12000);
       } else {
         setupMap();
       }
