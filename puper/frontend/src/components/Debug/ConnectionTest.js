@@ -7,7 +7,8 @@ const ConnectionTest = () => {
   const [tests, setTests] = useState({
     supabase: { status: 'testing', message: 'Testing Supabase connection...' },
     googleMaps: { status: 'testing', message: 'Testing Google Maps API...' },
-    restrooms: { status: 'testing', message: 'Testing restroom data fetch...' }
+    restrooms: { status: 'testing', message: 'Testing restroom data fetch...' },
+    realtime: { status: 'testing', message: 'Testing Supabase real-time...' }
   });
 
   useEffect(() => {
@@ -89,8 +90,46 @@ const ConnectionTest = () => {
         processedData
       );
     } catch (error) {
-      updateTest('restrooms', 'error', 
+      updateTest('restrooms', 'error',
         `❌ Restroom data fetch failed: ${error.message}`
+      );
+    }
+
+    // Test 4: Supabase Real-time
+    try {
+      const subscription = supabase
+        .channel('test-channel')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'restrooms'
+          },
+          (payload) => {
+            console.log('Real-time test received:', payload);
+          }
+        )
+        .subscribe((status) => {
+          console.log('Real-time subscription status:', status);
+          if (status === 'SUBSCRIBED') {
+            updateTest('realtime', 'success',
+              '✅ Supabase real-time is working! You can receive live updates.'
+            );
+          } else if (status === 'CHANNEL_ERROR') {
+            updateTest('realtime', 'error',
+              '❌ Supabase real-time failed. Check if real-time is enabled in your Supabase project.'
+            );
+          }
+        });
+
+      // Clean up subscription after 5 seconds
+      setTimeout(() => {
+        subscription.unsubscribe();
+      }, 5000);
+    } catch (error) {
+      updateTest('realtime', 'error',
+        `❌ Real-time setup failed: ${error.message}`
       );
     }
   };

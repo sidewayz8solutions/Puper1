@@ -7,7 +7,7 @@ import {
   FaChartLine, FaGlobe, FaExpand, FaCompass
 } from 'react-icons/fa';
 import woodBg from '../assets/images/wood5.png';
-import { restroomService } from '../services/supabase';
+import { restroomService, supabase } from '../services/supabase';
 import { googlePlacesService } from '../services/googleMaps';
 import './MapPage.css';
 
@@ -29,6 +29,7 @@ const MapPage = () => {
   const [loading, setLoading] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapsApiLoaded, setMapsApiLoaded] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
   
   // Stats
   const [stats, setStats] = useState({
@@ -91,6 +92,56 @@ const MapPage = () => {
 
   // Set up global initMap function for Google Maps API callback
   window.initMap = () => setMapsApiLoaded(true);
+
+  // Set up real-time subscription for restrooms
+  useEffect(() => {
+    const subscription = supabase
+      .channel('restrooms-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'restrooms'
+        },
+        (payload) => {
+          console.log('🔄 Real-time restroom update:', payload);
+
+          if (payload.eventType === 'INSERT') {
+            // Reload restrooms when new one is added
+            if (map && mapLoaded) {
+              loadRestrooms();
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            // Update existing restroom in state
+            setRestrooms(prev => prev.map(r =>
+              r.id === payload.new.id ? { ...r, ...payload.new } : r
+            ));
+          } else if (payload.eventType === 'DELETE') {
+            // Remove deleted restroom
+            setRestrooms(prev => prev.filter(r => r.id !== payload.old.id));
+            // Also remove marker
+            const markerIndex = restrooms.findIndex(r => r.id === payload.old.id);
+            if (markerIndex >= 0 && markersRef.current[markerIndex]) {
+              markersRef.current[markerIndex].setMap(null);
+              markersRef.current.splice(markerIndex, 1);
+            }
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('📡 Real-time subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          setStats(prev => ({ ...prev, networkStatus: 'CONNECTED' }));
+        } else if (status === 'CHANNEL_ERROR') {
+          setStats(prev => ({ ...prev, networkStatus: 'ERROR' }));
+        }
+      });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [map, mapLoaded]);
 
   // Initialize Google Maps
   useEffect(() => {
@@ -190,28 +241,36 @@ const MapPage = () => {
 
         // Add click listener for adding new restrooms
         newMap.addListener('click', (event) => {
-          if (showAddForm) {
-            setAddLocation({
-              lat: event.latLng.lat(),
-              lng: event.latLng.lng()
-            });
-            
-            // Add temporary marker
-            new window.google.maps.Marker({
-              position: event.latLng,
-              map: newMap,
-              icon: {
-                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                  <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="#00ff41"/>
-                    <text x="20" y="25" text-anchor="middle" fill="white" font-size="20" font-weight="bold">+</text>
-                  </svg>
-                `),
-                scaledSize: new window.google.maps.Size(40, 50),
-                anchor: new window.google.maps.Point(20, 50)
-              }
-            });
+          // Always allow clicking on map to add restroom
+          setAddLocation({
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng()
+          });
+
+          // Clear any existing temporary markers
+          if (window.tempMarker) {
+            window.tempMarker.setMap(null);
           }
+
+          // Add temporary marker
+          window.tempMarker = new window.google.maps.Marker({
+            position: event.latLng,
+            map: newMap,
+            icon: {
+              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="#0dffe7"/>
+                  <text x="20" y="25" text-anchor="middle" fill="white" font-size="20" font-weight="bold">+</text>
+                </svg>
+              `),
+              scaledSize: new window.google.maps.Size(40, 50),
+              anchor: new window.google.maps.Point(20, 50)
+            },
+            title: 'Click to add restroom here'
+          });
+
+          // Show the add form modal
+          setShowAddForm(true);
         });
       }
     };
@@ -590,6 +649,12 @@ const MapPage = () => {
       setShowAddForm(false);
       setAddLocation(null);
 
+      // Clear temporary marker
+      if (window.tempMarker) {
+        window.tempMarker.setMap(null);
+        window.tempMarker = null;
+      }
+
       // Add new marker to map
       if (map && newRestroom) {
         const marker = new window.google.maps.Marker({
@@ -685,15 +750,32 @@ const MapPage = () => {
               onChange={(e) => handleSearch(e.target.value)}
               className="search-input"
             />
+            <div className="connection-status">
+              <FaWifi className={`status-icon ${stats.networkStatus.toLowerCase()}`} />
+              <span className="status-text">{stats.networkStatus}</span>
+            </div>
           </div>
           <motion.button
             className={`add-restroom-btn ${showAddForm ? 'active' : ''}`}
-            onClick={() => setShowAddForm(!showAddForm)}
+            onClick={() => {
+              if (showAddForm) {
+                // Close form and clear temp marker
+                setShowAddForm(false);
+                setAddLocation(null);
+                if (window.tempMarker) {
+                  window.tempMarker.setMap(null);
+                  window.tempMarker = null;
+                }
+              } else {
+                // Just show instruction - clicking map will open form
+                alert('Click anywhere on the map to add a new restroom!');
+              }
+            }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <FaPlus />
-            <span>Add Restroom</span>
+            <span>{showAddForm ? 'Cancel' : 'Add Restroom'}</span>
           </motion.button>
         </motion.div>
 
@@ -758,12 +840,18 @@ const MapPage = () => {
                 </button>
               </div>
               <div className="modal-body">
-                <p className="modal-instruction">
-                  Click on the map to set location, then fill out the details below.
-                </p>
-                {addLocation && (
-                  <p className="location-confirmation">
-                    ✓ Location set: {addLocation.lat.toFixed(6)}, {addLocation.lng.toFixed(6)}
+                {addLocation ? (
+                  <div className="location-confirmation">
+                    <p style={{ color: 'var(--psychedelic-lime)', fontWeight: 'bold', marginBottom: '1rem' }}>
+                      ✓ Location Selected: {addLocation.lat.toFixed(6)}, {addLocation.lng.toFixed(6)}
+                    </p>
+                    <p className="modal-instruction">
+                      Fill out the details below to add this restroom:
+                    </p>
+                  </div>
+                ) : (
+                  <p className="modal-instruction">
+                    Please click on the map to select a location first.
                   </p>
                 )}
                 <form onSubmit={(e) => {
@@ -807,6 +895,37 @@ const MapPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Instructions Overlay */}
+      {showInstructions && !loading && (
+        <motion.div
+          className="instructions-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="instructions-content"
+            initial={{ scale: 0.9, y: 50 }}
+            animate={{ scale: 1, y: 0 }}
+            style={{ backgroundImage: `url(${woodBg})` }}
+          >
+            <h3>Welcome to Püper Map! 🚽</h3>
+            <div className="instructions-list">
+              <p>🗺️ <strong>Browse:</strong> Explore restrooms from our community and Google Places</p>
+              <p>🔍 <strong>Search:</strong> Use the search box to find specific locations</p>
+              <p>➕ <strong>Add Restroom:</strong> Click anywhere on the map to add a new restroom</p>
+              <p>📊 <strong>Live Stats:</strong> Check real-time statistics in the bottom left</p>
+            </div>
+            <button
+              className="instructions-close"
+              onClick={() => setShowInstructions(false)}
+            >
+              Got it! Let's explore
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
 
       {/* Loading Overlay */}
       {loading && (
