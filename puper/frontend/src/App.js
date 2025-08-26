@@ -4,7 +4,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
-import Layout from './components/Layout/Layout';
+import Header from './components/Layout/Header';
+import Footer from './components/Layout/Footer';
 import HomePage from './pages/HomePage';
 import MapPage from './pages/MapPage';
 import ProfilePage from './pages/ProfilePage';
@@ -30,7 +31,8 @@ function App() {
               {/* Psychedelic background animations */}
               <div className="psychedelic-bg"></div>
 
-              <Layout>
+              <Header />
+              <main className="main-content">
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/map" element={<MapPage />} />
@@ -40,7 +42,8 @@ function App() {
                   <Route path="/test" element={<ConnectionTest />} />
                   <Route path="/geospatial" element={<GeospatialTest />} />
                 </Routes>
-              </Layout>
+              </main>
+              <Footer />
               <Toaster position="bottom-right" />
             </div>
           </Router>
