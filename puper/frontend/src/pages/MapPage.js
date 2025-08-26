@@ -6,6 +6,7 @@ import {
   FaMapMarkerAlt, FaStar, FaClock, FaWifi, FaBolt,
   FaChartLine, FaGlobe, FaExpand, FaCompass
 } from 'react-icons/fa';
+import woodBg from '../assets/images/wood.png';
 import './MapPage.css';
 
 const MapPage = () => {
@@ -371,150 +372,71 @@ const MapPage = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header */}
-      <motion.div
-        className="command-header"
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <div className="header-left">
-          <div className="logo-section">
-            <FaCompass className="command-icon" />
-            <span className="command-title">PÜPER MAP</span>
-          </div>
-          <div className="network-status">
-            <div className={`status-indicator ${stats.networkStatus.toLowerCase()}`}>
-              <FaWifi />
-            </div>
-            <span className="status-text">{stats.networkStatus}</span>
-          </div>
-        </div>
 
-        <div className="header-center">
-          <div className="real-time-stats">
-            <div className="stat-item">
-              <FaMapMarkerAlt className="stat-icon" />
-              <span className="stat-value">{stats.totalRestrooms}</span>
-              <span className="stat-label">LOCATIONS</span>
-            </div>
-            <div className="stat-item">
-              <FaStar className="stat-icon" />
-              <span className="stat-value">{stats.averageRating}</span>
-              <span className="stat-label">AVG RATING</span>
-            </div>
-            <div className="stat-item">
-              <FaClock className="stat-icon" />
-              <span className="stat-value">{stats.recentlyAdded}</span>
-              <span className="stat-label">NEW TODAY</span>
-            </div>
-            <div className="stat-item">
-              <FaUsers className="stat-icon" />
-              <span className="stat-value">{stats.onlineUsers}</span>
-              <span className="stat-label">ONLINE</span>
-            </div>
-          </div>
-        </div>
+      {/* Main Map Container */}
+      <div className="map-content">
+        <div
+          ref={mapRef}
+          className="map-container"
+          style={{ width: '100%', height: '100vh' }}
+        />
 
-        <div className="header-right">
+        {/* Search Panel - Top Right */}
+        <motion.div
+          className="search-panel"
+          initial={{ x: 400, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          style={{ backgroundImage: `url(${woodBg})` }}
+        >
+          <div className="search-content">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search restrooms..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="search-input"
+            />
+          </div>
           <motion.button
-            className={`control-btn add-btn ${showAddForm ? 'active' : ''}`}
+            className={`add-restroom-btn ${showAddForm ? 'active' : ''}`}
             onClick={() => setShowAddForm(!showAddForm)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <FaPlus />
+            <span>Add Restroom</span>
           </motion.button>
-        </div>
-      </motion.div>
-
-      {/* Main Map Container */}
-      <div className="command-content">
-        <div className="holographic-map-container">
-          <div 
-            ref={mapRef} 
-            className="map-container"
-            style={{ width: '100%', height: 'calc(100vh - 80px)' }}
-          />
-          
-          {/* Holographic Overlay Effects */}
-          <div className="holographic-overlay">
-            <div className="scan-lines"></div>
-            <div className="grid-overlay"></div>
-          </div>
-        </div>
-
-        {/* Search Bar Overlay */}
-        <motion.div
-          className="floating-search-panel"
-          initial={{ x: -400, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          style={{
-            position: 'absolute',
-            top: '2rem',
-            left: '2rem',
-            zIndex: 100,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(26, 26, 46, 0.9) 100%)',
-            backdropFilter: 'blur(20px)',
-            padding: '1.5rem',
-            borderRadius: '20px',
-            border: '2px solid #8a2be2',
-            boxShadow: '0 0 30px rgba(138, 43, 226, 0.5)'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <FaSearch style={{ color: '#00ffff', fontSize: '1.2rem' }} />
-            <input
-              type="text"
-              placeholder="Search for restrooms..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '10px',
-                padding: '0.75rem',
-                color: 'white',
-                fontSize: '1rem',
-                outline: 'none',
-                width: '300px'
-              }}
-            />
-          </div>
         </motion.div>
 
-        {/* Stats Panel */}
+        {/* Stats Panel - Bottom Left */}
         <motion.div
-          className="floating-stats-panel"
-          initial={{ y: 400, opacity: 0 }}
+          className="stats-panel"
+          initial={{ y: 200, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
+          style={{ backgroundImage: `url(${woodBg})` }}
         >
           <div className="stats-header">
             <FaChartLine className="stats-icon" />
-            <span>LIVE STATISTICS</span>
+            <span>Live Stats</span>
           </div>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-number">{stats.totalRestrooms}</div>
-              <div className="stat-description">Total Locations</div>
-              <div className="stat-trend">+{stats.recentlyAdded} today</div>
+          <div className="stats-content">
+            <div className="stat-item">
+              <FaMapMarkerAlt />
+              <span className="stat-number">{stats.totalRestrooms}</span>
+              <span className="stat-label">Locations</span>
             </div>
-            <div className="stat-card">
-              <div className="stat-number">{stats.averageRating}</div>
-              <div className="stat-description">Average Rating</div>
-              <div className="stat-trend">Quality Score</div>
+            <div className="stat-item">
+              <FaStar />
+              <span className="stat-number">{stats.averageRating}</span>
+              <span className="stat-label">Avg Rating</span>
             </div>
-            <div className="stat-card">
-              <div className="stat-number">{stats.accessibleCount}</div>
-              <div className="stat-description">Accessible</div>
-              <div className="stat-trend">♿ Enabled</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">{stats.onlineUsers}</div>
-              <div className="stat-description">Active Users</div>
-              <div className="stat-trend">Live Now</div>
+            <div className="stat-item">
+              <FaUsers />
+              <span className="stat-number">{stats.onlineUsers}</span>
+              <span className="stat-label">Online</span>
             </div>
           </div>
         </motion.div>
@@ -524,22 +446,23 @@ const MapPage = () => {
       <AnimatePresence>
         {showAddForm && (
           <motion.div
-            className="command-modal-overlay"
+            className="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowAddForm(false)}
           >
             <motion.div
-              className="command-modal"
+              className="modal-content"
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
+              style={{ backgroundImage: `url(${woodBg})` }}
             >
               <div className="modal-header">
-                <FaBolt className="modal-icon" />
-                <span>ADD NEW RESTROOM</span>
+                <FaPlus className="modal-icon" />
+                <span>Add New Restroom</span>
                 <button
                   className="close-btn"
                   onClick={() => setShowAddForm(false)}
@@ -547,12 +470,12 @@ const MapPage = () => {
                   <FaTimes />
                 </button>
               </div>
-              <div style={{ padding: '2rem' }}>
-                <p style={{ color: '#00ffff', marginBottom: '1rem' }}>
+              <div className="modal-body">
+                <p className="modal-instruction">
                   Click on the map to set location, then fill out the details below.
                 </p>
                 {addLocation && (
-                  <p style={{ color: '#00ff41', marginBottom: '1rem' }}>
+                  <p className="location-confirmation">
                     ✓ Location set: {addLocation.lat.toFixed(6)}, {addLocation.lng.toFixed(6)}
                   </p>
                 )}
@@ -565,40 +488,22 @@ const MapPage = () => {
                     lng: addLocation?.lng,
                     accessible: formData.get('accessible') === 'on'
                   });
-                }}>
+                }} className="restroom-form">
                   <input
                     type="text"
                     name="name"
                     placeholder="Restroom name..."
                     required
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      marginBottom: '1rem',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      borderRadius: '10px',
-                      color: 'white'
-                    }}
+                    className="form-input"
                   />
-                  <label style={{ display: 'block', marginBottom: '1rem', color: 'white' }}>
-                    <input type="checkbox" name="accessible" style={{ marginRight: '0.5rem' }} />
-                    Wheelchair Accessible
+                  <label className="form-checkbox">
+                    <input type="checkbox" name="accessible" />
+                    <span>Wheelchair Accessible</span>
                   </label>
                   <button
                     type="submit"
                     disabled={!addLocation}
-                    style={{
-                      width: '100%',
-                      padding: '1rem',
-                      background: addLocation ? 'linear-gradient(135deg, #00ff41, #00ff91)' : '#666',
-                      border: 'none',
-                      borderRadius: '10px',
-                      color: addLocation ? '#000' : '#999',
-                      fontWeight: 'bold',
-                      fontSize: '1rem',
-                      cursor: addLocation ? 'pointer' : 'not-allowed'
-                    }}
+                    className={`form-submit ${addLocation ? 'enabled' : 'disabled'}`}
                   >
                     {addLocation ? 'Add Restroom' : 'Click on map first'}
                   </button>
