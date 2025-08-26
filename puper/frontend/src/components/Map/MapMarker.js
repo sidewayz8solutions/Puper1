@@ -1,6 +1,6 @@
 import React from 'react';
 import { Marker, Popup } from 'react-leaflet';
-import { FaStar, FaWheelchair, FaBaby, FaTransgender } from 'react-icons/fa';
+import { FaToilet, FaWheelchair, FaBaby, FaTransgender } from 'react-icons/fa';
 import L from 'leaflet';
 
 const MapMarker = ({ restroom, onClick }) => {
@@ -34,12 +34,12 @@ const MapMarker = ({ restroom, onClick }) => {
     popupAnchor: [0, -40]
   });
 
-  const renderStars = (rating) => {
+  const renderToilets = (rating) => {
     return Array(5).fill(0).map((_, i) => (
-      <FaStar 
-        key={i} 
-        style={{ 
-          color: i < Math.floor(rating) ? '#FFD700' : '#ddd',
+      <FaToilet
+        key={i}
+        style={{
+          color: i < Math.round(rating) ? 'var(--psychedelic-yellow)' : '#ddd',
           fontSize: '12px'
         }}
       />
@@ -59,7 +59,7 @@ const MapMarker = ({ restroom, onClick }) => {
           <h3 style={{ margin: '0 0 8px 0', fontSize: '16px' }}>{restroom.name}</h3>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
-            {renderStars(restroom.avg_rating || 0)}
+            {renderToilets(restroom.avg_rating || 0)}
             <span style={{ fontSize: '12px', marginLeft: '4px' }}>
               ({restroom.review_count || 0} reviews)
             </span>

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { login, register, logout, getProfile } from '../services/auth';
+import { login, register, logout, getProfile, loginWithGoogle } from '../services/auth';
 import { supabase } from '../services/supabase';
 import toast from 'react-hot-toast';
 
@@ -53,10 +53,9 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogin = async (credentials) => {
     try {
-      const { token, user } = await login(credentials);
-      localStorage.setItem('token', token);
-      setToken(token);
+      const { user, session } = await login(credentials);
       setUser(user);
+      setSession(session);
       toast.success('Welcome back!');
       return { success: true };
     } catch (error) {
@@ -67,10 +66,9 @@ export const AuthProvider = ({ children }) => {
 
   const handleRegister = async (userData) => {
     try {
-      const { token, user } = await register(userData);
-      localStorage.setItem('token', token);
-      setToken(token);
+      const { user, session } = await register(userData);
       setUser(user);
+      setSession(session);
       toast.success('Account created successfully!');
       return { success: true };
     } catch (error) {
@@ -93,7 +91,8 @@ export const AuthProvider = ({ children }) => {
     login: handleLogin,
     register: handleRegister,
     logout: handleLogout,
-    refreshUser: loadUser
+    refreshUser: loadUser,
+    loginWithGoogle
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

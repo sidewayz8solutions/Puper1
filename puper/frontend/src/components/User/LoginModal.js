@@ -5,20 +5,21 @@ import { useAuth } from '../../context/AuthContext';
 import Modal from '../Common/Modal';
 import Button from '../Common/Button';
 import './LoginModal.css';
+import { FaGoogle } from 'react-icons/fa';
 
 const LoginModal = ({ onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const { login, register } = useAuth();
+  const { login, register, loginWithGoogle } = useAuth();
   const { register: formRegister, handleSubmit, formState: { errors } } = useForm();
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const result = isLogin 
+      const result = isLogin
         ? await login(data)
         : await register(data);
-      
+
       if (result.success) {
         onClose();
       }
@@ -42,7 +43,7 @@ const LoginModal = ({ onClose }) => {
             />
           </div>
         )}
-        
+
         <div className="form-group">
           <label>Username or Email</label>
           <input
@@ -57,7 +58,7 @@ const LoginModal = ({ onClose }) => {
           <div className="form-group">
             <label>Email</label>
             <input
-              {...formRegister('email', { 
+              {...formRegister('email', {
                 required: 'Email is required',
                 pattern: {
                   value: /^\S+@\S+$/i,
@@ -74,7 +75,7 @@ const LoginModal = ({ onClose }) => {
         <div className="form-group">
           <label>Password</label>
           <input
-            {...formRegister('password', { 
+            {...formRegister('password', {
               required: 'Password is required',
               minLength: {
                 value: 6,
@@ -94,14 +95,21 @@ const LoginModal = ({ onClose }) => {
         <div className="auth-switch">
           <p>
             {isLogin ? "Don't have an account?" : "Already have an account?"}
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setIsLogin(!isLogin)}
               className="switch-btn"
             >
               {isLogin ? 'Sign Up' : 'Login'}
             </button>
           </p>
+
+        <div className="oauth-divider"><span>or</span></div>
+
+        <Button type="button" className="google-btn" onClick={loginWithGoogle}>
+          <FaGoogle style={{ marginRight: 8 }} /> Continue with Google
+        </Button>
+
         </div>
       </form>
     </Modal>

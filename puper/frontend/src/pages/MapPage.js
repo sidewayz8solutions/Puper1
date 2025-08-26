@@ -779,7 +779,8 @@ const MapPage = () => {
       alert('Restroom added successfully!');
     } catch (error) {
       console.error('Error adding restroom:', error);
-      alert('Failed to add restroom. Please try again.');
+      const message = (error && (error.message || error.error_description || error.code)) || 'Unknown error';
+      alert(`Failed to add restroom: ${message}`);
     }
   };
 

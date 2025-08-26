@@ -13,7 +13,7 @@
 }
 
 .modal-content {
-  background: white;
+  background: var(--marble-background);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   max-height: 90vh;

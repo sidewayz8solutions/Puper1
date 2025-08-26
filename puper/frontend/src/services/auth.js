@@ -27,7 +27,8 @@ export const login = async (credentials) => {
         username: profile?.username || data.user.email,
         displayName: profile?.display_name || data.user.email,
         points: profile?.points || 0,
-        level: profile?.level || 1
+        level: profile?.level || 1,
+        isAdmin: !!profile?.is_admin
       },
       session: data.session
     };
@@ -76,7 +77,8 @@ export const register = async (userData) => {
         username: userData.username,
         displayName: userData.displayName || userData.username,
         points: 0,
-        level: 1
+        level: 1,
+        isAdmin: false
       },
       session: data.session
     };
@@ -91,6 +93,26 @@ export const logout = async () => {
     if (error) throw error;
   } catch (error) {
     console.error('Logout error:', error);
+  }
+};
+
+// Google OAuth sign-in/sign-up
+export const loginWithGoogle = async () => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent'
+        }
+      }
+    });
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message || 'Google sign-in failed' };
   }
 };
 
@@ -118,7 +140,8 @@ export const getProfile = async () => {
       username: profile?.username || user.email,
       displayName: profile?.display_name || user.email,
       points: profile?.points || 0,
-      level: profile?.level || 1
+      level: profile?.level || 1,
+      isAdmin: !!profile?.is_admin
     };
   } catch (error) {
     throw new Error(error.message || 'Failed to get profile');

@@ -67,3 +67,24 @@
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
+
+
+.oauth-divider {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0 0.25rem 0;
+}
+.oauth-divider span {
+  margin: 0 auto;
+  font-weight: 700;
+  color: var(--dark-brown);
+}
+
+.google-btn {
+  background: #ffffff;
+  color: #1f1f1f;
+  border: 2px solid #4285F4;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.google-btn:hover { filter: brightness(0.98); }
