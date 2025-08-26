@@ -296,6 +296,8 @@
   font-family: 'Bebas Neue', cursive;
   font-size: 1rem;
   letter-spacing: 1px;
+  resize: vertical;
+  min-height: 45px;
 }
 
 .form-input::placeholder {

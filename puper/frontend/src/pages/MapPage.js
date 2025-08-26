@@ -6,7 +6,9 @@ import {
   FaMapMarkerAlt, FaStar, FaClock, FaWifi, FaBolt,
   FaChartLine, FaGlobe, FaExpand, FaCompass
 } from 'react-icons/fa';
-import woodBg from '../assets/images/wood.png';
+import woodBg from '../assets/images/wood5.png';
+import { restroomService } from '../services/supabase';
+import { googlePlacesService } from '../services/googleMaps';
 import './MapPage.css';
 
 const MapPage = () => {
@@ -261,16 +263,340 @@ const MapPage = () => {
   // Load restrooms and add markers
   useEffect(() => {
     if (map && mapLoaded) {
+      loadRestrooms();
+    }
+  }, [map, mapLoaded]);
+
+  // Load restrooms from Supabase and Google Places
+  const loadRestrooms = async () => {
+    try {
+      setLoading(true);
+
       // Clear existing markers
       markersRef.current.forEach(marker => marker.setMap(null));
       markersRef.current = [];
 
-      // Add markers for restrooms
-      const newMarkers = mockRestrooms.map(restroom => {
+      // Get user location for nearby search
+      let supabaseRestrooms = [];
+      let googleRestrooms = [];
+
+      if (userLocation) {
+        // Load nearby restrooms from both sources
+        try {
+          // Load from Supabase
+          supabaseRestrooms = await restroomService.getNearby(
+            userLocation.lat,
+            userLocation.lng,
+            10000 // 10km radius
+          );
+          console.log('Loaded restrooms from Supabase:', supabaseRestrooms);
+        } catch (error) {
+          console.warn('Failed to load from Supabase:', error);
+        }
+
+        try {
+          // Initialize Google Places service if not already done
+          if (!googlePlacesService.service) {
+            await googlePlacesService.initialize();
+          }
+
+          // Load from Google Places API
+          googleRestrooms = await googlePlacesService.findAccessibleRestrooms(
+            userLocation.lat,
+            userLocation.lng,
+            5000 // 5km radius for Google Places
+          );
+          console.log('Loaded restrooms from Google Places:', googleRestrooms);
+        } catch (error) {
+          console.warn('Failed to load from Google Places:', error);
+        }
+      } else {
+        // Fallback: load all restrooms from Supabase only (limit for performance)
+        try {
+          const { data, error } = await restroomService.supabase
+            .from('restrooms')
+            .select(`
+              *,
+              reviews (
+                id,
+                rating
+              )
+            `)
+            .limit(50)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+
+          supabaseRestrooms = data.map(restroom => ({
+            ...restroom,
+            avg_rating: restroom.reviews.length > 0
+              ? restroom.reviews.reduce((sum, review) => sum + review.rating, 0) / restroom.reviews.length
+              : 0,
+            review_count: restroom.reviews.length,
+            source: 'supabase'
+          }));
+        } catch (error) {
+          console.warn('Failed to load from Supabase:', error);
+        }
+      }
+
+      // Combine and deduplicate restrooms
+      const combinedRestrooms = [...supabaseRestrooms];
+
+      // Add Google Places restrooms that don't conflict with Supabase ones
+      googleRestrooms.forEach(googleRestroom => {
+        const isDuplicate = supabaseRestrooms.some(supabaseRestroom => {
+          const distance = calculateDistance(
+            googleRestroom.lat, googleRestroom.lng,
+            supabaseRestroom.lat, supabaseRestroom.lng
+          );
+          return distance < 50; // Consider duplicates if within 50 meters
+        });
+
+        if (!isDuplicate) {
+          combinedRestrooms.push({
+            ...googleRestroom,
+            // Convert Google Places format to our format
+            id: `google_${googleRestroom.id}`,
+            wheelchair_accessible: googleRestroom.wheelchair_accessible,
+            avg_rating: googleRestroom.rating,
+            review_count: googleRestroom.user_ratings_total,
+            source: 'google_places'
+          });
+        }
+      });
+
+      console.log('Combined restrooms:', combinedRestrooms);
+
+      // Add markers for combined restrooms
+      const newMarkers = combinedRestrooms.map(restroom => {
+        // Different icons for different sources
+        const iconColor = restroom.source === 'google_places' ? '#0dffe7' : '#6B4423';
+        const iconEmoji = restroom.source === 'google_places' ? '🏢' : '🚽';
+
         const marker = new window.google.maps.Marker({
           position: { lat: restroom.lat, lng: restroom.lng },
           map: map,
           title: restroom.name,
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:${iconColor};stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:${iconColor === '#0dffe7' ? '#0aa3c7' : '#4A2F18'};stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="url(#grad1)"/>
+                <text x="20" y="25" text-anchor="middle" fill="white" font-size="20">${iconEmoji}</text>
+              </svg>
+            `),
+            scaledSize: new window.google.maps.Size(40, 50),
+            anchor: new window.google.maps.Point(20, 50)
+          }
+        });
+
+        // Add click listener to show info window
+        const sourceLabel = restroom.source === 'google_places' ? 'Google Places' : 'Community Added';
+        const sourceColor = restroom.source === 'google_places' ? '#0dffe7' : '#6B4423';
+
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: `
+            <div style="padding: 15px; min-width: 220px; background: white; border-radius: 8px; font-family: 'Bebas Neue', cursive;">
+              <h3 style="margin: 0 0 12px 0; color: #2c1810; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${restroom.name}</h3>
+              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">⭐ Rating: ${restroom.avg_rating ? restroom.avg_rating.toFixed(1) : 'No rating'}/5</p>
+              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">📝 ${restroom.review_count || 0} reviews</p>
+              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">${restroom.wheelchair_accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
+              <p style="margin: 8px 0; color: ${sourceColor}; font-size: 12px; font-weight: bold;">📍 Source: ${sourceLabel}</p>
+              ${restroom.address ? `<p style="margin: 8px 0; color: #666; font-size: 12px;">📍 ${restroom.address}</p>` : ''}
+              <button onclick="window.open('/restroom/${restroom.id}', '_blank')"
+                style="background: linear-gradient(135deg, #6B4423, #4A2F18); color: white; border: 2px solid #0dffe7; border-radius: 8px; padding: 10px 18px; cursor: pointer; margin-top: 12px; font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 1px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                View Details
+              </button>
+            </div>
+          `
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(map, marker);
+          setSelectedRestroom(restroom);
+        });
+
+        return marker;
+      });
+
+      markersRef.current = newMarkers;
+      setRestrooms(combinedRestrooms);
+
+      // Update stats with combined data
+      const accessibleCount = combinedRestrooms.filter(r => r.wheelchair_accessible).length;
+      const avgRating = combinedRestrooms.length > 0
+        ? (combinedRestrooms.reduce((sum, r) => sum + (r.avg_rating || 0), 0) / combinedRestrooms.length).toFixed(1)
+        : '0.0';
+
+      setStats({
+        totalRestrooms: combinedRestrooms.length,
+        averageRating: avgRating,
+        recentlyAdded: combinedRestrooms.filter(r => {
+          if (!r.created_at) return false; // Google Places data doesn't have created_at
+          const createdDate = new Date(r.created_at);
+          const today = new Date();
+          return createdDate.toDateString() === today.toDateString();
+        }).length,
+        accessibleCount: accessibleCount,
+        onlineUsers: 42, // This could be real-time from Supabase presence
+        networkStatus: 'CONNECTED'
+      });
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading restrooms:', error);
+      setLoading(false);
+      // Fallback to mock data if Supabase fails
+      loadMockData();
+    }
+  };
+
+  // Fallback to mock data
+  const loadMockData = () => {
+    const newMarkers = mockRestrooms.map(restroom => {
+      const marker = new window.google.maps.Marker({
+        position: { lat: restroom.lat, lng: restroom.lng },
+        map: map,
+        title: restroom.name,
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#6B4423;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#4A2F18;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="url(#grad1)"/>
+              <text x="20" y="25" text-anchor="middle" fill="white" font-size="20">🚽</text>
+            </svg>
+          `),
+          scaledSize: new window.google.maps.Size(40, 50),
+          anchor: new window.google.maps.Point(20, 50)
+        }
+      });
+
+      const infoWindow = new window.google.maps.InfoWindow({
+        content: `
+          <div style="padding: 15px; min-width: 220px; background: white; border-radius: 8px; font-family: 'Bebas Neue', cursive;">
+            <h3 style="margin: 0 0 12px 0; color: #2c1810; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${restroom.name}</h3>
+            <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">⭐ Rating: ${restroom.rating}/5</p>
+            <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">📝 ${restroom.reviews} reviews</p>
+            <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">${restroom.accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
+          </div>
+        `
+      });
+
+      marker.addListener('click', () => {
+        infoWindow.open(map, marker);
+        setSelectedRestroom(restroom);
+      });
+
+      return marker;
+    });
+
+    markersRef.current = newMarkers;
+    setRestrooms(mockRestrooms);
+
+    setStats({
+      totalRestrooms: mockRestrooms.length,
+      averageRating: (mockRestrooms.reduce((sum, r) => sum + r.rating, 0) / mockRestrooms.length).toFixed(1),
+      recentlyAdded: 2,
+      accessibleCount: mockRestrooms.filter(r => r.accessible).length,
+      onlineUsers: 42,
+      networkStatus: 'CONNECTED'
+    });
+  };
+
+  // Handle search
+  const handleSearch = async (query) => {
+    setSearchQuery(query);
+
+    if (!query.trim()) {
+      // Show all markers if search is empty
+      markersRef.current.forEach(marker => marker.setVisible(true));
+      return;
+    }
+
+    try {
+      // Search using Supabase
+      let searchResults = [];
+      if (userLocation) {
+        searchResults = await restroomService.search(
+          query,
+          userLocation.lat,
+          userLocation.lng,
+          { radius: 10000 }
+        );
+      } else {
+        // Fallback search without location
+        searchResults = await restroomService.search(query);
+      }
+
+      // Update marker visibility based on search results
+      markersRef.current.forEach((marker, index) => {
+        const restroom = restrooms[index];
+        const isVisible = searchResults.some(result => result.id === restroom.id) ||
+                         restroom.name.toLowerCase().includes(query.toLowerCase());
+        marker.setVisible(isVisible);
+      });
+
+      console.log('Search results:', searchResults);
+    } catch (error) {
+      console.error('Search error:', error);
+      // Fallback to local filtering
+      markersRef.current.forEach((marker, index) => {
+        const restroom = restrooms[index];
+        const isVisible = restroom.name.toLowerCase().includes(query.toLowerCase());
+        marker.setVisible(isVisible);
+      });
+    }
+  };
+
+  const handleAddRestroom = async (data) => {
+    try {
+      console.log('Adding restroom:', data);
+
+      // Validate required fields
+      if (!data.name || !data.lat || !data.lng) {
+        alert('Please provide all required information');
+        return;
+      }
+
+      // Create restroom in Supabase
+      const newRestroom = await restroomService.createWithLocation({
+        name: data.name,
+        lat: data.lat,
+        lng: data.lng,
+        wheelchair_accessible: data.accessible || false,
+        description: data.description || '',
+        // Add default values
+        baby_changing: false,
+        gender_neutral: false,
+        requires_fee: false,
+        hours_24: false,
+        verified: false
+      });
+
+      console.log('Restroom created successfully:', newRestroom);
+
+      // Close form and reset
+      setShowAddForm(false);
+      setAddLocation(null);
+
+      // Add new marker to map
+      if (map && newRestroom) {
+        const marker = new window.google.maps.Marker({
+          position: { lat: newRestroom.lat, lng: newRestroom.lng },
+          map: map,
+          title: newRestroom.name,
+          animation: window.google.maps.Animation.DROP,
           icon: {
             url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
               <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
@@ -289,79 +615,40 @@ const MapPage = () => {
           }
         });
 
-        // Add click listener to show info window
+        // Add click listener for the new marker
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
-            <div style="padding: 10px; min-width: 200px;">
-              <h3 style="margin: 0 0 10px 0; color: #6B4423;">${restroom.name}</h3>
-              <p style="margin: 5px 0;">⭐ Rating: ${restroom.rating}/5</p>
-              <p style="margin: 5px 0;">📝 ${restroom.reviews} reviews</p>
-              <p style="margin: 5px 0;">${restroom.accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
-              <button onclick="window.open('/restroom/${restroom.id}', '_blank')" 
-                style="background: #6B4423; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
-                View Details
-              </button>
+            <div style="padding: 15px; min-width: 220px; background: white; border-radius: 8px; font-family: 'Bebas Neue', cursive;">
+              <h3 style="margin: 0 0 12px 0; color: #2c1810; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${newRestroom.name}</h3>
+              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">⭐ Rating: New location</p>
+              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">📝 0 reviews</p>
+              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">${newRestroom.wheelchair_accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
+              <p style="margin: 8px 0; color: #0dffe7; font-size: 12px; font-weight: bold;">✨ Just Added!</p>
             </div>
           `
         });
 
         marker.addListener('click', () => {
           infoWindow.open(map, marker);
-          setSelectedRestroom(restroom);
         });
 
-        return marker;
-      });
+        markersRef.current.push(marker);
 
-      markersRef.current = newMarkers;
-      setRestrooms(mockRestrooms);
-      
-      // Update stats
-      setStats({
-        totalRestrooms: mockRestrooms.length,
-        averageRating: (mockRestrooms.reduce((sum, r) => sum + r.rating, 0) / mockRestrooms.length).toFixed(1),
-        recentlyAdded: 2,
-        accessibleCount: mockRestrooms.filter(r => r.accessible).length,
-        onlineUsers: 42,
-        networkStatus: 'CONNECTED'
-      });
-      
-      setLoading(false);
-    }
-  }, [map, mapLoaded]);
+        // Update restrooms list
+        setRestrooms(prev => [...prev, newRestroom]);
 
-  // Handle search
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    // Implement search logic here
-    // Filter restrooms based on query
-    const filtered = mockRestrooms.filter(r => 
-      r.name.toLowerCase().includes(query.toLowerCase())
-    );
-    
-    // Update markers visibility
-    markersRef.current.forEach((marker, index) => {
-      marker.setVisible(
-        query === '' || filtered.includes(mockRestrooms[index])
-      );
-    });
-  };
+        // Update stats
+        setStats(prev => ({
+          ...prev,
+          totalRestrooms: prev.totalRestrooms + 1,
+          recentlyAdded: prev.recentlyAdded + 1
+        }));
+      }
 
-  const handleAddRestroom = (data) => {
-    // Here you would send data to your backend
-    console.log('Adding restroom:', data);
-    setShowAddForm(false);
-    setAddLocation(null);
-    
-    // Add new marker
-    if (map && data.lat && data.lng) {
-      const marker = new window.google.maps.Marker({
-        position: { lat: data.lat, lng: data.lng },
-        map: map,
-        title: data.name,
-        animation: window.google.maps.Animation.DROP
-      });
-      markersRef.current.push(marker);
+      alert('Restroom added successfully!');
+    } catch (error) {
+      console.error('Error adding restroom:', error);
+      alert('Failed to add restroom. Please try again.');
     }
   };
 
@@ -484,6 +771,7 @@ const MapPage = () => {
                   const formData = new FormData(e.target);
                   handleAddRestroom({
                     name: formData.get('name'),
+                    description: formData.get('description'),
                     lat: addLocation?.lat,
                     lng: addLocation?.lng,
                     accessible: formData.get('accessible') === 'on'
@@ -495,6 +783,12 @@ const MapPage = () => {
                     placeholder="Restroom name..."
                     required
                     className="form-input"
+                  />
+                  <textarea
+                    name="description"
+                    placeholder="Description (optional)..."
+                    className="form-input"
+                    rows="3"
                   />
                   <label className="form-checkbox">
                     <input type="checkbox" name="accessible" />
@@ -531,6 +825,24 @@ const MapPage = () => {
       )}
     </motion.div>
   );
+};
+
+// Helper function to calculate distance between two points
+const calculateDistance = (lat1, lng1, lat2, lng2) => {
+  const R = 6371; // Radius of the Earth in kilometers
+  const dLat = deg2rad(lat2 - lat1);
+  const dLng = deg2rad(lng2 - lng1);
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const d = R * c; // Distance in kilometers
+  return Math.round(d * 1000); // Return distance in meters
+};
+
+const deg2rad = (deg) => {
+  return deg * (Math.PI/180);
 };
 
 export default MapPage;

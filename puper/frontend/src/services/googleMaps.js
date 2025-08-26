@@ -129,7 +129,7 @@ export class GooglePlacesService {
     });
   }
 
-  // Get detailed information about a specific place
+  // Get detailed information about a specific place with accessibility data
   async getPlaceDetails(placeId) {
     if (!this.service) {
       throw new Error('Google Places service not initialized');
@@ -139,10 +139,14 @@ export class GooglePlacesService {
       const request = {
         placeId: placeId,
         fields: [
-          'name', 'formatted_address', 'geometry', 'rating', 
-          'user_ratings_total', 'reviews', 'opening_hours', 
+          'name', 'formatted_address', 'geometry', 'rating',
+          'user_ratings_total', 'reviews', 'opening_hours',
           'photos', 'website', 'formatted_phone_number',
-          'price_level', 'types', 'business_status'
+          'price_level', 'types', 'business_status',
+          // Accessibility fields
+          'wheelchair_accessible_entrance',
+          'wheelchair_accessible_restroom',
+          'wheelchair_accessible_parking'
         ]
       };
 
@@ -163,13 +167,74 @@ export class GooglePlacesService {
             phone: place.formatted_phone_number,
             price_level: place.price_level,
             types: place.types,
-            business_status: place.business_status
+            business_status: place.business_status,
+            // Accessibility information
+            wheelchair_accessible_entrance: place.wheelchair_accessible_entrance,
+            wheelchair_accessible_restroom: place.wheelchair_accessible_restroom,
+            wheelchair_accessible_parking: place.wheelchair_accessible_parking
           });
         } else {
           reject(new Error(`Place details failed: ${status}`));
         }
       });
     });
+  }
+
+  // Find restrooms with accessibility information using the new Places API
+  async findAccessibleRestrooms(lat, lng, radius = 5000) {
+    try {
+      // Use the new Places API for better accessibility data
+      const response = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.accessibilityOptions,places.restroom,places.types'
+        },
+        body: JSON.stringify({
+          includedTypes: ['restaurant', 'gas_station', 'shopping_mall', 'park', 'tourist_attraction'],
+          maxResultCount: 20,
+          locationRestriction: {
+            circle: {
+              center: {
+                latitude: lat,
+                longitude: lng
+              },
+              radius: radius
+            }
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Places API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      return (data.places || [])
+        .filter(place => place.restroom || place.accessibilityOptions?.wheelchairAccessibleRestroom)
+        .map(place => ({
+          id: place.id,
+          name: place.displayName?.text || 'Unknown Location',
+          address: place.formattedAddress,
+          lat: place.location.latitude,
+          lng: place.location.longitude,
+          rating: place.rating || 0,
+          user_ratings_total: place.userRatingCount || 0,
+          wheelchair_accessible: place.accessibilityOptions?.wheelchairAccessibleRestroom || false,
+          wheelchair_accessible_entrance: place.accessibilityOptions?.wheelchairAccessibleEntrance || false,
+          wheelchair_accessible_parking: place.accessibilityOptions?.wheelchairAccessibleParking || false,
+          has_restroom: place.restroom || false,
+          types: place.types || [],
+          distance: this.calculateDistance(lat, lng, place.location.latitude, place.location.longitude),
+          source: 'google_places'
+        }));
+    } catch (error) {
+      console.warn('New Places API failed, falling back to legacy API:', error);
+      // Fallback to legacy API
+      return this.findNearbyRestrooms(lat, lng, radius);
+    }
   }
 
   // Find restrooms along a route
