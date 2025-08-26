@@ -1,14 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaStar, FaWheelchair, FaBaby, FaTransgender, FaDollarSign, FaWalking } from 'react-icons/fa';
+import { FaToilet, FaWheelchair, FaBaby, FaTransgender, FaDollarSign, FaWalking } from 'react-icons/fa';
 import './RestroomCard.css';
 
 const RestroomCard = ({ restroom, onClick }) => {
-  const renderStars = (rating) => {
+  const renderToilets = (rating) => {
     return Array(5).fill(0).map((_, i) => (
-      <FaStar 
-        key={i} 
-        className={i < Math.floor(rating) ? 'star-filled' : 'star-empty'}
+      <FaToilet
+        key={i}
+        className={i < Math.round(rating) ? 'star-filled' : 'star-empty'}
       />
     ));
   };
@@ -23,7 +23,7 @@ const RestroomCard = ({ restroom, onClick }) => {
       <h4 className="restroom-name">{restroom.name}</h4>
       
       <div className="restroom-rating">
-        <div className="stars">{renderStars(restroom.avg_rating || 0)}</div>
+        <div className="stars">{renderToilets(restroom.avg_rating || 0)}</div>
         <span className="review-count">({restroom.review_count || 0} reviews)</span>
       </div>
       

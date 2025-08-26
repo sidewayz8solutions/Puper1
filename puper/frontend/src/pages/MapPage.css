@@ -117,6 +117,29 @@
   animation: pulse-glow 1s infinite;
 }
 
+
+/* Refresh Now button */
+.refresh-btn {
+  background: var(--psychedelic-lime);
+  border: 2px solid var(--psychedelic-purple);
+  color: var(--dark-brown);
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: var(--shadow-wood);
+}
+
+.refresh-btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
 .connection-status {
   display: flex;
   align-items: center;
@@ -132,14 +155,22 @@
   font-size: 0.9rem;
 }
 
-.status-icon.connected {
+.status-icon.realtime {
   color: var(--psychedelic-lime);
   animation: pulse 2s infinite;
+}
+
+.status-icon.connected {
+  color: var(--psychedelic-lime);
 }
 
 .status-icon.connecting {
   color: var(--psychedelic-pink);
   animation: pulse 1s infinite;
+}
+
+.status-icon.disconnected {
+  color: orange;
 }
 
 .status-icon.error {
@@ -149,6 +180,76 @@
 .status-text {
   font-family: 'Bebas Neue', cursive;
   font-size: 0.8rem;
+  letter-spacing: 1px;
+  color: var(--cream);
+}
+
+/* Real-time Status Badge - Top Left */
+.realtime-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: var(--wood-grain);
+  background-size: cover;
+  background-position: center;
+  border: 2px solid var(--psychedelic-lime);
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-lime);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.realtime-badge.realtime {
+  border-color: var(--psychedelic-lime);
+  box-shadow: var(--shadow-wood), 0 0 20px var(--psychedelic-lime);
+  animation: pulse-glow 2s infinite;
+}
+
+.realtime-badge.connecting {
+  border-color: var(--psychedelic-pink);
+  box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-pink);
+}
+
+.realtime-badge.error {
+  border-color: #ff4444;
+  box-shadow: var(--shadow-wood), 0 0 15px #ff4444;
+}
+
+.realtime-badge.disconnected {
+  border-color: orange;
+  box-shadow: var(--shadow-wood), 0 0 15px orange;
+}
+
+.realtime-icon {
+  font-size: 1rem;
+  color: var(--psychedelic-lime);
+}
+
+.realtime-badge.realtime .realtime-icon {
+  color: var(--psychedelic-lime);
+}
+
+.realtime-badge.connecting .realtime-icon {
+  color: var(--psychedelic-pink);
+  animation: pulse 1s infinite;
+}
+
+.realtime-badge.error .realtime-icon {
+  color: #ff4444;
+}
+
+.realtime-badge.disconnected .realtime-icon {
+  color: orange;
+}
+
+.realtime-text {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 0.9rem;
+  font-weight: bold;
   letter-spacing: 1px;
   color: var(--cream);
 }
@@ -419,6 +520,13 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .realtime-badge {
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
   .search-panel {
     top: 0.5rem;
     right: 0.5rem;

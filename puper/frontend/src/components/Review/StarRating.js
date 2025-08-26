@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaStar } from 'react-icons/fa';
+import { FaToilet } from 'react-icons/fa';
 import './StarRating.css';
 
 const StarRating = ({ value = 0, onChange, readonly = false, size = 'medium' }) => {
@@ -26,21 +26,23 @@ const StarRating = ({ value = 0, onChange, readonly = false, size = 'medium' }) 
 
   return (
     <div className={`star-rating star-rating-${size}`}>
-      {[1, 2, 3, 4, 5].map((star) => (
+      {[1, 2, 3, 4, 5].map((toilet) => (
         <motion.button
-          key={star}
+          key={toilet}
           type="button"
           className={`star ${
-            star <= (hoverValue || value) ? 'star-filled' : 'star-empty'
+            toilet <= (hoverValue || value) ? 'star-filled' : 'star-empty'
           }`}
-          onClick={() => handleClick(star)}
-          onMouseEnter={() => handleMouseEnter(star)}
+          onClick={() => handleClick(toilet)}
+          onMouseEnter={() => handleMouseEnter(toilet)}
           onMouseLeave={handleMouseLeave}
           disabled={readonly}
           whileHover={!readonly ? { scale: 1.1 } : {}}
           whileTap={!readonly ? { scale: 0.9 } : {}}
+          aria-label={`${toilet} toilet rating`}
+          title={`${toilet} toilet rating`}
         >
-          <FaStar />
+          <FaToilet />
         </motion.button>
       ))}
     </div>

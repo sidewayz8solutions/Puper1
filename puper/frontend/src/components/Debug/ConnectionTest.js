@@ -97,8 +97,12 @@ const ConnectionTest = () => {
 
     // Test 4: Supabase Real-time
     try {
+      updateTest('realtime', 'testing',
+        '🔄 Testing real-time subscription...'
+      );
+
       const subscription = supabase
-        .channel('test-channel')
+        .channel('test-channel-' + Date.now())
         .on(
           'postgres_changes',
           {
@@ -108,25 +112,41 @@ const ConnectionTest = () => {
           },
           (payload) => {
             console.log('Real-time test received:', payload);
+            updateTest('realtime', 'success',
+              '✅ Real-time is working! Received live update.'
+            );
           }
         )
         .subscribe((status) => {
           console.log('Real-time subscription status:', status);
           if (status === 'SUBSCRIBED') {
             updateTest('realtime', 'success',
-              '✅ Supabase real-time is working! You can receive live updates.'
+              '✅ Real-time subscription active! Try adding a restroom to see live updates.'
             );
           } else if (status === 'CHANNEL_ERROR') {
             updateTest('realtime', 'error',
-              '❌ Supabase real-time failed. Check if real-time is enabled in your Supabase project.'
+              '❌ Real-time failed. You need to enable real-time in your Supabase project settings.'
+            );
+          } else if (status === 'CLOSED') {
+            updateTest('realtime', 'error',
+              '❌ Real-time connection closed. Check your Supabase project settings.'
+            );
+          } else {
+            updateTest('realtime', 'testing',
+              `🔄 Real-time status: ${status}`
             );
           }
         });
 
-      // Clean up subscription after 5 seconds
+      // Clean up subscription after 10 seconds
       setTimeout(() => {
         subscription.unsubscribe();
-      }, 5000);
+        if (tests.realtime.status === 'testing') {
+          updateTest('realtime', 'warning',
+            '⚠️ Real-time test timeout. It may not be enabled in your Supabase project.'
+          );
+        }
+      }, 10000);
     } catch (error) {
       updateTest('realtime', 'error',
         `❌ Real-time setup failed: ${error.message}`
@@ -178,6 +198,42 @@ const ConnectionTest = () => {
       <div className="test-actions">
         <button onClick={runTests} className="retry-button">
           🔄 Run Tests Again
+        </button>
+        <button onClick={async () => {
+          try {
+            const testRestroom = {
+              name: `Test Restroom ${Date.now()}`,
+              lat: 40.7128,
+              lng: -74.0060,
+              wheelchair_accessible: true,
+              description: 'This is a test restroom for real-time testing'
+            };
+
+            const { data, error } = await supabase
+              .from('restrooms')
+              .insert([testRestroom])
+              .select();
+
+            if (error) throw error;
+
+            alert('✅ Test restroom created! Check if it appears on the map in real-time.');
+
+            // Clean up after 30 seconds
+            setTimeout(async () => {
+              if (data && data[0]) {
+                await supabase
+                  .from('restrooms')
+                  .delete()
+                  .eq('id', data[0].id);
+                console.log('Test restroom cleaned up');
+              }
+            }, 30000);
+
+          } catch (error) {
+            alert(`❌ Failed to create test restroom: ${error.message}`);
+          }
+        }} className="test-button realtime-test">
+          🚀 Test Real-time (Creates temporary restroom)
         </button>
       </div>
 

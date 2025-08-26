@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import {
   FaPlus, FaTimes, FaSearch, FaFilter, FaUsers,
-  FaMapMarkerAlt, FaStar, FaClock, FaWifi, FaBolt,
+  FaMapMarkerAlt, FaToilet, FaClock, FaWifi, FaBolt, FaSync,
   FaChartLine, FaGlobe, FaExpand, FaCompass
 } from 'react-icons/fa';
 import woodBg from '../assets/images/wood5.png';
@@ -93,55 +93,118 @@ const MapPage = () => {
   // Set up global initMap function for Google Maps API callback
   window.initMap = () => setMapsApiLoaded(true);
 
-  // Set up real-time subscription for restrooms
+  // Smart polling for updates (visibility-aware with basic backoff)
   useEffect(() => {
-    const subscription = supabase
-      .channel('restrooms-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'restrooms'
-        },
-        (payload) => {
-          console.log('🔄 Real-time restroom update:', payload);
+    let pollInterval = null;
+    let isVisible = typeof document !== 'undefined' ? !document.hidden : true;
+    let consecutiveErrors = 0;
+    let lastSeenCreatedAt = 0;
 
-          if (payload.eventType === 'INSERT') {
-            // Reload restrooms when new one is added
-            if (map && mapLoaded) {
-              loadRestrooms();
+    const visibleMs = 60000;   // 60s when app is visible
+    const hiddenMs = 300000;   // 5m when app is hidden
+
+    const startInterval = (fn) => {
+      if (pollInterval) clearInterval(pollInterval);
+      const ms = isVisible ? visibleMs : hiddenMs;
+      pollInterval = setInterval(fn, ms);
+      console.log(`📡 Smart polling running every ${ms / 1000}s (${isVisible ? 'visible' : 'hidden'})`);
+    };
+
+    const setupSmartPolling = async () => {
+      try {
+        // Quick connectivity probe
+        const { error: probeError } = await supabase
+          .from('restrooms')
+          .select('id')
+          .limit(1);
+        if (probeError) throw probeError;
+
+        setStats((prev) => ({ ...prev, networkStatus: 'CONNECTED' }));
+
+        const poll = async () => {
+          try {
+            console.log('🔄 Smart polling for restroom updates...');
+
+            // Total count (cheap HEAD request)
+            const { count, error: countError } = await supabase
+              .from('restrooms')
+              .select('*', { count: 'exact', head: true });
+            if (countError) throw countError;
+
+            // Latest created_at to detect updates without full reload
+            const { data: latestRows, error: latestError } = await supabase
+              .from('restrooms')
+              .select('created_at')
+              .order('created_at', { ascending: false })
+              .limit(1);
+            if (latestError) throw latestError;
+
+            let shouldReload = false;
+
+            // If count changed, reload
+            if (typeof count === 'number' && count !== restrooms.length) {
+              console.log(`📊 Count changed: ${restrooms.length} → ${count}`);
+              shouldReload = true;
             }
-          } else if (payload.eventType === 'UPDATE') {
-            // Update existing restroom in state
-            setRestrooms(prev => prev.map(r =>
-              r.id === payload.new.id ? { ...r, ...payload.new } : r
-            ));
-          } else if (payload.eventType === 'DELETE') {
-            // Remove deleted restroom
-            setRestrooms(prev => prev.filter(r => r.id !== payload.old.id));
-            // Also remove marker
-            const markerIndex = restrooms.findIndex(r => r.id === payload.old.id);
-            if (markerIndex >= 0 && markersRef.current[markerIndex]) {
-              markersRef.current[markerIndex].setMap(null);
-              markersRef.current.splice(markerIndex, 1);
+
+            // If we detect a newer created_at, reload
+            if (latestRows && latestRows.length > 0 && latestRows[0].created_at) {
+              const latestTs = new Date(latestRows[0].created_at).getTime();
+              if (latestTs > lastSeenCreatedAt) {
+                if (lastSeenCreatedAt !== 0) {
+                  console.log('📝 Newer data detected since last poll');
+                  shouldReload = true;
+                }
+                lastSeenCreatedAt = latestTs;
+              }
             }
+
+            if (shouldReload && map && mapLoaded) {
+              await loadRestrooms();
+            }
+
+            setStats((prev) => ({
+              ...prev,
+              networkStatus: isVisible ? 'POLLING_ACTIVE' : 'POLLING_BG'
+            }));
+
+            consecutiveErrors = 0; // reset on success
+          } catch (err) {
+            consecutiveErrors += 1;
+            console.warn(`Polling error (x${consecutiveErrors}):`, err);
+            setStats((prev) => ({ ...prev, networkStatus: consecutiveErrors >= 3 ? 'ERROR' : 'RETRY' }));
           }
-        }
-      )
-      .subscribe((status) => {
-        console.log('📡 Real-time subscription status:', status);
-        if (status === 'SUBSCRIBED') {
-          setStats(prev => ({ ...prev, networkStatus: 'CONNECTED' }));
-        } else if (status === 'CHANNEL_ERROR') {
-          setStats(prev => ({ ...prev, networkStatus: 'ERROR' }));
-        }
-      });
+        };
+
+        // Initial immediate poll, then schedule
+        await poll();
+        startInterval(poll);
+
+        // Visibility awareness
+        const onVis = () => {
+          isVisible = !document.hidden;
+          // Immediate poll when returning to foreground
+          if (isVisible) poll();
+          startInterval(poll);
+        };
+        document.addEventListener('visibilitychange', onVis);
+
+        // Cleanup for listener
+        return () => document.removeEventListener('visibilitychange', onVis);
+      } catch (e) {
+        console.error('Smart polling setup failed:', e);
+        setStats((prev) => ({ ...prev, networkStatus: 'ERROR' }));
+      }
+    };
+
+    if (map && mapLoaded) {
+      setupSmartPolling();
+    }
 
     return () => {
-      subscription.unsubscribe();
+      if (pollInterval) clearInterval(pollInterval);
     };
-  }, [map, mapLoaded]);
+  }, [map, mapLoaded, restrooms.length]);
 
   // Initialize Google Maps
   useEffect(() => {
@@ -463,7 +526,7 @@ const MapPage = () => {
           content: `
             <div style="padding: 15px; min-width: 220px; background: white; border-radius: 8px; font-family: 'Bebas Neue', cursive;">
               <h3 style="margin: 0 0 12px 0; color: #2c1810; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${restroom.name}</h3>
-              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">⭐ Rating: ${restroom.avg_rating ? restroom.avg_rating.toFixed(1) : 'No rating'}/5</p>
+              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">🚽 Rating: ${restroom.avg_rating ? restroom.avg_rating.toFixed(1) : 'No rating'}/5</p>
               <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">📝 ${restroom.review_count || 0} reviews</p>
               <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">${restroom.wheelchair_accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
               <p style="margin: 8px 0; color: ${sourceColor}; font-size: 12px; font-weight: bold;">📍 Source: ${sourceLabel}</p>
@@ -545,7 +608,7 @@ const MapPage = () => {
         content: `
           <div style="padding: 15px; min-width: 220px; background: white; border-radius: 8px; font-family: 'Bebas Neue', cursive;">
             <h3 style="margin: 0 0 12px 0; color: #2c1810; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${restroom.name}</h3>
-            <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">⭐ Rating: ${restroom.rating}/5</p>
+            <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">🚽 Rating: ${restroom.rating}/5</p>
             <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">📝 ${restroom.reviews} reviews</p>
             <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">${restroom.accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
           </div>
@@ -643,7 +706,10 @@ const MapPage = () => {
         verified: false
       });
 
-      console.log('Restroom created successfully:', newRestroom);
+      // Normalize for frontend (DB may return lon instead of lng)
+      const created = { ...newRestroom, lng: newRestroom.lng ?? newRestroom.lon };
+
+      console.log('Restroom created successfully:', created);
 
       // Close form and reset
       setShowAddForm(false);
@@ -656,11 +722,11 @@ const MapPage = () => {
       }
 
       // Add new marker to map
-      if (map && newRestroom) {
+      if (map && created) {
         const marker = new window.google.maps.Marker({
-          position: { lat: newRestroom.lat, lng: newRestroom.lng },
+          position: { lat: created.lat, lng: created.lng },
           map: map,
-          title: newRestroom.name,
+          title: created.name,
           animation: window.google.maps.Animation.DROP,
           icon: {
             url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
@@ -684,10 +750,10 @@ const MapPage = () => {
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
             <div style="padding: 15px; min-width: 220px; background: white; border-radius: 8px; font-family: 'Bebas Neue', cursive;">
-              <h3 style="margin: 0 0 12px 0; color: #2c1810; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${newRestroom.name}</h3>
+              <h3 style="margin: 0 0 12px 0; color: #2c1810; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${created.name}</h3>
               <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">⭐ Rating: New location</p>
               <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">📝 0 reviews</p>
-              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">${newRestroom.wheelchair_accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
+              <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">${created.wheelchair_accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
               <p style="margin: 8px 0; color: #0dffe7; font-size: 12px; font-weight: bold;">✨ Just Added!</p>
             </div>
           `
@@ -700,7 +766,7 @@ const MapPage = () => {
         markersRef.current.push(marker);
 
         // Update restrooms list
-        setRestrooms(prev => [...prev, newRestroom]);
+        setRestrooms(prev => [...prev, created]);
 
         // Update stats
         setStats(prev => ({
@@ -752,8 +818,24 @@ const MapPage = () => {
             />
             <div className="connection-status">
               <FaWifi className={`status-icon ${stats.networkStatus.toLowerCase()}`} />
-              <span className="status-text">{stats.networkStatus}</span>
+              <span className="status-text">DB: {stats.networkStatus}</span>
             </div>
+            <motion.button
+              className="refresh-btn"
+              onClick={async () => {
+                try {
+                  setStats(prev => ({ ...prev, networkStatus: 'REFRESHING' }));
+                  await loadRestrooms();
+                } finally {
+                  setStats(prev => ({ ...prev, networkStatus: 'CONNECTED' }));
+                }
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{ marginLeft: 'auto' }}
+            >
+              <FaSync style={{ marginRight: 6 }} /> Refresh Now
+            </motion.button>
           </div>
           <motion.button
             className={`add-restroom-btn ${showAddForm ? 'active' : ''}`}
@@ -779,6 +861,19 @@ const MapPage = () => {
           </motion.button>
         </motion.div>
 
+        {/* Real-time Status Badge - Top Left */}
+        <motion.div
+          className={`realtime-badge ${stats.networkStatus.toLowerCase()}`}
+          initial={{ x: -200, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <FaWifi className="realtime-icon" />
+          <span className="realtime-text">
+            {stats.networkStatus === 'REALTIME' ? 'LIVE' : stats.networkStatus}
+          </span>
+        </motion.div>
+
         {/* Stats Panel - Bottom Left */}
         <motion.div
           className="stats-panel"
@@ -798,7 +893,7 @@ const MapPage = () => {
               <span className="stat-label">Locations</span>
             </div>
             <div className="stat-item">
-              <FaStar />
+              <FaToilet />
               <span className="stat-number">{stats.averageRating}</span>
               <span className="stat-label">Avg Rating</span>
             </div>
@@ -915,7 +1010,8 @@ const MapPage = () => {
               <p>🗺️ <strong>Browse:</strong> Explore restrooms from our community and Google Places</p>
               <p>🔍 <strong>Search:</strong> Use the search box to find specific locations</p>
               <p>➕ <strong>Add Restroom:</strong> Click anywhere on the map to add a new restroom</p>
-              <p>📊 <strong>Live Stats:</strong> Check real-time statistics in the bottom left</p>
+              <p>📊 <strong>Live Updates:</strong> See new restrooms appear instantly with real-time sync</p>
+              <p>🔗 <strong>Connection:</strong> Check the status indicator in the search panel</p>
             </div>
             <button
               className="instructions-close"

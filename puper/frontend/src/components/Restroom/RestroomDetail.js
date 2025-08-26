@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaStar, FaWheelchair, FaBaby, FaTransgender, FaDollarSign, FaMapMarkerAlt, FaRoute } from 'react-icons/fa';
+import { FaTimes, FaToilet, FaWheelchair, FaBaby, FaTransgender, FaDollarSign, FaMapMarkerAlt, FaRoute } from 'react-icons/fa';
 import ReviewForm from '../Review/ReviewForm';
 import Button from '../Common/Button';
 import './RestroomDetail.css';
@@ -8,11 +8,11 @@ import './RestroomDetail.css';
 const RestroomDetail = ({ restroom, onClose }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
 
-  const renderStars = (rating) => {
+  const renderToilets = (rating) => {
     return Array(5).fill(0).map((_, i) => (
-      <FaStar 
-        key={i} 
-        className={i < Math.floor(rating) ? 'star-filled' : 'star-empty'}
+      <FaToilet
+        key={i}
+        className={i < Math.round(rating) ? 'star-filled' : 'star-empty'}
       />
     ));
   };
@@ -48,7 +48,7 @@ const RestroomDetail = ({ restroom, onClose }) => {
           <div className="detail-content">
             <div className="restroom-info">
               <div className="rating-section">
-                <div className="stars">{renderStars(restroom.avg_rating || 0)}</div>
+                <div className="stars">{renderToilets(restroom.avg_rating || 0)}</div>
                 <span className="rating-text">
                   {(restroom.avg_rating || 0).toFixed(1)} ({restroom.review_count || 0} reviews)
                 </span>

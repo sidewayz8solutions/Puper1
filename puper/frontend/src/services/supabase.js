@@ -20,6 +20,8 @@ export const restroomService = {
 
       return data.map(restroom => ({
         ...restroom,
+        // Normalize to lng for frontend
+        lng: restroom.lng ?? restroom.lon,
         distance: restroom.distance_meters // Already calculated by PostGIS
       }));
     } catch (error) {
@@ -55,6 +57,7 @@ export const restroomService = {
       // Calculate average ratings and distance
       return data.map(restroom => ({
         ...restroom,
+        lng: restroom.lng ?? restroom.lon,
         avg_rating: restroom.reviews.length > 0
           ? restroom.reviews.reduce((sum, review) => sum + review.rating, 0) / restroom.reviews.length
           : 0,
@@ -70,12 +73,17 @@ export const restroomService = {
   // Create new restroom
   async create(restroomData) {
     try {
+      const payload = { ...restroomData };
+      // Normalize lng -> lon for DB schema
+      if (payload.lng !== undefined && payload.lon === undefined) {
+        payload.lon = payload.lng;
+        delete payload.lng;
+      }
+      payload.created_at = new Date().toISOString();
+
       const { data, error } = await supabase
         .from('restrooms')
-        .insert([{
-          ...restroomData,
-          created_at: new Date().toISOString()
-        }])
+        .insert([payload])
         .select()
         .single();
 
@@ -202,7 +210,8 @@ export const restroomService = {
 
       return data.map(restroom => ({
         ...restroom,
-        avg_rating: restroom.reviews.length > 0 
+        lng: restroom.lng ?? restroom.lon,
+        avg_rating: restroom.reviews.length > 0
           ? restroom.reviews.reduce((sum, review) => sum + review.rating, 0) / restroom.reviews.length
           : 0,
         review_count: restroom.reviews.length,
@@ -237,13 +246,17 @@ export const restroomService = {
   // Create new restroom with automatic geometry calculation
   async createWithLocation(restroomData) {
     try {
-      // The trigger will automatically set the location geometry
+      // Normalize lng -> lon if needed; DB trigger will set geometry
+      const payload = { ...restroomData };
+      if (payload.lng !== undefined && payload.lon === undefined) {
+        payload.lon = payload.lng;
+        delete payload.lng;
+      }
+      payload.created_at = new Date().toISOString();
+
       const { data, error } = await supabase
         .from('restrooms')
-        .insert([{
-          ...restroomData,
-          created_at: new Date().toISOString()
-        }])
+        .insert([payload])
         .select()
         .single();
 
