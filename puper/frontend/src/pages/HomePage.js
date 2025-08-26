@@ -5,6 +5,7 @@ import { FaRoute, FaPlus, FaTrophy } from 'react-icons/fa';
 import Button from '../components/Common/Button';
 import woodBg from '../assets/images/wood.png';
 import ctaBg from '../assets/images/1.png';
+import heroVideo from '../assets/images/hero-video.mp4';
 import './HomePage.css';
 import '../components/Hero/Hero.css';
 
@@ -28,7 +29,7 @@ const Hero = () => {
         playsInline
         preload="auto"
       >
-        <source src="/hero-movie.mp4" type="video/mp4" />
+        <source src={heroVideo} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
@@ -53,7 +54,7 @@ function HomePage() {
       <Hero />
 
       {/* Features Section */}
-      <section className="features-section marble-background">
+      <section className="features-section" style={{ backgroundImage: `url(${woodBg})` }}>
         <div className="container">
           <motion.h2
             className="section-title"
