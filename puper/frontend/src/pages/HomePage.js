@@ -28,18 +28,28 @@ const Hero = () => {
         loop
         playsInline
         preload="auto"
+        style={{
+          width: '100%',
+          height: '100vh',
+          objectFit: 'cover',
+          position: 'relative',
+          zIndex: 1
+        }}
       >
         <source src={heroVideo} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
-      {/* Overlay Content */}
-      <div className="hero-overlay">
-        <h1 className="hero-title">PÜPER</h1>
-        <p className="hero-subtitle">Find the best public restrooms, wherever you go.</p>
+      {/* Action Buttons at Bottom */}
+      <div className="hero-buttons">
         <Link to="/map">
           <button className="hero-button">
-            Find Restrooms Near Me
+            <FaRoute /> Find Restrooms
+          </button>
+        </Link>
+        <Link to="/map?add=true">
+          <button className="hero-button hero-button-secondary">
+            <FaPlus /> Add Restroom
           </button>
         </Link>
       </div>
