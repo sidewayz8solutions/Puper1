@@ -153,6 +153,62 @@ const MapPage = () => {
               shouldReload = true;
             }
 
+           // Replace the existing geolocation useEffect with:
+useEffect(() => {
+  const getUserLocation = () => {
+    if (!navigator.geolocation) {
+      console.warn('Geolocation not supported');
+      setLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const location = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        setUserLocation(location);
+        
+        if (googleMapRef.current && window.google?.maps) {
+          googleMapRef.current.setCenter(location);
+          googleMapRef.current.setZoom(16);
+          
+          // Add user marker with better visibility
+          new window.google.maps.Marker({
+            position: location,
+            map: googleMapRef.current,
+            icon: {
+              path: window.google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#4285F4',
+              fillOpacity: 1,
+              strokeColor: 'white',
+              strokeWeight: 3
+            },
+            title: 'Your Location',
+            zIndex: 1000
+          });
+        }
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        setLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      }
+    );
+  };
+
+  if (map && mapLoaded) {
+    getUserLocation();
+  }
+}, [map, mapLoaded]);
+           
             // If we detect a newer created_at, reload
             if (latestRows && latestRows.length > 0 && latestRows[0].created_at) {
               const latestTs = new Date(latestRows[0].created_at).getTime();

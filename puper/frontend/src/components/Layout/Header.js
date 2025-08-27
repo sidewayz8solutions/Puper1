@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaRoute, FaPlus, FaUser, FaTrophy } from 'react-icons/fa';
+import { FaRoute, FaPlus, FaUser, FaTrophy, FaSignOutAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import LoginModal from '../User/LoginModal';
 import './Header.css';
@@ -8,16 +8,6 @@ import './Header.css';
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
-
-  // Allow deep-link open via ?login=true and event trigger
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('login') === 'true') setShowLogin(true);
-
-    const open = () => setShowLogin(true);
-    window.addEventListener('open-login', open);
-    return () => window.removeEventListener('open-login', open);
-  }, []);
 
   return (
     <header className="header">
@@ -40,16 +30,13 @@ const Header = () => {
             <FaTrophy /> Leaderboard
           </Link>
           
-          {isAuthenticated ? (
+          {isAuthenticated && user ? (
             <>
-              <div className="user-info">
-                <span className="username">Welcome, {user?.username || user?.displayName || user?.email}</span>
-              </div>
-              <Link to={`/profile/${user?.id}`} className="nav-item">
-                <FaUser /> Profile
+              <Link to={`/profile/${user.id}`} className="nav-item" title={`Logged in as ${user.displayName || user.username}`}>
+                <FaUser /> {user.displayName || user.username || 'Profile'}
               </Link>
-              <button onClick={logout} className="nav-item logout-btn">
-                Logout
+              <button onClick={logout} className="nav-item" style={{ background: 'rgba(239, 68, 68, 0.1)', borderColor: '#ef4444' }}>
+                <FaSignOutAlt /> Logout
               </button>
             </>
           ) : (
@@ -60,7 +47,7 @@ const Header = () => {
         </nav>
       </div>
 
-      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+      {showLogin && !isAuthenticated && <LoginModal onClose={() => setShowLogin(false)} />}
     </header>
   );
 };

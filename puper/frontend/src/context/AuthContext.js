@@ -1,166 +1,203 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { login, register, logout, getProfile, loginWithGoogle } from '../services/auth';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
 import toast from 'react-hot-toast';
 
-const AuthContext = createContext();
+const AuthContext = createContext({});
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState(null);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session);
-      setSession(session);
-      if (session) {
-        loadUser();
-      } else {
-        setLoading(false);
-      }
-    });
+    // Check initial session
+    checkUser();
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event, session);
-      setSession(session);
-
-      if (event === 'SIGNED_IN' && session) {
-        // Handle successful sign in (including OAuth)
-        await loadUser();
-        toast.success('Successfully signed in!');
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setLoading(false);
-      } else if (session) {
-        loadUser();
+    // Set up auth state listener
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event, session);
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          username: session.user.user_metadata?.username || session.user.email?.split('@')[0],
+          displayName: session.user.user_metadata?.display_name || session.user.user_metadata?.username || session.user.email?.split('@')[0]
+        });
+        setIsAuthenticated(true);
       } else {
         setUser(null);
-        setLoading(false);
+        setIsAuthenticated(false);
       }
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
   }, []);
 
-  const loadUser = async () => {
+  const checkUser = async () => {
     try {
-      console.log('🔄 Loading user...');
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-      if (userError) {
-        console.error('❌ Auth error:', userError);
-        throw userError;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          username: session.user.user_metadata?.username || session.user.email?.split('@')[0],
+          displayName: session.user.user_metadata?.display_name || session.user.user_metadata?.username || session.user.email?.split('@')[0]
+        });
+        setIsAuthenticated(true);
       }
-      if (!user) {
-        console.log('❌ No user found');
-        throw new Error('No user found');
-      }
-
-      console.log('✅ Auth user found:', { id: user.id, email: user.email });
-
-      // Try to get user profile from our users table
-      let userData;
-      try {
-        console.log('📋 Getting profile...');
-        userData = await getProfile();
-        console.log('✅ Profile loaded:', userData);
-      } catch (profileError) {
-        console.log('❌ No profile found, creating one for OAuth user:', profileError);
-
-        // For OAuth users, create a profile if it doesn't exist
-        const { error: insertError } = await supabase
-          .from('users')
-          .insert([{
-            id: user.id,
-            username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-            email: user.email,
-            display_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-            points: 0,
-            level: 1
-          }]);
-
-        if (insertError) {
-          console.warn('Could not create user profile:', insertError);
-        }
-
-        // Return basic user data
-        userData = {
-          id: user.id,
-          email: user.email,
-          username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-          displayName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-          points: 0,
-          level: 1,
-          isAdmin: false
-        };
-        console.log('✅ Fallback user data created:', userData);
-      }
-
-      console.log('🎯 Setting user:', userData);
-      setUser(userData);
     } catch (error) {
-      console.error('❌ Error loading user:', error);
-      setUser(null);
+      console.error('Error checking user:', error);
     } finally {
-      console.log('🏁 Loading complete, setting loading to false');
       setLoading(false);
     }
   };
 
-  const handleLogin = async (credentials) => {
+  const login = async ({ username, password }) => {
     try {
-      const { user, session } = await login(credentials);
-      setUser(user);
-      setSession(session);
-      toast.success('Welcome back!');
-      return { success: true };
+      setLoading(true);
+      // Try login with email first, then username
+      const email = username.includes('@') ? username : `${username}@puper.app`;
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+      
+      if (error) {
+        // If failed, try with username as email
+        const { data: altData, error: altError } = await supabase.auth.signInWithPassword({
+          email: username,
+          password: password
+        });
+        
+        if (altError) {
+          throw error || altError;
+        }
+        
+        if (altData?.user) {
+          toast.success('Login successful!');
+          return { success: true, user: altData.user };
+        }
+      }
+      
+      if (data?.user) {
+        toast.success('Login successful!');
+        return { success: true, user: data.user };
+      }
+      
+      throw new Error('Login failed');
     } catch (error) {
-      toast.error(error.message);
+      console.error('Login error:', error);
+      toast.error(error.message || 'Login failed');
       return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRegister = async (userData) => {
+  const register = async ({ email, password, displayName, username }) => {
     try {
-      const { user, session } = await register(userData);
-      setUser(user);
-      setSession(session);
-      toast.success('Account created successfully!');
+      setLoading(true);
+      
+      // Create a proper email if not provided
+      const userEmail = email || `${username.replace(/[^a-zA-Z0-9]/g, '')}@puper.app`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: userEmail,
+        password: password,
+        options: {
+          data: {
+            display_name: displayName || username,
+            username: username
+          },
+          emailRedirectTo: window.location.origin
+        }
+      });
+      
+      if (error) throw error;
+      
+      // Check if email confirmation is required
+      if (data.user && data.session) {
+        // User is signed up and logged in
+        toast.success('Account created successfully!');
+        return { success: true, user: data.user };
+      } else if (data.user) {
+        // User needs to confirm email
+        toast.success('Please check your email to confirm your account!');
+        return { success: true, needsConfirmation: true };
+      }
+      
       return { success: true };
     } catch (error) {
-      toast.error(error.message);
+      console.error('Register error:', error);
+      toast.error(error.message || 'Registration failed');
       return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
+  const loginWithGoogle = async () => {
     try {
-      await logout();
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
+      });
+      
+      if (error) throw error;
+      
+      // Google OAuth will redirect, so no need to update state here
+      return { success: true };
+    } catch (error) {
+      console.error('Google login error:', error);
+      toast.error('Google login failed');
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       setUser(null);
-      setSession(null);
+      setIsAuthenticated(false);
       toast.success('Logged out successfully');
     } catch (error) {
       console.error('Logout error:', error);
-      toast.error('Error logging out');
+      toast.error('Logout failed');
     }
   };
 
   const value = {
     user,
+    isAuthenticated,
     loading,
-    isAuthenticated: !!user,
-    login: handleLogin,
-    register: handleRegister,
-    logout: handleLogout,
-    refreshUser: loadUser,
-    loginWithGoogle
+    login,
+    register,
+    loginWithGoogle,
+    logout,
+    checkUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
