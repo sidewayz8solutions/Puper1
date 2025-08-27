@@ -73,6 +73,13 @@ export const restroomService = {
   // Create new restroom
   async create(restroomData) {
     try {
+      // Check if user is authenticated
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error('You must be logged in to add a restroom');
+      }
+
       const payload = { ...restroomData };
       // Normalize lng -> lon for DB schema
       if (payload.lng !== undefined && payload.lon === undefined) {
@@ -80,6 +87,7 @@ export const restroomService = {
         delete payload.lng;
       }
       payload.created_at = new Date().toISOString();
+      payload.user_id = user.id; // Add user ID to track who added the restroom
 
       const { data, error } = await supabase
         .from('restrooms')
@@ -246,6 +254,13 @@ export const restroomService = {
   // Create new restroom with automatic geometry calculation
   async createWithLocation(restroomData) {
     try {
+      // Check if user is authenticated
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error('You must be logged in to add a restroom');
+      }
+
       // Normalize lng -> lon if needed; DB trigger will set geometry
       const payload = { ...restroomData };
       if (payload.lng !== undefined && payload.lon === undefined) {
@@ -253,6 +268,7 @@ export const restroomService = {
         delete payload.lng;
       }
       payload.created_at = new Date().toISOString();
+      payload.user_id = user.id; // Add user ID to track who added the restroom
 
       const { data, error } = await supabase
         .from('restrooms')

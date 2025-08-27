@@ -362,6 +362,90 @@ export const mapStyles = {
       elementType: "geometry",
       stylers: [{ color: "#e3f2fd" }]
     }
+  ],
+
+  // Restroom Focus - Only show gas stations, rest stops, bathrooms, roads and names
+  restroomFocus: [
+    // Hide all POI types except gas stations and rest stops
+    {
+      featureType: "poi",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "poi.gas_station",
+      stylers: [{ visibility: "on" }]
+    },
+    {
+      featureType: "poi.park",
+      elementType: "labels",
+      stylers: [{ visibility: "on" }]
+    },
+    // Hide business POIs except gas stations
+    {
+      featureType: "poi.business",
+      stylers: [{ visibility: "off" }]
+    },
+    // Hide attractions, government, medical, etc.
+    {
+      featureType: "poi.attraction",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "poi.government",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "poi.medical",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "poi.place_of_worship",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "poi.school",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "poi.sports_complex",
+      stylers: [{ visibility: "off" }]
+    },
+    // Keep road markings and names
+    {
+      featureType: "road",
+      elementType: "labels",
+      stylers: [{ visibility: "on" }]
+    },
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [{ visibility: "on" }]
+    },
+    // Hide transit except for rest stops
+    {
+      featureType: "transit",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "transit.station.bus",
+      stylers: [{ visibility: "on" }]
+    },
+    // Keep administrative labels (city names, etc.)
+    {
+      featureType: "administrative",
+      elementType: "labels",
+      stylers: [{ visibility: "on" }]
+    },
+    // Basic styling
+    {
+      elementType: "geometry",
+      stylers: [{ color: "#f8f9fa" }]
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [{ color: "#e3f2fd" }]
+    }
   ]
 };
 
@@ -404,6 +488,11 @@ export class MapStyleService {
       clean: {
         name: 'Clean',
         description: 'Minimal style focusing on restrooms',
+        category: 'functional'
+      },
+      restroomFocus: {
+        name: 'Restroom Focus',
+        description: 'Only shows gas stations, rest stops, bathrooms, roads and names',
         category: 'functional'
       }
     };

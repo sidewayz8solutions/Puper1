@@ -36,13 +36,44 @@ const GoogleMapComponent = ({ center, restrooms, onMarkerClick, onMapClick, addM
           rotateControl: true,
           fullscreenControl: true,
           styles: [
+            // Hide all POI types except gas stations and rest stops
             {
-              featureType: 'poi.business',
-              stylers: [{ visibility: 'on' }]
+              featureType: "poi",
+              stylers: [{ visibility: "off" }]
             },
             {
-              featureType: 'transit.station',
-              stylers: [{ visibility: 'on' }]
+              featureType: "poi.gas_station",
+              stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "poi.park",
+              elementType: "labels",
+              stylers: [{ visibility: "on" }]
+            },
+            // Hide business POIs except gas stations
+            {
+              featureType: "poi.business",
+              stylers: [{ visibility: "off" }]
+            },
+            // Hide transit except for rest stops
+            {
+              featureType: "transit",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "transit.station.bus",
+              stylers: [{ visibility: "on" }]
+            },
+            // Keep road markings and names
+            {
+              featureType: "road",
+              elementType: "labels",
+              stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [{ visibility: "on" }]
             }
           ],
           mapTypeControlOptions: {

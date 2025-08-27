@@ -42,16 +42,75 @@ const AdvancedGoogleMapView = ({
           rotateControl: true,
           fullscreenControl: false, // We'll use our custom control
           styles: [
-            // Custom map styling for Puper brand
+            // Hide all POI types except gas stations and rest stops
             {
-              featureType: 'poi',
-              elementType: 'labels',
-              stylers: [{ visibility: 'off' }]
+              featureType: "poi",
+              stylers: [{ visibility: "off" }]
             },
             {
-              featureType: 'transit',
-              elementType: 'labels',
-              stylers: [{ visibility: 'off' }]
+              featureType: "poi.gas_station",
+              stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "poi.park",
+              elementType: "labels",
+              stylers: [{ visibility: "on" }]
+            },
+            // Hide business POIs except gas stations
+            {
+              featureType: "poi.business",
+              stylers: [{ visibility: "off" }]
+            },
+            // Hide attractions, government, medical, etc.
+            {
+              featureType: "poi.attraction",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "poi.government",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "poi.medical",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "poi.place_of_worship",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "poi.school",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "poi.sports_complex",
+              stylers: [{ visibility: "off" }]
+            },
+            // Keep road markings and names
+            {
+              featureType: "road",
+              elementType: "labels",
+              stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [{ visibility: "on" }]
+            },
+            // Hide transit except for rest stops
+            {
+              featureType: "transit",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "transit.station.bus",
+              stylers: [{ visibility: "on" }]
+            },
+            // Keep administrative labels (city names, etc.)
+            {
+              featureType: "administrative",
+              elementType: "labels",
+              stylers: [{ visibility: "on" }]
             }
           ]
         };

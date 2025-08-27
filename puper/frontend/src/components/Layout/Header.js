@@ -32,10 +32,13 @@ const Header = () => {
           
           {isAuthenticated ? (
             <>
+              <div className="user-info">
+                <span className="username">Welcome, {user?.username || user?.displayName || user?.email}</span>
+              </div>
               <Link to={`/profile/${user?.id}`} className="nav-item">
                 <FaUser /> Profile
               </Link>
-              <button onClick={logout} className="nav-item">
+              <button onClick={logout} className="nav-item logout-btn">
                 Logout
               </button>
             </>

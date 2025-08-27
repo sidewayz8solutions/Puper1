@@ -77,3 +77,32 @@
   transform: translateY(-2px);
   box-shadow: 0 0 10px var(--psychedelic-pink);
 }
+
+.user-info {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  border: 2px solid var(--psychedelic-cyan);
+}
+
+.username {
+  font: bold 1.2rem 'Bebas Neue', cursive;
+  color: var(--psychedelic-cyan);
+  text-shadow: 0 0 5px var(--psychedelic-cyan);
+  letter-spacing: 1px;
+}
+
+.logout-btn {
+  background: rgba(255, 0, 0, 0.1);
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: #ff6666;
+  color: #ff6666;
+  box-shadow: 0 0 10px #ff4444;
+}

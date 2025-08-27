@@ -9,10 +9,12 @@ import {
 import woodBg from '../assets/images/wood5.png';
 import { restroomService, supabase } from '../services/supabase';
 import { googlePlacesService, initGoogleMaps } from '../services/googleMaps';
+import { useAuth } from '../context/AuthContext';
 import './MapPage.css';
 
 const MapPage = () => {
   const [searchParams] = useSearchParams();
+  const { user, isAuthenticated } = useAuth();
   const mapRef = useRef(null);
   const googleMapRef = useRef(null);
   const markersRef = useRef([]);
@@ -683,6 +685,12 @@ const MapPage = () => {
     try {
       console.log('Adding restroom:', data);
 
+      // Check authentication first
+      if (!isAuthenticated) {
+        alert('Please sign in to add restrooms!');
+        return;
+      }
+
       // Validate required fields
       if (!data.name || !data.lat || !data.lng) {
         alert('Please provide all required information');
@@ -777,8 +785,22 @@ const MapPage = () => {
       alert('Restroom added successfully!');
     } catch (error) {
       console.error('Error adding restroom:', error);
-      const message = (error && (error.message || error.error_description || error.code)) || 'Unknown error';
-      alert(`Failed to add restroom: ${message}`);
+      let message = 'Unknown error';
+
+      if (error?.message) {
+        message = error.message;
+      } else if (error?.error_description) {
+        message = error.error_description;
+      } else if (error?.code) {
+        message = error.code;
+      }
+
+      // Provide specific feedback for common authentication errors
+      if (message.includes('not authenticated') || message.includes('logged in')) {
+        alert('Please sign in to add restrooms!');
+      } else {
+        alert(`Failed to add restroom: ${message}`);
+      }
     }
   };
 
@@ -819,26 +841,30 @@ const MapPage = () => {
               <FaWifi className={`status-icon ${stats.networkStatus.toLowerCase()}`} />
               <span className="status-text">DB: {stats.networkStatus}</span>
             </div>
-            <motion.button
-              className="refresh-btn"
-              onClick={async () => {
-                try {
-                  setStats(prev => ({ ...prev, networkStatus: 'REFRESHING' }));
-                  await loadRestrooms();
-                } finally {
-                  setStats(prev => ({ ...prev, networkStatus: 'CONNECTED' }));
-                }
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ marginLeft: 'auto' }}
-            >
-              <FaSync style={{ marginRight: 6 }} /> Refresh Now
-            </motion.button>
+            <div className="location-display" style={{ marginLeft: 'auto' }}>
+              <FaMapMarkerAlt className="location-icon" />
+              <div className="location-info">
+                {userLocation ? (
+                  <>
+                    <span className="location-text">Current Location</span>
+                    <span className="coordinates">
+                      {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="location-text">Getting location...</span>
+                )}
+              </div>
+            </div>
           </div>
           <motion.button
-            className={`add-restroom-btn ${showAddForm ? 'active' : ''}`}
+            className={`add-restroom-btn ${showAddForm ? 'active' : ''} ${!isAuthenticated ? 'disabled' : ''}`}
             onClick={() => {
+              if (!isAuthenticated) {
+                alert('Please sign in to add restrooms!');
+                return;
+              }
+
               if (showAddForm) {
                 // Close form and clear temp marker
                 setShowAddForm(false);
@@ -852,11 +878,12 @@ const MapPage = () => {
                 alert('Click anywhere on the map to add a new restroom!');
               }
             }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: isAuthenticated ? 1.05 : 1 }}
+            whileTap={{ scale: isAuthenticated ? 0.95 : 1 }}
+            disabled={!isAuthenticated}
           >
             <FaPlus />
-            <span>{showAddForm ? 'Cancel' : 'Add Restroom'}</span>
+            <span>{showAddForm ? 'Cancel' : isAuthenticated ? 'Add Restroom' : 'Sign In to Add'}</span>
           </motion.button>
         </motion.div>
 
