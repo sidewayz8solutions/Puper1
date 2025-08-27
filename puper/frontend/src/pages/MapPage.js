@@ -349,6 +349,7 @@ const MapPage = () => {
       if (!navigator.geolocation) {
         console.warn('Geolocation is not supported by this browser');
         setUserLocation(null);
+        setUserLocationName('Geolocation not supported');
         return;
       }
 
@@ -384,9 +385,10 @@ const MapPage = () => {
             setUserLocationName('Unknown Location');
           }
 
-          // Center map on user location
+          // Center map on user location with higher zoom
           if (googleMapRef.current) {
             googleMapRef.current.setCenter(location);
+            googleMapRef.current.setZoom(16);
 
             // Add user location marker
             new window.google.maps.Marker({
@@ -914,7 +916,58 @@ const MapPage = () => {
                     </span>
                   </>
                 ) : mapsApiLoaded ? (
-                  <span className="location-text">Location unavailable</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span className="location-text">Location unavailable</span>
+                    <button
+                      onClick={() => {
+                        const getUserLocation = () => {
+                          if (!navigator.geolocation) {
+                            setUserLocationName('Geolocation not supported');
+                            return;
+                          }
+                          setUserLocationName('Getting your location...');
+                          navigator.geolocation.getCurrentPosition(
+                            async (position) => {
+                              const location = { lat: position.coords.latitude, lng: position.coords.longitude };
+                              setUserLocation(location);
+                              try {
+                                const addressInfo = await reverseGeocode(location.lat, location.lng);
+                                const cityComponent = addressInfo.address_components?.find(
+                                  component => component.types.includes('locality') ||
+                                             component.types.includes('administrative_area_level_2') ||
+                                             component.types.includes('administrative_area_level_1')
+                                );
+                                setUserLocationName(cityComponent?.long_name || 'Location found');
+                              } catch (error) {
+                                setUserLocationName('Location found');
+                              }
+                              if (googleMapRef.current) {
+                                googleMapRef.current.setCenter(location);
+                                googleMapRef.current.setZoom(16);
+                              }
+                            },
+                            (error) => {
+                              setUserLocationName('Location access denied');
+                            },
+                            { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+                          );
+                        };
+                        getUserLocation();
+                      }}
+                      style={{
+                        fontSize: '0.7rem',
+                        padding: '2px 6px',
+                        background: 'var(--gold)',
+                        color: 'var(--dark-brown)',
+                        border: 'none',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                        marginTop: '2px'
+                      }}
+                    >
+                      Try Again
+                    </button>
+                  </div>
                 ) : (
                   <span className="location-text">Getting location...</span>
                 )}
@@ -925,12 +978,8 @@ const MapPage = () => {
             className={`add-restroom-btn ${showAddForm ? 'active' : ''} ${!isAuthenticated ? 'disabled' : ''}`}
             onClick={() => {
               if (!isAuthenticated) {
-                // Open login modal via query flag so Header can pick it up
-                const url = new URL(window.location.href);
-                url.searchParams.set('login', 'true');
-                window.history.replaceState({}, '', url.toString());
-                const evt = new CustomEvent('open-login');
-                window.dispatchEvent(evt);
+                // Navigate to home page with login flag to trigger modal
+                window.location.href = '/?login=true';
                 return;
               }
 
