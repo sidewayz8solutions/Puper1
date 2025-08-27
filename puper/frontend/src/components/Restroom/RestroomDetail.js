@@ -113,7 +113,7 @@ const RestroomDetail = ({ restroom, onClose }) => {
                 onClick={() => setShowReviewForm(true)}
                 className="review-btn"
               >
-                <FaStar /> Write Review
+                <FaToilet /> Write Review
               </Button>
             </div>
 

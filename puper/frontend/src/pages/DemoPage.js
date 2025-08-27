@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaMapMarkerAlt, FaStar, FaRoute, FaPlus } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaToilet, FaRoute, FaPlus } from 'react-icons/fa';
 import Button from '../components/Common/Button';
 import './DemoPage.css';
 
@@ -40,7 +40,7 @@ const DemoPage = () => {
     { id: 'hero', name: 'Hero Section', icon: '🎬' },
     { id: 'map', name: 'Interactive Map', icon: '🗺️' },
     { id: 'search', name: 'Search & Filters', icon: '🔍' },
-    { id: 'reviews', name: 'Reviews System', icon: '⭐' },
+    { id: 'reviews', name: 'Reviews System', icon: '🚽' },
     { id: 'gamification', name: 'Gamification', icon: '🏆' }
   ];
 
@@ -132,7 +132,7 @@ const DemoPage = () => {
                 >
                   <h3>{restroom.name}</h3>
                   <div className="result-rating">
-                    <FaStar className="star" />
+                    <FaToilet className="star" />
                     <span>{restroom.rating}</span>
                   </div>
                   <p className="result-distance">{restroom.distance}</p>
@@ -152,7 +152,7 @@ const DemoPage = () => {
                   <span className="reviewer">ToiletExplorer</span>
                   <div className="review-stars">
                     {[1,2,3,4,5].map(i => (
-                      <FaStar key={i} className="star filled" />
+                      <FaToilet key={i} className="star filled" />
                     ))}
                   </div>
                 </div>
@@ -163,9 +163,9 @@ const DemoPage = () => {
                   <span className="reviewer">RestroomRanger</span>
                   <div className="review-stars">
                     {[1,2,3,4].map(i => (
-                      <FaStar key={i} className="star filled" />
+                      <FaToilet key={i} className="star filled" />
                     ))}
-                    <FaStar className="star" />
+                    <FaToilet className="star" />
                   </div>
                 </div>
                 <p>"Good facilities, wheelchair accessible entrance."</p>

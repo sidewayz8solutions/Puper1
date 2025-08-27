@@ -167,7 +167,7 @@ const GoogleMapComponent = ({ center, restrooms, onMarkerClick, onMapClick, addM
             <div class="restroom-info-window">
               <h3>${restroom.name}</h3>
               <p>${restroom.address}</p>
-              ${restroom.rating ? `<p>⭐ ${restroom.rating} (${restroom.user_ratings_total || 0} reviews)</p>` : ''}
+              ${restroom.rating ? `<p>🚽 ${restroom.rating} (${restroom.user_ratings_total || 0} reviews)</p>` : ''}
               ${restroom.distance ? `<p>📍 ${restroom.distance}m away</p>` : ''}
               <button onclick="window.selectRestroom('${restroom.id}')" class="select-btn">
                 View Details

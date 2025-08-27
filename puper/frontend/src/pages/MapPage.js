@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fa';
 import woodBg from '../assets/images/wood5.png';
 import { restroomService, supabase } from '../services/supabase';
-import { googlePlacesService } from '../services/googleMaps';
+import { googlePlacesService, initGoogleMaps } from '../services/googleMaps';
 import './MapPage.css';
 
 const MapPage = () => {
@@ -208,34 +208,15 @@ const MapPage = () => {
 
   // Initialize Google Maps
   useEffect(() => {
-    const initializeMap = () => {
-      if (!window.google || !window.google.maps) {
-        // Load Google Maps Script
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=places,marker`;
-        script.async = true;
-        script.defer = true;
-        script.onload = () => {
-          console.info('✅ Google Maps JS loaded');
-          setupMap();
-        };
-        script.onerror = (e) => {
-          console.error('❌ Failed to load Google Maps JS', e);
-          setLoading(false);
-          alert('Failed to load Google Maps. Check your API key, billing, and allowed referrers for your Vercel domain.');
-        };
-        document.head.appendChild(script);
-
-        // Watchdog: if Maps hasn\'t loaded in 12s, show a helpful message
-        setTimeout(() => {
-          if (!window.google || !window.google.maps) {
-            console.warn('Google Maps still not available after 12s');
-            setLoading(false);
-            alert('Google Maps is taking too long to load. Verify REACT_APP_GOOGLE_MAPS_API_KEY on Vercel and referrer restrictions.');
-          }
-        }, 12000);
-      } else {
+    const initializeMap = async () => {
+      try {
+        await initGoogleMaps();
+        console.info('✅ Google Maps JS loaded via Loader');
         setupMap();
+      } catch (e) {
+        console.error('❌ Failed to load Google Maps via Loader', e);
+        setLoading(false);
+        alert('Failed to load Google Maps. Check your API key, billing, and allowed referrers for your Vercel domain.');
       }
     };
 
@@ -719,7 +700,7 @@ const MapPage = () => {
         baby_changing: false,
         gender_neutral: false,
         requires_fee: false,
-        hours_24: false,
+
         verified: false
       });
 
