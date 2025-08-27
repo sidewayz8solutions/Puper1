@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaSearch, FaMapMarkerAlt, FaTimes, FaSpinner, FaClock, FaStar, FaPhone, FaGlobe } from 'react-icons/fa';
+import { FaSearch, FaMapMarkerAlt, FaTimes, FaSpinner, FaClock, FaToilet, FaPhone, FaGlobe } from 'react-icons/fa';
 import { usePlacesAutocomplete } from '../../hooks/usePlacesAutocomplete';
 import './AdvancedAutocomplete.css';
 
@@ -243,7 +243,7 @@ const AdvancedAutocomplete = ({
 
               {selectedPlace.rating && (
                 <div className="place-rating">
-                  <FaStar className="detail-icon" />
+                  <FaToilet className="detail-icon" />
                   <span>{selectedPlace.rating} / 5</span>
                 </div>
               )}
