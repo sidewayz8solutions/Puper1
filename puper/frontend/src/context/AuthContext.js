@@ -14,33 +14,46 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session);
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('🔐 Initial session check:', { session: !!session, userId: session?.user?.id, error });
       setSession(session);
       if (session) {
+        console.log('✅ Found existing session, loading user...');
         loadUser();
       } else {
+        console.log('❌ No existing session found');
         setLoading(false);
       }
+    }).catch(err => {
+      console.error('❌ Failed to get initial session:', err);
+      setLoading(false);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event, session);
+      console.log('🔄 Auth state change:', {
+        event,
+        hasSession: !!session,
+        userId: session?.user?.id,
+        userEmail: session?.user?.email
+      });
       setSession(session);
 
       if (event === 'SIGNED_IN' && session) {
-        // Handle successful sign in (including OAuth)
+        console.log('✅ SIGNED_IN event - loading user profile...');
         await loadUser();
         toast.success('Successfully signed in!');
       } else if (event === 'SIGNED_OUT') {
+        console.log('👋 SIGNED_OUT event');
         setUser(null);
         setLoading(false);
       } else if (session) {
+        console.log('🔄 Session exists, loading user...');
         loadUser();
       } else {
+        console.log('❌ No session in auth state change');
         setUser(null);
         setLoading(false);
       }
@@ -51,10 +64,19 @@ export const AuthProvider = ({ children }) => {
 
   const loadUser = async () => {
     try {
+      console.log('👤 Loading user profile...');
       const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-      if (userError) throw userError;
-      if (!user) throw new Error('No user found');
+      if (userError) {
+        console.error('❌ Error getting user:', userError);
+        throw userError;
+      }
+      if (!user) {
+        console.error('❌ No user found in session');
+        throw new Error('No user found');
+      }
+
+      console.log('✅ Got user from Supabase:', { id: user.id, email: user.email });
 
       // Try to get user profile from our users table
       let userData;

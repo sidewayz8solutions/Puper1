@@ -3,6 +3,21 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
+// Validate environment variables
+if (!supabaseUrl) {
+  console.error('❌ REACT_APP_SUPABASE_URL is not set');
+  throw new Error('Missing Supabase URL');
+}
+if (!supabaseAnonKey) {
+  console.error('❌ REACT_APP_SUPABASE_ANON_KEY is not set');
+  throw new Error('Missing Supabase Anon Key');
+}
+
+console.log('✅ Supabase config:', {
+  url: supabaseUrl,
+  hasKey: !!supabaseAnonKey
+});
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
