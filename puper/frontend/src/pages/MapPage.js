@@ -10,6 +10,7 @@ import woodBg from '../assets/images/wood5.png';
 import { restroomService, supabase } from '../services/supabase';
 import { googlePlacesService, initGoogleMaps, reverseGeocode } from '../services/googleMaps';
 import { useAuth } from '../context/AuthContext';
+import RatingForm from '../components/Rating/RatingForm';
 import './MapPage.css';
 
 const MapPage = () => {
@@ -33,7 +34,9 @@ const MapPage = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapsApiLoaded, setMapsApiLoaded] = useState(false);
   const [showInstructions, setShowInstructions] = useState(true);
-  
+  const [showRatingForm, setShowRatingForm] = useState(false);
+  const [ratingRestroom, setRatingRestroom] = useState(null);
+
   // Stats
   const [stats, setStats] = useState({
     totalRestrooms: 0,
