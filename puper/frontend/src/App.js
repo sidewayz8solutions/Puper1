@@ -13,6 +13,7 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import AboutPage from './pages/AboutPage';
 import ConnectionTest from './components/Debug/ConnectionTest';
 import GeospatialTest from './components/Debug/GeospatialTest';
+import AuthCallback from './components/Auth/AuthCallback';
 import './App.css';
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ function App() {
                   <Route path="/profile/:id?" element={<ProfilePage />} />
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
                   <Route path="/about" element={<AboutPage />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="/test" element={<ConnectionTest />} />
                   <Route path="/geospatial" element={<GeospatialTest />} />
                 </Routes>

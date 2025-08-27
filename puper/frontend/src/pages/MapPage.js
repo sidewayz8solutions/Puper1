@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fa';
 import woodBg from '../assets/images/wood5.png';
 import { restroomService, supabase } from '../services/supabase';
-import { googlePlacesService, initGoogleMaps } from '../services/googleMaps';
+import { googlePlacesService, initGoogleMaps, reverseGeocode } from '../services/googleMaps';
 import { useAuth } from '../context/AuthContext';
 import './MapPage.css';
 
@@ -23,6 +23,7 @@ const MapPage = () => {
   const [map, setMap] = useState(null);
   const [infoWindow, setInfoWindow] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [userLocationName, setUserLocationName] = useState(null);
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
   const [showAddForm, setShowAddForm] = useState(searchParams.get('add') === 'true');
@@ -167,7 +168,7 @@ const MapPage = () => {
 
             setStats((prev) => ({
               ...prev,
-              networkStatus: isVisible ? 'POLLING_ACTIVE' : 'POLLING_BG'
+              networkStatus: 'CONNECTED'
             }));
 
             consecutiveErrors = 0; // reset on success
@@ -343,19 +344,49 @@ const MapPage = () => {
 
   // Get user location
   useEffect(() => {
-    if (navigator.geolocation) {
+    const getUserLocation = () => {
+      if (!navigator.geolocation) {
+        console.warn('Geolocation is not supported by this browser');
+        setUserLocation(null);
+        return;
+      }
+
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const location = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
+          console.log('Got user location:', location);
           setUserLocation(location);
-          
+
+          // Get city name from coordinates
+          try {
+            const addressInfo = await reverseGeocode(location.lat, location.lng);
+            console.log('Reverse geocode result:', addressInfo);
+
+            // Extract city name from address components
+            let cityName = 'Unknown Location';
+            if (addressInfo.address_components) {
+              const cityComponent = addressInfo.address_components.find(
+                component => component.types.includes('locality') ||
+                           component.types.includes('administrative_area_level_2') ||
+                           component.types.includes('administrative_area_level_1')
+              );
+              if (cityComponent) {
+                cityName = cityComponent.long_name;
+              }
+            }
+            setUserLocationName(cityName);
+          } catch (error) {
+            console.warn('Failed to get city name:', error);
+            setUserLocationName('Unknown Location');
+          }
+
           // Center map on user location
           if (googleMapRef.current) {
             googleMapRef.current.setCenter(location);
-            
+
             // Add user location marker
             new window.google.maps.Marker({
               position: location,
@@ -375,12 +406,42 @@ const MapPage = () => {
           }
         },
         (error) => {
-          console.error('Error getting location:', error);
-          setLoading(false);
+          console.error('Geolocation error:', error);
+          let errorMessage = 'Location access denied';
+
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location access denied by user';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information unavailable';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out';
+              break;
+            default:
+              errorMessage = 'Unknown location error';
+              break;
+          }
+
+          console.warn('Geolocation failed:', errorMessage);
+          // Set userLocation to null so UI shows appropriate message
+          setUserLocation(null);
+          setUserLocationName(null);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
         }
       );
+    };
+
+    // Only try to get location when map is ready
+    if (map && mapsApiLoaded) {
+      getUserLocation();
     }
-  }, [map]);
+  }, [map, mapsApiLoaded]);
 
   // Load restrooms and add markers
   useEffect(() => {
@@ -848,9 +909,11 @@ const MapPage = () => {
                   <>
                     <span className="location-text">Current Location</span>
                     <span className="coordinates">
-                      {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                      {userLocationName || 'Getting city name...'}
                     </span>
                   </>
+                ) : mapsApiLoaded ? (
+                  <span className="location-text">Location unavailable</span>
                 ) : (
                   <span className="location-text">Getting location...</span>
                 )}

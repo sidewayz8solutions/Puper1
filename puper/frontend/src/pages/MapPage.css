@@ -151,10 +151,11 @@
 }
 
 .coordinates {
-  font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 0.9rem;
   color: var(--cream);
-  opacity: 0.8;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
 }
 
 .connection-status {

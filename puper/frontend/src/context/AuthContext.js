@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session);
       setSession(session);
       if (session) {
         loadUser();
@@ -26,9 +27,18 @@ export const AuthProvider = ({ children }) => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session);
       setSession(session);
-      if (session) {
+
+      if (event === 'SIGNED_IN' && session) {
+        // Handle successful sign in (including OAuth)
+        await loadUser();
+        toast.success('Successfully signed in!');
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setLoading(false);
+      } else if (session) {
         loadUser();
       } else {
         setUser(null);
@@ -41,7 +51,46 @@ export const AuthProvider = ({ children }) => {
 
   const loadUser = async () => {
     try {
-      const userData = await getProfile();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+      if (userError) throw userError;
+      if (!user) throw new Error('No user found');
+
+      // Try to get user profile from our users table
+      let userData;
+      try {
+        userData = await getProfile();
+      } catch (profileError) {
+        console.log('No profile found, creating one for OAuth user');
+
+        // For OAuth users, create a profile if it doesn't exist
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert([{
+            id: user.id,
+            username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            email: user.email,
+            display_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            points: 0,
+            level: 1
+          }]);
+
+        if (insertError) {
+          console.warn('Could not create user profile:', insertError);
+        }
+
+        // Return basic user data
+        userData = {
+          id: user.id,
+          email: user.email,
+          username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          displayName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          points: 0,
+          level: 1,
+          isAdmin: false
+        };
+      }
+
       setUser(userData);
     } catch (error) {
       console.error('Error loading user:', error);

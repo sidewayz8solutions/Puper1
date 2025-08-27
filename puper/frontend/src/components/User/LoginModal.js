@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../Common/Modal';
 import Button from '../Common/Button';
+import toast from 'react-hot-toast';
 import './LoginModal.css';
 import { FaGoogle } from 'react-icons/fa';
 
@@ -106,7 +107,28 @@ const LoginModal = ({ onClose }) => {
 
         <div className="oauth-divider"><span>or</span></div>
 
-        <Button type="button" className="google-btn" onClick={loginWithGoogle}>
+        <Button
+          type="button"
+          className="google-btn"
+          onClick={async () => {
+            setLoading(true);
+            try {
+              const result = await loginWithGoogle();
+              if (result.success) {
+                // OAuth will redirect, so we don't need to close the modal here
+                // The auth state change will handle the UI update
+              } else {
+                toast.error(result.error || 'Google sign-in failed');
+              }
+            } catch (error) {
+              console.error('Google OAuth error:', error);
+              toast.error('Google sign-in failed');
+            } finally {
+              setLoading(false);
+            }
+          }}
+          loading={loading}
+        >
           <FaGoogle style={{ marginRight: 8 }} /> Continue with Google
         </Button>
 
