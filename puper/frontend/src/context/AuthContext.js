@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { login, register, logout, loginWithGoogle } from '../services/auth';
+import { login, register, logout, getProfile, loginWithGoogle } from '../services/auth';
 import { supabase } from '../services/supabase';
 import toast from 'react-hot-toast';
 
@@ -65,23 +65,51 @@ export const AuthProvider = ({ children }) => {
 
       console.log('✅ Auth user found:', { id: user.id, email: user.email });
 
-      // Just use the auth user data directly - no database calls
-      const userData = {
-        id: user.id,
-        email: user.email,
-        username: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-        displayName: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-        points: 0,
-        level: 1,
-        isAdmin: false
-      };
+      // Try to get user profile from our users table
+      let userData;
+      try {
+        console.log('📋 Getting profile...');
+        userData = await getProfile();
+        console.log('✅ Profile loaded:', userData);
+      } catch (profileError) {
+        console.log('❌ No profile found, creating one for OAuth user:', profileError);
 
-      console.log('✅ User data created:', userData);
+        // For OAuth users, create a profile if it doesn't exist
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert([{
+            id: user.id,
+            username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            email: user.email,
+            display_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            points: 0,
+            level: 1
+          }]);
+
+        if (insertError) {
+          console.warn('Could not create user profile:', insertError);
+        }
+
+        // Return basic user data
+        userData = {
+          id: user.id,
+          email: user.email,
+          username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          displayName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          points: 0,
+          level: 1,
+          isAdmin: false
+        };
+        console.log('✅ Fallback user data created:', userData);
+      }
+
+      console.log('🎯 Setting user:', userData);
       setUser(userData);
     } catch (error) {
-      console.error('❌ Load user error:', error);
+      console.error('❌ Error loading user:', error);
       setUser(null);
     } finally {
+      console.log('🏁 Loading complete, setting loading to false');
       setLoading(false);
     }
   };
