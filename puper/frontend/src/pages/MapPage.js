@@ -209,18 +209,6 @@ const MapPage = () => {
     };
   }, [map, mapLoaded, restrooms.length]);
 
-  // Set up global rating function for info window buttons
-  useEffect(() => {
-    window.handleRateRestroom = (id, name, address) => {
-      const restroom = { id, name, address };
-      handleRateRestroom(restroom);
-    };
-
-    return () => {
-      delete window.handleRateRestroom;
-    };
-  }, []);
-
   // Initialize Google Maps
   useEffect(() => {
     const initializeMap = async () => {
@@ -608,10 +596,16 @@ const MapPage = () => {
               <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">${restroom.wheelchair_accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
               <p style="margin: 8px 0; color: ${sourceColor}; font-size: 12px; font-weight: bold;">📍 Source: ${sourceLabel}</p>
               ${restroom.address ? `<p style="margin: 8px 0; color: #666; font-size: 12px;">📍 ${restroom.address}</p>` : ''}
-              <button onclick="window.open('/restroom/${restroom.id}', '_blank')"
-                style="background: linear-gradient(135deg, #6B4423, #4A2F18); color: white; border: 2px solid #0dffe7; border-radius: 8px; padding: 10px 18px; cursor: pointer; margin-top: 12px; font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 1px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease;">
-                View Details
-              </button>
+              <div style="display: flex; gap: 8px; margin-top: 12px;">
+                <button onclick="window.open('/restroom/${restroom.id}', '_blank')"
+                  style="background: linear-gradient(135deg, #6B4423, #4A2F18); color: white; border: 2px solid #0dffe7; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 1px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease; flex: 1;">
+                  View Details
+                </button>
+                <button onclick="window.openRatingForm('${restroom.id}')"
+                  style="background: linear-gradient(135deg, #DAA520, #B8860B); color: white; border: 2px solid #0dffe7; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 1px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease; flex: 1;">
+                  🚽 Rate
+                </button>
+              </div>
             </div>
           `
         });
@@ -626,6 +620,15 @@ const MapPage = () => {
 
       markersRef.current = newMarkers;
       setRestrooms(combinedRestrooms);
+
+      // Global function for rating form
+      window.openRatingForm = (restroomId) => {
+        const restroom = combinedRestrooms.find(r => r.id === restroomId);
+        if (restroom) {
+          setRatingRestroom(restroom);
+          setShowRatingForm(true);
+        }
+      };
 
       // Update stats with combined data
       const accessibleCount = combinedRestrooms.filter(r => r.wheelchair_accessible).length;
@@ -688,6 +691,12 @@ const MapPage = () => {
             <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">🚽 Rating: ${restroom.rating}/5</p>
             <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">📝 ${restroom.reviews} reviews</p>
             <p style="margin: 8px 0; color: #4a2f18; font-size: 14px; font-weight: 600;">${restroom.accessible ? '♿ Accessible' : '🚫 Not Accessible'}</p>
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
+              <button onclick="window.openRatingForm('${restroom.id}')"
+                style="background: linear-gradient(135deg, #DAA520, #B8860B); color: white; border: 2px solid #0dffe7; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 1px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease; width: 100%;">
+                🚽 Rate This Restroom
+              </button>
+            </div>
           </div>
         `
       });
@@ -702,6 +711,15 @@ const MapPage = () => {
 
     markersRef.current = newMarkers;
     setRestrooms(mockRestrooms);
+
+    // Global function for rating form (mock data)
+    window.openRatingForm = (restroomId) => {
+      const restroom = mockRestrooms.find(r => r.id === restroomId);
+      if (restroom) {
+        setRatingRestroom(restroom);
+        setShowRatingForm(true);
+      }
+    };
 
     setStats({
       totalRestrooms: mockRestrooms.length,
@@ -1148,6 +1166,31 @@ const MapPage = () => {
         )}
       </AnimatePresence>
 
+      {/* Rating Form Modal */}
+      <AnimatePresence>
+        {showRatingForm && ratingRestroom && (
+          <RatingForm
+            restroom={ratingRestroom}
+            onSubmit={async (ratingData) => {
+              try {
+                // Submit rating to backend
+                console.log('Submitting rating:', ratingData);
+                // You can add actual API call here
+                setShowRatingForm(false);
+                setRatingRestroom(null);
+                // Optionally refresh restroom data
+              } catch (error) {
+                console.error('Error submitting rating:', error);
+              }
+            }}
+            onCancel={() => {
+              setShowRatingForm(false);
+              setRatingRestroom(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Instructions Overlay */}
       {showInstructions && !loading && (
         <motion.div
@@ -1195,20 +1238,6 @@ const MapPage = () => {
           </div>
         </motion.div>
       )}
-
-      {/* Rating Form Modal */}
-      <AnimatePresence>
-        {showRatingForm && ratingRestroom && (
-          <RatingForm
-            restroom={ratingRestroom}
-            onSubmit={handleSubmitRating}
-            onCancel={() => {
-              setShowRatingForm(false);
-              setRatingRestroom(null);
-            }}
-          />
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 };
