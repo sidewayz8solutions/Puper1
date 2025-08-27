@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../services/supabase';
 import Loading from '../Common/Loading';
-import toast from 'react-hot-toast';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -11,41 +10,25 @@ const AuthCallback = () => {
 
   useEffect(() => {
     const run = async () => {
-      console.log('🔄 AuthCallback: Processing OAuth callback...');
       try {
+        // Support PKCE: exchange ?code for a session
         const url = new URL(window.location.href);
         const code = url.searchParams.get('code');
-        const error = url.searchParams.get('error');
-
-        if (error) {
-          console.error('❌ OAuth error in callback:', error);
-          toast.error(`Authentication failed: ${error}`);
-          navigate('/', { replace: true });
-          return;
-        }
-
         if (code) {
-          console.log('🔑 Found auth code, exchanging for session...');
-          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-          if (exchangeError) {
-            console.error('❌ exchangeCodeForSession error:', exchangeError);
-            toast.error('Failed to complete sign-in');
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) {
+            console.error('exchangeCodeForSession error:', error);
           } else {
-            console.log('✅ PKCE session established:', {
-              userId: data?.session?.user?.id,
-              email: data?.session?.user?.email
-            });
+            console.log('PKCE session established:', data?.session?.user?.id);
           }
-        } else {
-          console.log('ℹ️ No auth code found in callback URL');
         }
       } catch (e) {
-        console.error('❌ Auth callback processing failed:', e);
-        toast.error('Authentication failed');
+        console.error('Auth callback processing failed:', e);
       } finally {
-        // Clean up URL and redirect
-        console.log('🔄 Redirecting to map...');
-        navigate('/map', { replace: true });
+        // Clean up URL and go to map; AuthContext will finish loading user
+        const cleanUrl = window.location.origin + '/auth/callback';
+        window.history.replaceState({}, '', cleanUrl);
+        navigate('/', { replace: true });
       }
     };
     run();
