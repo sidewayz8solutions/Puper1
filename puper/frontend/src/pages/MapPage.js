@@ -359,8 +359,9 @@ const MapPage = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-          console.log('Got user location:', location);
+          console.log('🌍 Got user location:', location);
           setUserLocation(location);
+          setUserLocationName('Getting city name...');
 
           // Get city name from coordinates
           try {
@@ -379,10 +380,11 @@ const MapPage = () => {
                 cityName = cityComponent.long_name;
               }
             }
+            console.log('✅ City resolved:', cityName);
             setUserLocationName(cityName);
           } catch (error) {
             console.warn('Failed to get city name:', error);
-            setUserLocationName('Unknown Location');
+            setUserLocationName(`Location: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
           }
 
           // Center map on user location with higher zoom
@@ -434,14 +436,15 @@ const MapPage = () => {
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000 // 5 minutes
+          timeout: 15000, // Longer timeout
+          maximumAge: 0 // Always get fresh location, no cache
         }
       );
     };
 
-    // Only try to get location when map is ready
-    if (map && mapsApiLoaded) {
+    // Try to get location as soon as possible
+    if (mapsApiLoaded) {
+      console.log('🌍 Maps API loaded, requesting geolocation...');
       getUserLocation();
     }
   }, [map, mapsApiLoaded]);
@@ -920,52 +923,64 @@ const MapPage = () => {
                     <span className="location-text">Location unavailable</span>
                     <button
                       onClick={() => {
+                        console.log('🔄 Manual location request triggered');
                         const getUserLocation = () => {
                           if (!navigator.geolocation) {
+                            console.error('❌ Geolocation not supported');
                             setUserLocationName('Geolocation not supported');
                             return;
                           }
+                          console.log('🌍 Requesting fresh location...');
                           setUserLocationName('Getting your location...');
                           navigator.geolocation.getCurrentPosition(
                             async (position) => {
                               const location = { lat: position.coords.latitude, lng: position.coords.longitude };
+                              console.log('✅ Fresh location obtained:', location);
                               setUserLocation(location);
                               try {
+                                setUserLocationName('Getting city name...');
                                 const addressInfo = await reverseGeocode(location.lat, location.lng);
+                                console.log('🏙️ Reverse geocode result:', addressInfo);
                                 const cityComponent = addressInfo.address_components?.find(
                                   component => component.types.includes('locality') ||
                                              component.types.includes('administrative_area_level_2') ||
                                              component.types.includes('administrative_area_level_1')
                                 );
-                                setUserLocationName(cityComponent?.long_name || 'Location found');
+                                const cityName = cityComponent?.long_name || `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`;
+                                console.log('✅ City name resolved:', cityName);
+                                setUserLocationName(cityName);
                               } catch (error) {
-                                setUserLocationName('Location found');
+                                console.warn('❌ Reverse geocoding failed:', error);
+                                setUserLocationName(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
                               }
                               if (googleMapRef.current) {
+                                console.log('🗺️ Centering map on user location');
                                 googleMapRef.current.setCenter(location);
                                 googleMapRef.current.setZoom(16);
                               }
                             },
                             (error) => {
-                              setUserLocationName('Location access denied');
+                              console.error('❌ Manual geolocation failed:', error);
+                              setUserLocationName('Location access denied - check browser permissions');
                             },
-                            { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+                            { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
                           );
                         };
                         getUserLocation();
                       }}
                       style={{
-                        fontSize: '0.7rem',
-                        padding: '2px 6px',
+                        fontSize: '0.8rem',
+                        padding: '4px 8px',
                         background: 'var(--gold)',
                         color: 'var(--dark-brown)',
                         border: 'none',
-                        borderRadius: '3px',
+                        borderRadius: '4px',
                         cursor: 'pointer',
-                        marginTop: '2px'
+                        marginTop: '4px',
+                        fontWeight: 'bold'
                       }}
                     >
-                      Try Again
+                      📍 Get My Location
                     </button>
                   </div>
                 ) : (

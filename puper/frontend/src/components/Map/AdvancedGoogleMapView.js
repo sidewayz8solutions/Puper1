@@ -32,7 +32,7 @@ const AdvancedGoogleMapView = ({
     const initMap = async () => {
       try {
         const mapOptions = {
-          center: center || { lat: 29.9511, lng: -90.0715 },
+          center: center || { lat: 37.0902, lng: -95.7129 },
           zoom: 15,
           mapTypeId: window.google.maps.MapTypeId.ROADMAP,
           gestureHandling: 'greedy',

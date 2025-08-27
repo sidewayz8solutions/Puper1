@@ -3,7 +3,7 @@ import ReverseGeocodePanel from './ReverseGeocodePanel';
 import './ModernGoogleMap.css';
 
 const ModernGoogleMap = ({ 
-  center = { lat: 29.9511, lng: -90.0715 }, // New Orleans default
+  center = { lat: 37.0902, lng: -95.7129 }, // USA center default
   zoom = 12,
   mapId = "PUPER_MAP_ID",
   restrooms = [],

@@ -15,8 +15,8 @@ const GeospatialTest = () => {
   } = useGeospatialRestrooms();
 
   const [testLocation, setTestLocation] = useState({
-    lat: 29.9511, // New Orleans
-    lon: -90.0715
+    lat: 37.0902, // USA center
+    lon: -95.7129
   });
   const [radius, setRadius] = useState(5000);
   const [searchQuery, setSearchQuery] = useState('');
