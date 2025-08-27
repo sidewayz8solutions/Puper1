@@ -26,7 +26,7 @@ const MapPage = () => {
   const [userLocationName, setUserLocationName] = useState(null);
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
-  const [showAddForm, setShowAddForm] = useState(searchParams.get('add') === 'true');
+  const [showAddForm, setShowAddForm] = useState(false);
   const [addLocation, setAddLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
