@@ -209,6 +209,18 @@ const MapPage = () => {
     };
   }, [map, mapLoaded, restrooms.length]);
 
+  // Set up global rating function for info window buttons
+  useEffect(() => {
+    window.handleRateRestroom = (id, name, address) => {
+      const restroom = { id, name, address };
+      handleRateRestroom(restroom);
+    };
+
+    return () => {
+      delete window.handleRateRestroom;
+    };
+  }, []);
+
   // Initialize Google Maps
   useEffect(() => {
     const initializeMap = async () => {
@@ -225,17 +237,77 @@ const MapPage = () => {
 
     const setupMap = () => {
       if (mapRef.current && !googleMapRef.current) {
-        console.log('🗺️ Setting up map...');
         const mapOptions = {
+          // Start neutral; we'll center on user when geolocation resolves
           center: { lat: 37.0902, lng: -95.7129 }, // USA center fallback
-          zoom: 4,
+          zoom: 16,
+          tilt: 45,
+          heading: 90,
+          mapId: process.env.REACT_APP_GOOGLE_MAPS_MAP_ID,
           mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-          gestureHandling: 'greedy',
+          styles: [
+            {
+              featureType: "all",
+              elementType: "geometry",
+              stylers: [{ color: "#242f3e" }]
+            },
+            {
+              featureType: "all",
+              elementType: "labels.text.stroke",
+              stylers: [{ color: "#242f3e" }]
+            },
+            {
+              featureType: "all",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#746855" }]
+            },
+            {
+              featureType: "water",
+              elementType: "geometry",
+              stylers: [{ color: "#17263c" }]
+            },
+            {
+              featureType: "water",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#515c6d" }]
+            },
+            {
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [{ color: "#38414e" }]
+            },
+            {
+              featureType: "road",
+              elementType: "geometry.stroke",
+              stylers: [{ color: "#212a37" }]
+            },
+            {
+              featureType: "road",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#9ca5b3" }]
+            },
+            {
+              featureType: "road.highway",
+              elementType: "geometry",
+              stylers: [{ color: "#746855" }]
+            },
+            {
+              featureType: "road.highway",
+              elementType: "geometry.stroke",
+              stylers: [{ color: "#1f2835" }]
+            },
+            {
+              featureType: "road.highway",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#f3d19c" }]
+            }
+          ],
+          disableDefaultUI: false,
           zoomControl: true,
           mapTypeControl: true,
           streetViewControl: true,
-          fullscreenControl: true
-
+          fullscreenControl: true,
+          gestureHandling: 'greedy'
         };
 
         const newMap = new window.google.maps.Map(mapRef.current, mapOptions);
@@ -243,76 +315,6 @@ const MapPage = () => {
         setMap(newMap);
         setInfoWindow(new window.google.maps.InfoWindow());
         setMapLoaded(true);
-        setMapsApiLoaded(true);
-        setLoading(false);
-        console.log('✅ Map setup complete');
-
-        // Get user location immediately
-        if (navigator.geolocation) {
-          console.log('🌍 Getting user location...');
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const location = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-              };
-              console.log('✅ Got location:', location);
-              setUserLocation(location);
-              setUserLocationName('Your Location');
-
-              // Center map on user location
-              newMap.setCenter(location);
-              newMap.setZoom(14);
-
-              // Add user marker
-              new window.google.maps.Marker({
-                position: location,
-                map: newMap,
-                icon: {
-                  url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                    <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="15" cy="15" r="10" fill="#4285F4" stroke="white" stroke-width="3"/>
-                      <circle cx="15" cy="15" r="4" fill="white"/>
-                    </svg>
-                  `),
-                  scaledSize: new window.google.maps.Size(30, 30),
-                  anchor: new window.google.maps.Point(15, 15)
-                },
-                title: 'Your Location'
-              });
-            },
-            (error) => {
-              console.warn('❌ Geolocation failed:', error);
-              setUserLocationName('Location unavailable');
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-          );
-        }
-
-        // Add some test restroom markers
-        const testRestrooms = [
-          { lat: 37.7749, lng: -122.4194, name: "San Francisco Public Restroom" },
-          { lat: 40.7128, lng: -74.0060, name: "NYC Public Restroom" },
-          { lat: 34.0522, lng: -118.2437, name: "LA Public Restroom" }
-        ];
-
-        testRestrooms.forEach(restroom => {
-          new window.google.maps.Marker({
-            position: { lat: restroom.lat, lng: restroom.lng },
-            map: newMap,
-            icon: {
-              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="15" cy="15" r="12" fill="#8B4513" stroke="white" stroke-width="2"/>
-                  <text x="15" y="20" text-anchor="middle" fill="white" font-size="16">🚽</text>
-                </svg>
-              `),
-              scaledSize: new window.google.maps.Size(30, 30),
-              anchor: new window.google.maps.Point(15, 15)
-            },
-            title: restroom.name
-          });
-        });
 
         // Add click listener for adding new restrooms
         newMap.addListener('click', (event) => {
@@ -912,7 +914,10 @@ const MapPage = () => {
               onChange={(e) => handleSearch(e.target.value)}
               className="search-input"
             />
-
+            <div className="connection-status">
+              <FaWifi className={`status-icon ${stats.networkStatus.toLowerCase()}`} />
+              <span className="status-text">DB: {stats.networkStatus}</span>
+            </div>
             <div className="location-display" style={{ marginLeft: 'auto' }}>
               <FaMapMarkerAlt className="location-icon" />
               <div className="location-info">
@@ -1190,6 +1195,20 @@ const MapPage = () => {
           </div>
         </motion.div>
       )}
+
+      {/* Rating Form Modal */}
+      <AnimatePresence>
+        {showRatingForm && ratingRestroom && (
+          <RatingForm
+            restroom={ratingRestroom}
+            onSubmit={handleSubmitRating}
+            onCancel={() => {
+              setShowRatingForm(false);
+              setRatingRestroom(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
