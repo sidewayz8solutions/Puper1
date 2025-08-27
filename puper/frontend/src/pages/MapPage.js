@@ -359,9 +359,8 @@ const MapPage = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-          console.log('🌍 Got user location:', location);
+          console.log('Got user location:', location);
           setUserLocation(location);
-          setUserLocationName('Getting city name...');
 
           // Get city name from coordinates
           try {
@@ -380,11 +379,10 @@ const MapPage = () => {
                 cityName = cityComponent.long_name;
               }
             }
-            console.log('✅ City resolved:', cityName);
             setUserLocationName(cityName);
           } catch (error) {
             console.warn('Failed to get city name:', error);
-            setUserLocationName(`Location: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
+            setUserLocationName('Unknown Location');
           }
 
           // Center map on user location with higher zoom
@@ -436,8 +434,8 @@ const MapPage = () => {
         },
         {
           enableHighAccuracy: true,
-          timeout: 15000, // Longer timeout
-          maximumAge: 0 // Always get fresh location, no cache
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
         }
       );
     };
@@ -904,10 +902,7 @@ const MapPage = () => {
               onChange={(e) => handleSearch(e.target.value)}
               className="search-input"
             />
-            <div className="connection-status">
-              <FaWifi className={`status-icon ${stats.networkStatus.toLowerCase()}`} />
-              <span className="status-text">DB: {stats.networkStatus}</span>
-            </div>
+
             <div className="location-display" style={{ marginLeft: 'auto' }}>
               <FaMapMarkerAlt className="location-icon" />
               <div className="location-info">
@@ -923,64 +918,52 @@ const MapPage = () => {
                     <span className="location-text">Location unavailable</span>
                     <button
                       onClick={() => {
-                        console.log('🔄 Manual location request triggered');
                         const getUserLocation = () => {
                           if (!navigator.geolocation) {
-                            console.error('❌ Geolocation not supported');
                             setUserLocationName('Geolocation not supported');
                             return;
                           }
-                          console.log('🌍 Requesting fresh location...');
                           setUserLocationName('Getting your location...');
                           navigator.geolocation.getCurrentPosition(
                             async (position) => {
                               const location = { lat: position.coords.latitude, lng: position.coords.longitude };
-                              console.log('✅ Fresh location obtained:', location);
                               setUserLocation(location);
                               try {
-                                setUserLocationName('Getting city name...');
                                 const addressInfo = await reverseGeocode(location.lat, location.lng);
-                                console.log('🏙️ Reverse geocode result:', addressInfo);
                                 const cityComponent = addressInfo.address_components?.find(
                                   component => component.types.includes('locality') ||
                                              component.types.includes('administrative_area_level_2') ||
                                              component.types.includes('administrative_area_level_1')
                                 );
-                                const cityName = cityComponent?.long_name || `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`;
-                                console.log('✅ City name resolved:', cityName);
-                                setUserLocationName(cityName);
+                                setUserLocationName(cityComponent?.long_name || 'Location found');
                               } catch (error) {
-                                console.warn('❌ Reverse geocoding failed:', error);
-                                setUserLocationName(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
+                                setUserLocationName('Location found');
                               }
                               if (googleMapRef.current) {
-                                console.log('🗺️ Centering map on user location');
                                 googleMapRef.current.setCenter(location);
                                 googleMapRef.current.setZoom(16);
                               }
                             },
                             (error) => {
-                              console.error('❌ Manual geolocation failed:', error);
-                              setUserLocationName('Location access denied - check browser permissions');
+                              setUserLocationName('Location access denied');
                             },
-                            { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+                            { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
                           );
                         };
                         getUserLocation();
                       }}
                       style={{
-                        fontSize: '0.8rem',
-                        padding: '4px 8px',
+                        fontSize: '0.7rem',
+                        padding: '2px 6px',
                         background: 'var(--gold)',
                         color: 'var(--dark-brown)',
                         border: 'none',
-                        borderRadius: '4px',
+                        borderRadius: '3px',
                         cursor: 'pointer',
-                        marginTop: '4px',
-                        fontWeight: 'bold'
+                        marginTop: '2px'
                       }}
                     >
-                      📍 Get My Location
+                      Try Again
                     </button>
                   </div>
                 ) : (

@@ -39,24 +39,26 @@
 /* Search Panel - Top Right */
 .search-panel {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1.5rem;
+  right: 1.5rem;
   background: var(--wood-grain);
   background-size: cover;
   background-position: center;
-  border: 3px solid var(--psychedelic-lime);
-  border-radius: 15px;
-  padding: 1.5rem;
-  box-shadow: var(--shadow-wood), 0 0 20px var(--psychedelic-lime);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-wood), 0 4px 20px rgba(0, 0, 0, 0.3);
   z-index: 100;
-  min-width: 300px;
+  min-width: 380px;
+  backdrop-filter: blur(10px);
 }
 
 .search-content {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
 }
 
 .search-icon {
@@ -87,10 +89,10 @@
 }
 
 .add-restroom-btn {
-  background: var(--psychedelic-purple);
-  border: 2px solid var(--psychedelic-pink);
-  color: var(--cream);
-  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, var(--gold), #b8860b);
+  border: 1px solid var(--cream);
+  color: var(--dark-brown);
+  padding: 0.8rem 1.5rem;
   border-radius: 8px;
   font-family: 'Bebas Neue', cursive;
   font-size: 1rem;
@@ -100,21 +102,30 @@
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
-  box-shadow: var(--shadow-wood);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
 }
 
 .add-restroom-btn:hover {
-  background: var(--psychedelic-pink);
-  border-color: var(--psychedelic-lime);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-pink);
+  background: linear-gradient(135deg, var(--cream), var(--gold));
+  border-color: var(--gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(218, 165, 32, 0.4);
 }
 
 .add-restroom-btn.active {
-  background: var(--psychedelic-lime);
+  background: linear-gradient(135deg, var(--cream), #f5f5dc);
   color: var(--dark-brown);
-  border-color: var(--psychedelic-purple);
-  animation: pulse-glow 1s infinite;
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(218, 165, 32, 0.6);
+}
+
+.add-restroom-btn.disabled {
+  background: rgba(139, 69, 19, 0.6);
+  color: rgba(245, 245, 220, 0.6);
+  border-color: rgba(245, 245, 220, 0.3);
+  cursor: not-allowed;
+  transform: none;
 }
 
 
@@ -123,169 +134,67 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: rgba(0, 255, 255, 0.1);
-  border: 2px solid var(--psychedelic-cyan);
+  background: rgba(218, 165, 32, 0.15);
+  border: 1px solid var(--gold);
   border-radius: 8px;
-  padding: 0.6rem 1rem;
-  box-shadow: var(--shadow-wood);
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.location-display:hover {
+  background: rgba(218, 165, 32, 0.25);
+  border-color: var(--cream);
 }
 
 .location-icon {
-  color: var(--psychedelic-cyan);
-  font-size: 1.2rem;
-  animation: pulse-glow 2s infinite;
+  color: var(--gold);
+  font-size: 1.1rem;
+  opacity: 0.9;
 }
 
 .location-info {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
 }
 
 .location-text {
   font-family: 'Bebas Neue', cursive;
-  font-size: 0.9rem;
-  color: var(--psychedelic-cyan);
-  letter-spacing: 1px;
+  font-size: 0.85rem;
+  color: var(--gold);
+  letter-spacing: 0.5px;
   font-weight: bold;
+  opacity: 0.9;
 }
 
 .coordinates {
   font-family: 'Bebas Neue', cursive;
   font-size: 0.9rem;
   color: var(--cream);
-  opacity: 0.9;
+  opacity: 0.85;
   letter-spacing: 0.5px;
 }
 
-.connection-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  border: 1px solid var(--psychedelic-purple);
-}
 
-.status-icon {
-  font-size: 0.9rem;
-}
 
-.status-icon.realtime {
-  color: var(--psychedelic-lime);
-  animation: pulse 2s infinite;
-}
 
-.status-icon.connected {
-  color: var(--psychedelic-lime);
-}
-
-.status-icon.connecting {
-  color: var(--psychedelic-pink);
-  animation: pulse 1s infinite;
-}
-
-.status-icon.disconnected {
-  color: orange;
-}
-
-.status-icon.error {
-  color: #ff4444;
-}
-
-.status-text {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-  color: var(--cream);
-}
-
-/* Real-time Status Badge - Top Left */
-.realtime-badge {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: var(--wood-grain);
-  background-size: cover;
-  background-position: center;
-  border: 2px solid var(--psychedelic-lime);
-  border-radius: 25px;
-  padding: 0.75rem 1.5rem;
-  box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-lime);
-  z-index: 150;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-.realtime-badge.realtime {
-  border-color: var(--psychedelic-lime);
-  box-shadow: var(--shadow-wood), 0 0 20px var(--psychedelic-lime);
-  animation: pulse-glow 2s infinite;
-}
-
-.realtime-badge.connecting {
-  border-color: var(--psychedelic-pink);
-  box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-pink);
-}
-
-.realtime-badge.error {
-  border-color: #ff4444;
-  box-shadow: var(--shadow-wood), 0 0 15px #ff4444;
-}
-
-.realtime-badge.disconnected {
-  border-color: orange;
-  box-shadow: var(--shadow-wood), 0 0 15px orange;
-}
-
-.realtime-icon {
-  font-size: 1rem;
-  color: var(--psychedelic-lime);
-}
-
-.realtime-badge.realtime .realtime-icon {
-  color: var(--psychedelic-lime);
-}
-
-.realtime-badge.connecting .realtime-icon {
-  color: var(--psychedelic-pink);
-  animation: pulse 1s infinite;
-}
-
-.realtime-badge.error .realtime-icon {
-  color: #ff4444;
-}
-
-.realtime-badge.disconnected .realtime-icon {
-  color: orange;
-}
-
-.realtime-text {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 0.9rem;
-  font-weight: bold;
-  letter-spacing: 1px;
-  color: var(--cream);
-}
 
 /* Stats Panel - Bottom Left */
 .stats-panel {
   position: absolute;
-  bottom: 1rem;
-  left: 1rem;
+  bottom: 1.5rem;
+  left: 1.5rem;
   background: var(--wood-grain);
   background-size: cover;
   background-position: center;
-  border: 3px solid var(--psychedelic-purple);
-  border-radius: 15px;
+  border: 1px solid var(--gold);
+  border-radius: 10px;
   padding: 1rem;
-  box-shadow: var(--shadow-wood), 0 0 20px var(--psychedelic-purple);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   z-index: 100;
-  max-width: 250px;
+  max-width: 220px;
+  backdrop-filter: blur(8px);
 }
 
 .stats-header {
