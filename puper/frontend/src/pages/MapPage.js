@@ -440,9 +440,15 @@ const MapPage = () => {
       );
     };
 
-    // Try to get location as soon as possible
+    // Get location immediately when maps API loads
     if (mapsApiLoaded) {
       console.log('🌍 Maps API loaded, requesting geolocation...');
+      getUserLocation();
+    }
+
+    // Also try to get location when component mounts
+    if (!userLocation && navigator.geolocation) {
+      console.log('🌍 Component mounted, requesting geolocation...');
       getUserLocation();
     }
   }, [map, mapsApiLoaded]);
@@ -902,7 +908,10 @@ const MapPage = () => {
               onChange={(e) => handleSearch(e.target.value)}
               className="search-input"
             />
-
+            <div className="connection-status">
+              <FaWifi className={`status-icon ${stats.networkStatus.toLowerCase()}`} />
+              <span className="status-text">DB: {stats.networkStatus}</span>
+            </div>
             <div className="location-display" style={{ marginLeft: 'auto' }}>
               <FaMapMarkerAlt className="location-icon" />
               <div className="location-info">
@@ -1003,18 +1012,7 @@ const MapPage = () => {
           </motion.button>
         </motion.div>
 
-        {/* Real-time Status Badge - Top Left */}
-        <motion.div
-          className={`realtime-badge ${stats.networkStatus.toLowerCase()}`}
-          initial={{ x: -200, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <FaWifi className="realtime-icon" />
-          <span className="realtime-text">
-            {stats.networkStatus === 'REALTIME' ? 'LIVE' : stats.networkStatus}
-          </span>
-        </motion.div>
+
 
         {/* Stats Panel - Bottom Left */}
         <motion.div
