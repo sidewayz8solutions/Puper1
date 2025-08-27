@@ -226,7 +226,8 @@ const MapPage = () => {
     const setupMap = () => {
       if (mapRef.current && !googleMapRef.current) {
         const mapOptions = {
-          center: { lat: 29.9511, lng: -90.0715 }, // New Orleans
+          // Start neutral; we'll center on user when geolocation resolves
+          center: { lat: 37.0902, lng: -95.7129 }, // USA center fallback
           zoom: 16,
           tilt: 45,
           heading: 90,
@@ -924,7 +925,12 @@ const MapPage = () => {
             className={`add-restroom-btn ${showAddForm ? 'active' : ''} ${!isAuthenticated ? 'disabled' : ''}`}
             onClick={() => {
               if (!isAuthenticated) {
-                alert('Please sign in to add restrooms!');
+                // Open login modal via query flag so Header can pick it up
+                const url = new URL(window.location.href);
+                url.searchParams.set('login', 'true');
+                window.history.replaceState({}, '', url.toString());
+                const evt = new CustomEvent('open-login');
+                window.dispatchEvent(evt);
                 return;
               }
 

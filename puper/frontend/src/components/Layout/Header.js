@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaRoute, FaPlus, FaUser, FaTrophy } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
@@ -8,6 +8,16 @@ import './Header.css';
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+
+  // Allow deep-link open via ?login=true and event trigger
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('login') === 'true') setShowLogin(true);
+
+    const open = () => setShowLogin(true);
+    window.addEventListener('open-login', open);
+    return () => window.removeEventListener('open-login', open);
+  }, []);
 
   return (
     <header className="header">
