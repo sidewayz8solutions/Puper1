@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { FaToilet, FaMapMarkerAlt, FaStar, FaUsers, FaSearch, FaPlus, FaWheelchair, FaBaby, FaTransgenderAlt, FaShieldAlt, FaClock, FaMobile, FaGlobe, FaChartLine } from 'react-icons/fa';
 import woodBg from '../assets/images/wood5.png';
-import marbleBg from '../assets/images/marble2.png';
-import paperBg from '../assets/images/paper.png';
+import marbleBg from '../assets/images/marble-hero-bg.png';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -161,7 +160,7 @@ const HomePage = () => {
       </section>
 
       {/* Features Section - New Style */}
-      <section className="features-section" style={{ background: `url(${paperBg})`, backgroundSize: 'cover' }}>
+      <section className="features-section">
         <motion.h2 
           className="section-title"
           initial={{ opacity: 0 }}
