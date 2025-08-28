@@ -104,28 +104,28 @@
 }
 
 .hero-cta-button.primary-cta {
-  background: #4A1A5C;
-  color: var(--cream) !important;
+  background: linear-gradient(135deg, var(--psychedelic-cyan), var(--psychedelic-green));
+  color: rgb(47, 0, 104) !important;
   border: 2px solid transparent;
 }
 
 .hero-cta-button.primary-cta:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 25px rgba(74, 26, 92, 0.6);
-  background: #5D2070;
+  box-shadow: 0 6px 25px rgb(5, 65, 65);
+  background: linear-gradient(135deg, var(--psychedelic-green), var(--psychedelic-cyan));
 }
 
 .hero-cta-button.secondary-cta {
-  background: #4A1A5C;
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   color: var(--cream);
-  border: 2px solid #6B2C7A;
+  border: 2px solid var(--psychedelic-pink);
 }
 
 .hero-cta-button.secondary-cta:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 25px rgba(74, 26, 92, 0.6);
-  background: #5D2070;
+  box-shadow: 0 6px 25px rgba(255, 105, 180, 0.4);
+  background: rgba(255, 105, 180, 0.2);
 }
 
 /* Button Icon */
@@ -248,18 +248,20 @@
   position: relative;
   padding: 1.5rem;
   border-radius: var(--radius-lg);
-  background: #4A1A5C;
-  border: 2px solid #6B2C7A;
-  box-shadow: 0 8px 25px rgba(74, 26, 92, 0.3);
+  background-image: url('../assets/images/wood5.png');
+  background-size: cover;
+  background-position: center;
+  border: 2px solid var(--medium-wood);
+  box-shadow: var(--shadow-wood);
   text-align: center;
-  color: var(--cream);
+  color: var(--psychedelic-yellow);
 }
 
-/* Ensure all text inside the card has good contrast */
+/* Ensure all text inside the card is gold */
 .feature-card h3,
 .feature-card p,
 .feature-card .feature-icon {
-  color: var(--cream);
+  color: var(--psychedelic-yellow);
 }
 
 /* Optional subtle dark overlay for readability */
