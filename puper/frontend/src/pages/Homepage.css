@@ -104,28 +104,28 @@
 }
 
 .hero-cta-button.primary-cta {
-  background: linear-gradient(135deg, var(--psychedelic-cyan), var(--psychedelic-green));
-  color: var(--dark-brown);
+  background: #4A1A5C;
+  color: var(--cream) !important;
   border: 2px solid transparent;
 }
 
 .hero-cta-button.primary-cta:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 25px rgba(0, 255, 255, 0.4);
-  background: linear-gradient(135deg, var(--psychedelic-green), var(--psychedelic-cyan));
+  box-shadow: 0 6px 25px rgba(74, 26, 92, 0.6);
+  background: #5D2070;
 }
 
 .hero-cta-button.secondary-cta {
-  background: rgba(255, 255, 255, 0.1);
+  background: #4A1A5C;
   backdrop-filter: blur(10px);
   color: var(--cream);
-  border: 2px solid var(--psychedelic-pink);
+  border: 2px solid #6B2C7A;
 }
 
 .hero-cta-button.secondary-cta:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 25px rgba(255, 105, 180, 0.4);
-  background: rgba(255, 105, 180, 0.2);
+  box-shadow: 0 6px 25px rgba(74, 26, 92, 0.6);
+  background: #5D2070;
 }
 
 /* Button Icon */
@@ -248,20 +248,18 @@
   position: relative;
   padding: 1.5rem;
   border-radius: var(--radius-lg);
-  background-image: url('../assets/images/wood5.png');
-  background-size: cover;
-  background-position: center;
-  border: 2px solid var(--medium-wood);
-  box-shadow: var(--shadow-wood);
+  background: #4A1A5C;
+  border: 2px solid #6B2C7A;
+  box-shadow: 0 8px 25px rgba(74, 26, 92, 0.3);
   text-align: center;
-  color: var(--psychedelic-yellow);
+  color: var(--cream);
 }
 
-/* Ensure all text inside the card is gold */
+/* Ensure all text inside the card has good contrast */
 .feature-card h3,
 .feature-card p,
 .feature-card .feature-icon {
-  color: var(--psychedelic-yellow);
+  color: var(--cream);
 }
 
 /* Optional subtle dark overlay for readability */
