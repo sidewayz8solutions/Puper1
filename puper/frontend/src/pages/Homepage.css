@@ -1,5 +1,5 @@
-/* Hero Section Styles - Based on index.html */
-.hero-container {
+/* Hero Section Styles */
+.hero-section {
   position: relative;
   height: 100vh;
   width: 100%;
@@ -9,27 +9,39 @@
   overflow: hidden;
 }
 
-/* GIF Background */
-.hero-background {
+/* Video Background */
+.hero-video-wrapper {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  z-index: -1;
+  z-index: 0;
+  overflow: hidden;
 }
 
-/* Overlay Content */
+.hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+}
+
+/* Hero Overlay */
 .hero-overlay {
   position: relative;
   z-index: 10;
-  text-align: center;
-  color: white;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 2rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
 }
 
 /* Ensures video scales properly */
@@ -55,6 +67,7 @@
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  color: white;
 }
 
 /* Hero Title */

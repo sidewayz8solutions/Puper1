@@ -5,6 +5,7 @@ import { FaToilet, FaMapMarkerAlt, FaStar, FaUsers, FaSearch, FaPlus, FaWheelcha
 import woodBg from '../assets/images/wood5.png';
 import marbleBg from '../assets/images/marble-hero-bg.png';
 import paperBg from '../assets/images/wood.png';
+import heroVideo from '../assets/images/hero-video.mp4';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -66,7 +67,22 @@ const HomePage = () => {
       
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="hero-content">
+        {/* Video Background */}
+        <div className="hero-video-wrapper">
+          <video
+            className="hero-video"
+            autoPlay
+            muted
+            loop
+            playsInline
+          >
+            <source src={heroVideo} type="video/mp4" />
+          </video>
+        </div>
+
+        {/* Hero Overlay */}
+        <div className="hero-overlay">
+          <div className="hero-content">
           <motion.div
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -140,6 +156,8 @@ const HomePage = () => {
               <FaPlus /> Add a Restroom
             </button>
           </motion.div>
+        </div>
+        </div>
         </div>
 
         {/* Animated Toilet Paper Roll */}
