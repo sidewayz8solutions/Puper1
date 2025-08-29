@@ -126,8 +126,8 @@ const HomePage = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <button 
-              className="btn-primary-dark"
+            <button
+              className="hero-cta-button primary-cta"
               onClick={() => navigate('/map')}
               style={{
                 background: '#4B0082',
@@ -135,13 +135,18 @@ const HomePage = () => {
                 padding: '1rem 2rem',
                 fontSize: '1.1rem',
                 fontWeight: 'bold',
-                boxShadow: '0 4px 15px rgba(75, 0, 130, 0.4)'
+                borderRadius: '50px',
+                boxShadow: '0 4px 15px rgba(75, 0, 130, 0.4)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                transition: 'all 0.3s ease'
               }}
             >
               <FaMapMarkerAlt /> Find Restrooms Near Me
             </button>
-            <button 
-              className="btn-secondary-visible"
+            <button
+              className="hero-cta-button secondary-cta"
               onClick={() => navigate('/map?add=true')}
               style={{
                 background: 'rgba(255, 255, 255, 0.9)',
@@ -150,7 +155,12 @@ const HomePage = () => {
                 padding: '1rem 2rem',
                 fontSize: '1.1rem',
                 fontWeight: 'bold',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
+                borderRadius: '50px',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                transition: 'all 0.3s ease'
               }}
             >
               <FaPlus /> Add a Restroom
