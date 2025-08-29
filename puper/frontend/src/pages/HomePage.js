@@ -92,7 +92,9 @@ const HomePage = () => {
               <span className="title-line1">Welcome to</span>
               <span className="title-line2">PÜPER</span>
             </h1>
-        
+            <p className="hero-subtitle">
+              Your Ultimate Restroom Finder with Real-Time Updates
+            </p>
           </motion.div>
 
           <motion.div 
@@ -109,7 +111,7 @@ const HomePage = () => {
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="search-input"
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter' && searchValue) {
                     navigate(`/map?search=${searchValue}`);
                   }
@@ -208,7 +210,7 @@ const HomePage = () => {
                   exit={{ x: -100, opacity: 0 }}
                   transition={{ duration: 0.5 }}
                   style={{
-                    background: transparentize(feature.color, 0.8), 
+                    background: `linear-gradient(135deg, ${feature.color}20, ${feature.color}10)`,
                     border: `3px solid ${feature.color}`,
                     borderRadius: '20px',
                     padding: '3rem',
@@ -349,6 +351,7 @@ const HomePage = () => {
         <div className="footer-content">
           <div className="footer-brand">
             <h3>🚽 PÜPER</h3>
+            <p>Your trusted restroom companion</p>
           </div>
           <div className="footer-links">
             <a href="/about">About</a>
