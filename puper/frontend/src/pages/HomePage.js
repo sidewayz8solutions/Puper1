@@ -19,25 +19,25 @@ const HomePage = () => {
       icon: <FaMapMarkerAlt />,
       title: "Find Nearby",
       description: "Locate clean restrooms near your current location with real-time availability",
-      color: "#ffffffff"
+      color: "#fff788ff"
     },
     {
       icon: <FaWheelchair />,
       title: "Accessibility",
       description: "Filter for wheelchair accessible facilities and family-friendly options",
-      color: "#ffffffff"
+      color: "#fff788ff"
     },
     {
       icon: <FaStar />,
       title: "Reviews & Ratings",
       description: "Read honest reviews and ratings from our community of users",
-      color: "#ffffffff"
+      color: "#fff788ff"
     },
     {
       icon: <FaShieldAlt />,
       title: "Verified Locations",
       description: "All locations are verified by our community for accuracy and cleanliness",
-      color: "#ffffffff"
+      color: "#fff788ff"
     }
   ];
 
@@ -165,8 +165,8 @@ const HomePage = () => {
                     <div className="feature-icon-large" style={{ color: feature.color, fontSize: '4rem', marginBottom: '1.5rem' }}>
                       {feature.icon}
                     </div>
-                    <h3 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#2c1810' }}>{feature.title}</h3>
-                    <p style={{ fontSize: '1.2rem', color: '#4a3426', lineHeight: '1.6' }}>{feature.description}</p>
+                    <h3 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#ffeee7ff' }}>{feature.title}</h3>
+                    <p style={{ fontSize: '1.2rem', color: '#ffffffff', lineHeight: '1.6' }}>{feature.description}</p>
                   </motion.div>
                 )
               ))}
