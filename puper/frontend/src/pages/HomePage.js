@@ -21,41 +21,6 @@ const HomePage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const features = [
-    {
-      icon: <FaWheelchair />,
-      title: 'Accessibility First',
-      description: 'Find wheelchair accessible restrooms with detailed accessibility information',
-      color: '#acedbfff'
-    },
-    {
-      icon: <FaBaby />,
-      title: 'Family Friendly',
-      description: 'Locate restrooms with baby changing facilities for parents on the go',
-      color: '#ffb4dcff'
-    },
-    {
-      icon: <FaTransgenderAlt />,
-      title: 'Gender Inclusive',
-      description: 'Discover gender-neutral and inclusive restroom options near you',
-      color: '#8efff4ff'
-    },
-    {
-      icon: <FaShieldAlt />,
-      title: 'Verified & Safe',
-      description: 'Community-verified locations with safety ratings and real reviews',
-      color: '#fff59bff'
-    }
-  ];
-
-  const stats = [
-    {
-      icon: <FaToiletStar />,
-      number: '4.8/5',
-      label: 'Avg. Rating'
-    }
-  ];
-
   return (
     <motion.div 
       className="homepage"
@@ -77,65 +42,68 @@ const HomePage = () => {
             loop
             playsInline
           >
-            <source src={heroVideo} type="video/mp4" />
+            <source src={hero-video.mp4} type="video/mp4" />
           </video>
         </div>
 
-        <motion.div 
-          className="hero-search"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-        </motion.div>
+        {/* Hero Overlay */}
+      
+          
+          <motion.div 
+            className="hero-search"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          ></motion.div>
 
-        <motion.div 
-          className="hero-buttons"
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <button
-            className="hero-cta-button primary-cta"
-            onClick={() => navigate('/map')}
-            style={{
-              background: '#4B0082',
-              border: '2px solid #8A2BE2',
-              padding: '1rem 2rem',
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
-              borderRadius: '50px',
-              boxShadow: '0 4px 15px rgba(75, 0, 130, 0.4)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              transition: 'all 0.3s ease'
-            }}
+          <motion.div 
+            className="hero-buttons"
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <FaMapMarkerAlt /> Find Restrooms Near Me
-          </button>
-          <button
-            className="hero-cta-button secondary-cta"
-            onClick={() => navigate('/map?add=true')}
-            style={{
-              background: 'rgba(255, 255, 255, 0.9)',
-              border: '2px solid #4B0082',
-              color: '#4B0082',
-              padding: '1rem 2rem',
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
-              borderRadius: '50px',
-              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            <FaPlus /> Add a Restroom
-          </button>
-        </motion.div>
-        {/* Remove stray closing div here */}
+            <button
+              className="hero-cta-button primary-cta"
+              onClick={() => navigate('/map')}
+              style={{
+                background: '#4B0082',
+                border: '2px solid #8A2BE2',
+                padding: '1rem 2rem',
+                fontSize: '1.1rem',
+                fontWeight: 'bold',
+                borderRadius: '50px',
+                boxShadow: '0 4px 15px rgba(75, 0, 130, 0.4)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <FaMapMarkerAlt /> Find Restrooms Near Me
+            </button>
+            <button
+              className="hero-cta-button secondary-cta"
+              onClick={() => navigate('/map?add=true')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: '2px solid #4B0082',
+                color: '#4B0082',
+                padding: '1rem 2rem',
+                fontSize: '1.1rem',
+                fontWeight: 'bold',
+                borderRadius: '50px',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <FaPlus /> Add a Restroom
+            </button>
+          </motion.div>
+
+
         {/* Animated Toilet Paper Roll */}
         <div className="floating-toilet-paper">
           <motion.div
@@ -156,93 +124,89 @@ const HomePage = () => {
 
       {/* Features Section - New Style */}
       <section className="features-section" style={{ background: `url(${paperBg})`, backgroundSize: 'cover' }}>
-        <motion.h2 
-          className="section-title"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          Why Choose Püper?
-        </motion.h2>
-
-        <div className="features-carousel">
-          <AnimatePresence mode="wait">
-            {features.map((feature, index) => (
-              index === activeFeature && (
-                <motion.div
-                  key={index}
-                  className="feature-showcase"
-                  initial={{ x: 100, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -100, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  style={{
-                    background: `linear-gradient(135deg, ${feature.color}20, ${feature.color}10)`,
-                    border: `3px solid ${feature.color}`,
-                    borderRadius: '20px',
-                    padding: '3rem',
-                    textAlign: 'center',
-                    boxShadow: `0 10px 40px ${feature.color}40`
-                  }}
-                >
-                  <div className="feature-icon-large" style={{ color: feature.color, fontSize: '4rem', marginBottom: '1.5rem' }}>
-                    {feature.icon}
-                  </div>
-                  <h3 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#2c1810' }}>{feature.title}</h3>
-                  <p style={{ fontSize: '1.2rem', color: '#4a3426', lineHeight: '1.6' }}>{feature.description}</p>
-                </motion.div>
-              )
+        <>
+          <motion.h2
+            className="section-title"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            Why Choose Püper?
+          </motion.h2>
+          <div className="features-carousel">
+            <AnimatePresence mode="wait">
+              {features.map((feature, index) => (
+                index === activeFeature && (
+                  <motion.div
+                    key={index}
+                    className="feature-showcase"
+                    initial={{ x: 100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -100, opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    style={{
+                      background: `linear-gradient(135deg, ${feature.color}20, ${feature.color}10)`,
+                      border: `3px solid ${feature.color}`,
+                      borderRadius: '20px',
+                      padding: '3rem',
+                      textAlign: 'center',
+                      boxShadow: `0 10px 40px ${feature.color}40`
+                    }}
+                  >
+                    <div className="feature-icon-large" style={{ color: feature.color, fontSize: '4rem', marginBottom: '1.5rem' }}>
+                      {feature.icon}
+                    </div>
+                    <h3 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#2c1810' }}>{feature.title}</h3>
+                    <p style={{ fontSize: '1.2rem', color: '#4a3426', lineHeight: '1.6' }}>{feature.description}</p>
+                  </motion.div>
+                )
+              ))}
+            </AnimatePresence>
+          </div>
+          <div className="feature-dots">
+            {features.map((_, index) => (
+              <button
+                key={index}
+                className={`dot ${index === activeFeature ? 'active' : ''}`}
+                onClick={() => setActiveFeature(index)}
+                style={{
+                  width: index === activeFeature ? '30px' : '10px',
+                  height: '10px',
+                  borderRadius: '5px',
+                  background: index === activeFeature ? features[index].color : '#ccc',
+                  border: 'none',
+                  margin: '0 5px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }} />
             ))}
-          </AnimatePresence>
-        </div>
-
-        <div className="feature-dots">
-          {features.map((_, index) => (
-            <button
-              key={index}
-              className={`dot ${index === activeFeature ? 'active' : ''}`}
-              onClick={() => setActiveFeature(index)}
-              style={{
-                width: index === activeFeature ? '30px' : '10px',
-                height: '10px',
-                borderRadius: '5px',
-                background: index === activeFeature ? features[index].color : '#ccc',
-                border: 'none',
-                margin: '0 5px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="features-grid">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className="feature-mini"
-              initial={{ y: 50, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              style={{
-                background: 'white',
-                padding: '1.5rem',
-                borderRadius: '15px',
-                boxShadow: '0 5px 20px rgba(0,0,0,0.1)',
-                border: `2px solid ${feature.color}`,
-                cursor: 'pointer'
-              }}
-              onClick={() => setActiveFeature(index)}
-            >
-              <div style={{ color: feature.color, fontSize: '2rem', marginBottom: '0.5rem' }}>
-                {feature.icon}
-              </div>
-              <h4 style={{ color: '#2c1810', marginBottom: '0.5rem' }}>{feature.title}</h4>
-            </motion.div>
-          ))}
-        </div>
+          </div><div className="features-grid">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                className="feature-mini"
+                initial={{ y: 50, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                style={{
+                  background: 'white',
+                  padding: '1.5rem',
+                  borderRadius: '15px',
+                  boxShadow: '0 5px 20px rgba(0,0,0,0.1)',
+                  border: `2px solid ${feature.color}`,
+                  cursor: 'pointer'
+                }}
+                onClick={() => setActiveFeature(index)}
+              >
+                <div style={{ color: feature.color, fontSize: '2rem', marginBottom: '0.5rem' }}>
+                  {feature.icon}
+                </div>
+                <h4 style={{ color: '#2c1810', marginBottom: '0.5rem' }}>{feature.title}</h4>
+              </motion.div>
+            ))}
+          </div></>
       </section>
 
       {/* Stats Section */}
