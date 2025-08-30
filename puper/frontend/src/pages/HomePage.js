@@ -19,26 +19,26 @@ const HomePage = () => {
       icon: <FaMapMarkerAlt />,
       title: "Find Nearby",
       description: "Locate clean restrooms near your current location with real-time availability",
-      color: "#fff788ff"
+      color: "#4a0162ff"
     },
     {
       icon: <FaWheelchair />,
       title: "Accessibility",
       description: "Filter for wheelchair accessible facilities and family-friendly options",
-      color: "#fff788ff"
+      color: "#4a0162ff"
     },
     {
       icon: <FaStar />,
       title: "Reviews & Ratings",
       description: "Read honest reviews and ratings from our community of users",
-      color: "#fff788ff"
+      color: "#4a0162ff"
     },
     {
       icon: <FaShieldAlt />,
       title: "Verified Locations",
       description: "All locations are verified by our community for accuracy and cleanliness",
-      color: "#fff788ff"
-    }
+      color: "#4a0162ff"
+    },
   ];
 
   // Stats data
