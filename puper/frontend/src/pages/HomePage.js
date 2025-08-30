@@ -27,9 +27,7 @@ const HomePage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-    >
-      {/* Animated Background */}
-      <div className="psychedelic-bg"></div>
+     >
       
       {/* Hero Section */}
       <section className="hero-section">
@@ -42,19 +40,37 @@ const HomePage = () => {
             loop
             playsInline
           >
-            <source src={hero-video.mp4} type="video/mp4" />
+            <source src={heroVideo} type="video/mp4" />
           </video>
         </div>
 
         {/* Hero Overlay */}
-      
-          
-          <motion.div 
-            className="hero-search"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          ></motion.div>
+        <div className="hero-overlay">
+          <div className="hero-content">
+            <motion.h1
+              className="hero-title"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              Welcome to Püper
+            </motion.h1>
+
+            <motion.p
+              className="hero-subtitle"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              Find clean, accessible restrooms wherever you are
+            </motion.p>
+
+            <motion.div
+              className="hero-search"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            ></motion.div>
 
           <motion.div 
             className="hero-buttons"
@@ -102,7 +118,8 @@ const HomePage = () => {
               <FaPlus /> Add a Restroom
             </button>
           </motion.div>
-
+          </div>
+        </div>
 
         {/* Animated Toilet Paper Roll */}
         <div className="floating-toilet-paper">
