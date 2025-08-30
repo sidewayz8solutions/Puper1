@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FaToilet, FaMapMarkerAlt, FaStar, FaUsers, FaSearch, FaPlus, FaWheelchair, FaBaby, FaTransgenderAlt, FaShieldAlt, FaClock, FaMobile, FaGlobe, FaChartLine } from 'react-icons/fa';
+import { FaToilet, FaMapMarkerAlt, FaStar, FaUsers, FaSearch, FaPlus, FaWheelchair, FaShieldAlt, FaMobile, FaGlobe } from 'react-icons/fa';
 import woodBg from '../assets/images/wood5.png';
 import marbleBg from '../assets/images/marble-hero-bg.png';
 import paperBg from '../assets/images/wood.png';
@@ -11,15 +11,55 @@ import './Homepage.css';
 const HomePage = () => {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
+
+  const handleSearch = (e) => {
+    setSearchValue(e.target.value);
+  };
   const [activeFeature, setActiveFeature] = useState(0);
+
+  // Features data
+  const features = [
+    {
+      icon: <FaMapMarkerAlt />,
+      title: "Find Nearby",
+      description: "Locate clean restrooms near your current location with real-time availability",
+      color: "#4B0082"
+    },
+    {
+      icon: <FaWheelchair />,
+      title: "Accessibility",
+      description: "Filter for wheelchair accessible facilities and family-friendly options",
+      color: "#8A2BE2"
+    },
+    {
+      icon: <FaStar />,
+      title: "Reviews & Ratings",
+      description: "Read honest reviews and ratings from our community of users",
+      color: "#9370DB"
+    },
+    {
+      icon: <FaShieldAlt />,
+      title: "Verified Locations",
+      description: "All locations are verified by our community for accuracy and cleanliness",
+      color: "#6A5ACD"
+    }
+  ];
+
+  // Stats data
+  const stats = [
+    { icon: <FaToilet />, number: "10,000+", label: "Restrooms Listed" },
+    { icon: <FaUsers />, number: "50,000+", label: "Happy Users" },
+    { icon: <FaStar />, number: "4.8/5", label: "Average Rating" },
+    { icon: <FaGlobe />, number: "100+", label: "Cities Covered" }
+  ];
 
   // Auto-rotate features
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveFeature((prev) => (prev + 1) % 4);
+      setActiveFeature((prev) => (prev + 1) % features.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [features.length]);
 
   return (
     <motion.div 
@@ -70,7 +110,18 @@ const HomePage = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-            ></motion.div>
+            >
+              <div className="search-container">
+                <FaSearch className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search for restrooms near you..."
+                  className="search-input"
+                  value={searchValue}
+                  onChange={handleSearch}
+                />
+              </div>
+            </motion.div>
 
           <motion.div 
             className="hero-buttons"
