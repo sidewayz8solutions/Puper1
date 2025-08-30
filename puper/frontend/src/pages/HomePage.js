@@ -26,33 +26,34 @@ const HomePage = () => {
       icon: <FaWheelchair />,
       title: 'Accessibility First',
       description: 'Find wheelchair accessible restrooms with detailed accessibility information',
-      color: '#00ff41'
+      color: '#acedbfff'
     },
     {
       icon: <FaBaby />,
       title: 'Family Friendly',
       description: 'Locate restrooms with baby changing facilities for parents on the go',
-      color: '#ff1493'
+      color: '#ffb4dcff'
     },
     {
       icon: <FaTransgenderAlt />,
       title: 'Gender Inclusive',
       description: 'Discover gender-neutral and inclusive restroom options near you',
-      color: '#0dffe7'
+      color: '#8efff4ff'
     },
     {
       icon: <FaShieldAlt />,
       title: 'Verified & Safe',
       description: 'Community-verified locations with safety ratings and real reviews',
-      color: '#f0e68c'
+      color: '#fff59bff'
     }
   ];
 
   const stats = [
-    { number: '10,000+', label: 'Restrooms', icon: <FaToilet /> },
-    { number: '50,000+', label: 'Users', icon: <FaUsers /> },
-    { number: '4.8', label: 'Avg Rating', icon: <FaStar /> },
-    { number: '24/7', label: 'Available', icon: <FaClock /> }
+    {
+      icon: <FaToiletStar />,
+      number: '4.8/5',
+      label: 'Avg. Rating'
+    }
   ];
 
   return (
@@ -80,95 +81,61 @@ const HomePage = () => {
           </video>
         </div>
 
-        {/* Hero Overlay */}
-        <div className="hero-overlay">
-          <div className="hero-content">
-            <motion.div
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-            <h1 className="hero-title">
-              <span className="title-line1">Welcome to</span>
-              <span className="title-line2">PÜPER</span>
-            </h1>
-            <p className="hero-subtitle">
-              Your Ultimate Restroom Finder with Real-Time Updates
-            </p>
-          </motion.div>
+        <motion.div 
+          className="hero-search"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+        </motion.div>
 
-          <motion.div 
-            className="hero-search"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+        <motion.div 
+          className="hero-buttons"
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <button
+            className="hero-cta-button primary-cta"
+            onClick={() => navigate('/map')}
+            style={{
+              background: '#4B0082',
+              border: '2px solid #8A2BE2',
+              padding: '1rem 2rem',
+              fontSize: '1.1rem',
+              fontWeight: 'bold',
+              borderRadius: '50px',
+              boxShadow: '0 4px 15px rgba(75, 0, 130, 0.4)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              transition: 'all 0.3s ease'
+            }}
           >
-            <div className="search-container">
-              <FaSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search location or restroom..."
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                className="search-input"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && searchValue) {
-                    navigate(`/map?search=${searchValue}`);
-                  }
-                }}
-              />
-            </div>
-          </motion.div>
-
-          <motion.div 
-            className="hero-buttons"
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            <FaMapMarkerAlt /> Find Restrooms Near Me
+          </button>
+          <button
+            className="hero-cta-button secondary-cta"
+            onClick={() => navigate('/map?add=true')}
+            style={{
+              background: 'rgba(255, 255, 255, 0.9)',
+              border: '2px solid #4B0082',
+              color: '#4B0082',
+              padding: '1rem 2rem',
+              fontSize: '1.1rem',
+              fontWeight: 'bold',
+              borderRadius: '50px',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              transition: 'all 0.3s ease'
+            }}
           >
-            <button
-              className="hero-cta-button primary-cta"
-              onClick={() => navigate('/map')}
-              style={{
-                background: '#4B0082',
-                border: '2px solid #8A2BE2',
-                padding: '1rem 2rem',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                borderRadius: '50px',
-                boxShadow: '0 4px 15px rgba(75, 0, 130, 0.4)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              <FaMapMarkerAlt /> Find Restrooms Near Me
-            </button>
-            <button
-              className="hero-cta-button secondary-cta"
-              onClick={() => navigate('/map?add=true')}
-              style={{
-                background: 'rgba(255, 255, 255, 0.9)',
-                border: '2px solid #4B0082',
-                color: '#4B0082',
-                padding: '1rem 2rem',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                borderRadius: '50px',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              <FaPlus /> Add a Restroom
-            </button>
-          </motion.div>
-          </div>
-        </div>
-
+            <FaPlus /> Add a Restroom
+          </button>
+        </motion.div>
+        {/* Remove stray closing div here */}
         {/* Animated Toilet Paper Roll */}
         <div className="floating-toilet-paper">
           <motion.div
@@ -350,8 +317,6 @@ const HomePage = () => {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>🚽 PÜPER</h3>
-            <p>Your trusted restroom companion</p>
           </div>
           <div className="footer-links">
             <a href="/about">About</a>
