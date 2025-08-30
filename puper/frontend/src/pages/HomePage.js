@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FaToilet, FaMapMarkerAlt, FaStar, FaUsers, FaSearch, FaPlus, FaWheelchair, FaShieldAlt, FaMobile, FaGlobe } from 'react-icons/fa';
+import { FaToilet, FaMapMarkerAlt, FaStar, FaUsers, FaPlus, FaWheelchair, FaShieldAlt, FaMobile, FaGlobe } from 'react-icons/fa';
 import woodBg from '../assets/images/wood5.png';
 import marbleBg from '../assets/images/marble-hero-bg.png';
 import paperBg from '../assets/images/wood.png';
@@ -10,11 +10,7 @@ import './Homepage.css';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [searchValue, setSearchValue] = useState('');
 
-  const handleSearch = (e) => {
-    setSearchValue(e.target.value);
-  };
   const [activeFeature, setActiveFeature] = useState(0);
 
   // Features data
@@ -23,35 +19,32 @@ const HomePage = () => {
       icon: <FaMapMarkerAlt />,
       title: "Find Nearby",
       description: "Locate clean restrooms near your current location with real-time availability",
-      color: "#4B0082"
+      color: "#ffffffff"
     },
     {
       icon: <FaWheelchair />,
       title: "Accessibility",
       description: "Filter for wheelchair accessible facilities and family-friendly options",
-      color: "#8A2BE2"
+      color: "#ffffffff"
     },
     {
       icon: <FaStar />,
       title: "Reviews & Ratings",
       description: "Read honest reviews and ratings from our community of users",
-      color: "#9370DB"
+      color: "#ffffffff"
     },
     {
       icon: <FaShieldAlt />,
       title: "Verified Locations",
       description: "All locations are verified by our community for accuracy and cleanliness",
-      color: "#6A5ACD"
+      color: "#ffffffff"
     }
   ];
 
   // Stats data
   const stats = [
-    { icon: <FaToilet />, number: "10,000+", label: "Restrooms Listed" },
-    { icon: <FaUsers />, number: "50,000+", label: "Happy Users" },
-    { icon: <FaStar />, number: "4.8/5", label: "Average Rating" },
-    { icon: <FaGlobe />, number: "100+", label: "Cities Covered" }
-  ];
+    
+];
 
   // Auto-rotate features
   useEffect(() => {
@@ -84,44 +77,8 @@ const HomePage = () => {
           </video>
         </div>
 
-        {/* Hero Overlay */}
-        <div className="hero-overlay">
-          <div className="hero-content">
-            <motion.h1
-              className="hero-title"
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              Welcome to Püper
-            </motion.h1>
-
-            <motion.p
-              className="hero-subtitle"
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              Find clean, accessible restrooms wherever you are
-            </motion.p>
-
-            <motion.div
-              className="hero-search"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <div className="search-container">
-                <FaSearch className="search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search for restrooms near you..."
-                  className="search-input"
-                  value={searchValue}
-                  onChange={handleSearch}
-                />
-              </div>
-            </motion.div>
+        {/* Hero Content - Only Buttons */}
+        <div className="hero-content-minimal">
 
           <motion.div 
             className="hero-buttons"
@@ -169,25 +126,9 @@ const HomePage = () => {
               <FaPlus /> Add a Restroom
             </button>
           </motion.div>
-          </div>
         </div>
 
-        {/* Animated Toilet Paper Roll */}
-        <div className="floating-toilet-paper">
-          <motion.div
-            animate={{ 
-              rotate: [0, 10, -10, 0],
-              y: [0, -20, 0]
-            }}
-            transition={{ 
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            🧻
-          </motion.div>
-        </div>
+
       </section>
 
       {/* Features Section - New Style */}
