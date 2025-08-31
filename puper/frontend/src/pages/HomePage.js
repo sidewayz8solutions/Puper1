@@ -43,8 +43,11 @@ const HomePage = () => {
 
   // Stats data
   const stats = [
-    
-];
+    { icon: <FaToilet />, number: "10,000+", label: "Restrooms Listed" },
+    { icon: <FaUsers />, number: "50,000+", label: "Happy Users" },
+    { icon: <FaStar />, number: "4.8/5", label: "Average Rating" },
+    { icon: <FaGlobe />, number: "100+", label: "Cities Covered" }
+  ];
 
   // Auto-rotate features
   useEffect(() => {
