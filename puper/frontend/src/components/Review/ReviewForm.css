@@ -26,10 +26,18 @@
 }
 
 .rating-category label {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--primary-brown);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.toilet-count {
   font-size: 0.875rem;
-  text-transform: capitalize;
+  color: #667eea;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  text-align: center;
 }
 
 .form-group {
@@ -41,6 +49,72 @@
   font-weight: 500;
   color: var(--primary-brown);
   margin-bottom: 0.5rem;
+}
+
+/* Additional Information Section */
+.additional-info-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+}
+
+.additional-info-section h4 {
+  color: var(--primary-brown);
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.additional-info-section h5 {
+  color: var(--primary-brown);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Hours Section */
+.hours-section {
+  margin-top: 1.5rem;
+}
+
+.hours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.hour-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hour-input label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary-brown);
+}
+
+/* Checkbox styling */
+.form-group label input[type="checkbox"] {
+  margin-right: 0.5rem;
+  transform: scale(1.2);
 }
 
 .form-textarea {

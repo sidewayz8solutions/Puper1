@@ -48,9 +48,9 @@ const RestroomDetail = ({ restroom, onClose }) => {
           <div className="detail-content">
             <div className="restroom-info">
               <div className="rating-section">
-                <div className="stars">{renderToilets(restroom.avg_rating || 0)}</div>
+                <div className="toilets">{renderToilets(restroom.avg_rating || 0)}</div>
                 <span className="rating-text">
-                  {(restroom.avg_rating || 0).toFixed(1)} ({restroom.review_count || 0} reviews)
+                  {(restroom.avg_rating || 0).toFixed(1)} toilet{(restroom.avg_rating || 0) !== 1 ? 's' : ''} ({restroom.review_count || 0} reviews)
                 </span>
               </div>
 

@@ -65,19 +65,21 @@
   margin-bottom: 1.5rem;
 }
 
-.stars {
+.toilets {
   display: flex;
-  gap: 2px;
+  gap: 4px;
+  align-items: center;
 }
 
 .star-filled {
-  color: var(--psychedelic-yellow);
-  font-size: 1.125rem;
+  color: #FFD700;
+  font-size: 1.25rem;
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
 }
 
 .star-empty {
-  color: #ddd;
-  font-size: 1.125rem;
+  color: #e2e8f0;
+  font-size: 1.25rem;
 }
 
 .rating-text {

@@ -25,11 +25,12 @@
 }
 
 .star-filled {
-  color: var(--psychedelic-yellow);
+  color: #FFD700;
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
 }
 
 .star-empty {
-  color: #ddd;
+  color: #e2e8f0;
 }
 
 .star-rating-small .star {

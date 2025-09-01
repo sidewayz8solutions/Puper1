@@ -27,6 +27,7 @@ const MapPage = () => {
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
   const [showAddForm, setShowAddForm] = useState(searchParams.get('add') === 'true');
+  const [addMode, setAddMode] = useState(searchParams.get('add') === 'true');
   const [addLocation, setAddLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -85,11 +86,34 @@ const MapPage = () => {
         setInfoWindow(new window.google.maps.InfoWindow());
         setMapLoaded(true);
 
-        // Add custom control for current location button
+        // Add custom control for current location button with glow effect
         const locationButton = document.createElement('button');
-        locationButton.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: white; border-radius: 2px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; margin: 10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></div>';
-        locationButton.title = 'Go to current location';
+        locationButton.innerHTML = `
+          <div style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4), 0 0 20px rgba(118, 75, 162, 0.3);
+            cursor: pointer;
+            margin: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+          "
+          onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 25px rgba(102, 126, 234, 0.6), 0 0 30px rgba(118, 75, 162, 0.5)';"
+          onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 20px rgba(102, 126, 234, 0.4), 0 0 20px rgba(118, 75, 162, 0.3)';">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" style="filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+            </svg>
+          </div>
+        `;
+        locationButton.title = 'Get My Current Location';
         locationButton.type = 'button';
+        locationButton.style.cssText = 'background: none; border: none; padding: 0;';
         locationButton.addEventListener('click', () => {
           getUserLocation();
         });
@@ -234,6 +258,9 @@ const MapPage = () => {
 
   // Handle map click
   const handleMapClick = (event) => {
+    // Only handle clicks when in add mode
+    if (!addMode) return;
+
     setAddLocation({
       lat: event.latLng.lat(),
       lng: event.latLng.lng()
@@ -244,19 +271,26 @@ const MapPage = () => {
       window.tempMarker.setMap(null);
     }
 
-    // Add temporary marker
+    // Add temporary marker with brown toilet icon
     window.tempMarker = new window.google.maps.Marker({
       position: event.latLng,
       map: googleMapRef.current,
       icon: {
         url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-          <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="#0dffe7"/>
-            <text x="20" y="25" text-anchor="middle" fill="white" font-size="20" font-weight="bold">+</text>
+          <svg width="50" height="60" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
+            <!-- Drop shadow -->
+            <ellipse cx="25" cy="57" rx="10" ry="3" fill="rgba(0,0,0,0.4)"/>
+            <!-- Main marker body (brown) -->
+            <path d="M25 3C15.1 3 7 11.1 7 21c0 18 18 36 18 36s18-18 18-36C43 11.1 34.9 3 25 3z"
+                  fill="#0dffe7" stroke="#00bfa5" stroke-width="2"/>
+            <!-- Inner white circle -->
+            <circle cx="25" cy="21" r="13" fill="white" stroke="#00bfa5" stroke-width="1.5"/>
+            <!-- Plus icon for new restroom -->
+            <text x="25" y="28" text-anchor="middle" fill="#00bfa5" font-size="24" font-weight="bold">+</text>
           </svg>
         `),
-        scaledSize: new window.google.maps.Size(40, 50),
-        anchor: new window.google.maps.Point(20, 50)
+        scaledSize: new window.google.maps.Size(50, 60),
+        anchor: new window.google.maps.Point(25, 57)
       },
       title: 'Click to add restroom here',
       animation: window.google.maps.Animation.BOUNCE
@@ -353,41 +387,92 @@ const MapPage = () => {
 
       console.log('📊 Total restrooms:', combinedRestrooms.length);
 
-      // Add markers for all restrooms
+      // Add markers for all restrooms with brown color and toilet icons
       const newMarkers = combinedRestrooms.map(restroom => {
-        const iconColor = restroom.source === 'google_places' ? '#0dffe7' : '#6B4423';
-        const iconEmoji = restroom.source === 'google_places' ? '🏢' : '🚽';
+        const isCustomRestroom = restroom.source !== 'google_places';
+        const rating = restroom.avg_rating || 0;
+        const ratingColor = rating >= 4 ? '#27AE60' : rating >= 3 ? '#FFD700' : rating >= 2 ? '#FF6347' : '#E74C3C';
+
+        // Create custom brown toilet marker for our restrooms
+        const customIcon = isCustomRestroom ? {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="50" height="60" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
+              <!-- Drop shadow -->
+              <ellipse cx="25" cy="57" rx="10" ry="3" fill="rgba(0,0,0,0.4)"/>
+              <!-- Main marker body (brown) -->
+              <path d="M25 3C15.1 3 7 11.1 7 21c0 18 18 36 18 36s18-18 18-36C43 11.1 34.9 3 25 3z"
+                    fill="#8B4513" stroke="#654321" stroke-width="2"/>
+              <!-- Inner white circle -->
+              <circle cx="25" cy="21" r="13" fill="white" stroke="#654321" stroke-width="1.5"/>
+              <!-- Umlaut above toilet -->
+              <text x="25" y="14" text-anchor="middle" fill="#654321" font-size="6" font-weight="bold">¨</text>
+              <!-- White toilet icon -->
+              <text x="25" y="26" text-anchor="middle" fill="#654321" font-size="18" font-weight="bold">🚽</text>
+              <!-- Rating badge -->
+              ${rating > 0 ? `
+                <circle cx="38" cy="8" r="7" fill="${ratingColor}" stroke="white" stroke-width="2"/>
+                <text x="38" y="12" text-anchor="middle" fill="white" font-size="9" font-weight="bold">${rating.toFixed(1)}</text>
+              ` : ''}
+            </svg>
+          `),
+          scaledSize: new window.google.maps.Size(50, 60),
+          anchor: new window.google.maps.Point(25, 57)
+        } : {
+          // Default Google Places marker
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="#0dffe7"/>
+              <text x="20" y="25" text-anchor="middle" fill="white" font-size="20">🏢</text>
+            </svg>
+          `),
+          scaledSize: new window.google.maps.Size(40, 50),
+          anchor: new window.google.maps.Point(20, 50)
+        };
 
         const marker = new window.google.maps.Marker({
-          position: { 
-            lat: restroom.lat, 
-            lng: restroom.lng || restroom.lon 
+          position: {
+            lat: restroom.lat,
+            lng: restroom.lng || restroom.lon
           },
           map: googleMapRef.current,
           title: restroom.name,
-          icon: {
-            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-              <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="${iconColor}"/>
-                <text x="20" y="25" text-anchor="middle" fill="white" font-size="20">${iconEmoji}</text>
-              </svg>
-            `),
-            scaledSize: new window.google.maps.Size(40, 50),
-            anchor: new window.google.maps.Point(20, 50)
-          },
+          icon: customIcon,
           animation: window.google.maps.Animation.DROP
         });
 
-        // Info window content
+        // Info window content with toilet rating system
         const sourceLabel = restroom.source === 'google_places' ? 'Google Places' : 'Community Added';
+        const toiletRating = restroom.avg_rating || 0;
+        const toiletIcons = Array(5).fill(0).map((_, i) =>
+          i < Math.round(toiletRating) ? '🚽' : '🚿'
+        ).join('');
+
         marker.addListener('click', () => {
           if (infoWindow) {
             infoWindow.setContent(`
-              <div style="padding: 10px; min-width: 200px;">
-                <h3 style="margin: 0 0 8px 0;">${restroom.name}</h3>
-                <p style="margin: 4px 0;">⭐ ${restroom.avg_rating ? restroom.avg_rating.toFixed(1) : 'No rating'}/5</p>
-                <p style="margin: 4px 0;">♿ ${restroom.wheelchair_accessible ? 'Accessible' : 'Not accessible'}</p>
-                <p style="margin: 4px 0; font-size: 12px; color: #666;">Source: ${sourceLabel}</p>
+              <div style="padding: 12px; min-width: 240px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
+                <h3 style="margin: 0 0 12px 0; color: #2d3748; font-size: 18px; font-weight: 600;">
+                  🚽 ${restroom.name}
+                </h3>
+                <div style="margin: 8px 0; padding: 8px; background: #f7fafc; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 16px;">${toiletIcons}</span>
+                  <span style="color: #4a5568; font-weight: 500; font-size: 14px;">
+                    ${toiletRating.toFixed(1)} toilet${toiletRating !== 1 ? 's' : ''} (${restroom.review_count || 0} reviews)
+                  </span>
+                </div>
+                <div style="margin: 8px 0; padding: 8px; background: #edf2f7; border-radius: 8px;">
+                  <span style="color: ${restroom.wheelchair_accessible ? '#27AE60' : '#E74C3C'}; font-weight: 500; font-size: 12px;">
+                    ♿ ${restroom.wheelchair_accessible ? 'Wheelchair Accessible' : 'Not Accessible'}
+                  </span>
+                </div>
+                ${restroom.address ? `
+                  <p style="margin: 8px 0 0 0; color: #718096; font-size: 13px; padding: 6px 8px; background: #f7fafc; border-radius: 6px; border-left: 3px solid #667eea;">
+                    📍 ${restroom.address}
+                  </p>
+                ` : ''}
+                <p style="margin: 8px 0 0 0; color: #a0aec0; font-size: 11px; font-style: italic; text-align: center;">
+                  Source: ${sourceLabel}
+                </p>
               </div>
             `);
             infoWindow.open(googleMapRef.current, marker);
@@ -467,6 +552,7 @@ const MapPage = () => {
       console.log('✅ Restroom created:', newRestroom);
 
       setShowAddForm(false);
+      setAddMode(false);
       setAddLocation(null);
 
       if (window.tempMarker) {
@@ -534,9 +620,11 @@ const MapPage = () => {
             <span className="status-text">Status: {stats.networkStatus}</span>
           </div>
           <motion.button
-            className={`add-restroom-btn ${showAddForm ? 'active' : ''}`}
+            className={`add-restroom-btn ${addMode ? 'active' : ''}`}
             onClick={() => {
-              if (showAddForm) {
+              if (addMode) {
+                // Cancel add mode
+                setAddMode(false);
                 setShowAddForm(false);
                 setAddLocation(null);
                 if (window.tempMarker) {
@@ -544,6 +632,8 @@ const MapPage = () => {
                   window.tempMarker = null;
                 }
               } else {
+                // Enter add mode
+                setAddMode(true);
                 alert('Click anywhere on the map to add a new restroom!');
               }
             }}
@@ -551,7 +641,7 @@ const MapPage = () => {
             whileTap={{ scale: 0.95 }}
           >
             <FaPlus />
-            <span>{showAddForm ? 'Cancel' : 'Add Restroom'}</span>
+            <span>{addMode ? 'Cancel Adding' : 'Add Restroom'}</span>
           </motion.button>
           <motion.button
             className="refresh-btn"
@@ -612,7 +702,15 @@ const MapPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowAddForm(false)}
+            onClick={() => {
+              setShowAddForm(false);
+              setAddMode(false);
+              setAddLocation(null);
+              if (window.tempMarker) {
+                window.tempMarker.setMap(null);
+                window.tempMarker = null;
+              }
+            }}
           >
             <motion.div
               className="modal-content"
@@ -627,7 +725,15 @@ const MapPage = () => {
                 <span>Add New Restroom</span>
                 <button
                   className="close-btn"
-                  onClick={() => setShowAddForm(false)}
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setAddMode(false);
+                    setAddLocation(null);
+                    if (window.tempMarker) {
+                      window.tempMarker.setMap(null);
+                      window.tempMarker = null;
+                    }
+                  }}
                 >
                   <FaTimes />
                 </button>
