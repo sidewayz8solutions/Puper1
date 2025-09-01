@@ -77,10 +77,10 @@ input:focus, textarea:focus, select:focus {
 }
 
 .btn-primary {
-  background: var(--wood-grain);
-  color: var(--cream);
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
   border: 2px solid var(--psychedelic-cyan);
-  box-shadow: var(--shadow-wood);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary:hover {
@@ -112,13 +112,14 @@ input:focus, textarea:focus, select:focus {
 }
 
 .card {
-  background: var(--wood-grain);
-  border: 2px solid var(--medium-wood);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  box-shadow: var(--shadow-wood);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: var(--transition);
-  color: var(--cream);
+  color: #333;
 }
 
 .card:hover {
@@ -137,7 +138,7 @@ input:focus, textarea:focus, select:focus {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid var(--medium-wood);
+  border: 4px solid rgba(102, 126, 234, 0.2);
   border-top: 4px solid var(--psychedelic-cyan);
   border-radius: 50%;
   animation: spin 1s linear infinite;

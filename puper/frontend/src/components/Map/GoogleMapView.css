@@ -30,8 +30,8 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  background: var(--marble-background);
-  color: var(--primary-brown);
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
 }
 
 .loading-spinner {
@@ -55,8 +55,8 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  background: var(--marble-background);
-  color: var(--primary-brown);
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
   text-align: center;
   padding: 2rem;
 }
