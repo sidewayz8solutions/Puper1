@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaWheelchair, FaShieldAlt, FaGlobe, FaStar } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaWheelchair, FaShieldAlt, FaGlobe, FaStar, FaRoad, FaGasPump, FaCar } from 'react-icons/fa';
 import paperBg from '../assets/images/wood.png';
 import heroVideo from '../assets/images/hero-video.mp4';
 import './Homepage.css';
@@ -214,62 +214,62 @@ const HomePage = () => {
 
 
 
-      {/* Community Impact Section */}
-      <section className="community-section">
-        <div className="community-container">
+      {/* Highway Rest Stops Section */}
+      <section className="highway-section">
+        <div className="highway-container">
           <motion.div
-            className="community-content"
+            className="highway-content"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="community-title">Join Our Growing Community</h2>
-            <p className="community-subtitle">Making restroom access easier for everyone, everywhere</p>
+            <h2 className="highway-title">Highway Rest Stops & Road Signs</h2>
+            <p className="highway-subtitle">Find clean facilities at major highway rest areas and travel centers</p>
 
-            <div className="impact-grid">
+            <div className="highway-grid">
               <motion.div
-                className="impact-card"
+                className="highway-card"
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                whileHover={{ scale: 1.05, rotate: 2 }}
+                whileHover={{ scale: 1.05, rotate: 1 }}
               >
-                <div className="impact-icon">🌍</div>
-                <h3>Global Reach</h3>
-                <p>Connecting restroom seekers across continents</p>
+                <div className="highway-icon"><FaRoad /></div>
+                <h3>Interstate Rest Areas</h3>
+                <p>Official state-maintained rest stops with clean facilities and parking</p>
               </motion.div>
 
               <motion.div
-                className="impact-card"
+                className="highway-card"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.4 }}
-                whileHover={{ scale: 1.05, rotate: -2 }}
+                whileHover={{ scale: 1.05, rotate: -1 }}
               >
-                <div className="impact-icon">🤝</div>
-                <h3>Community Driven</h3>
-                <p>Built by users, for users, with love</p>
+                <div className="highway-icon"><FaGasPump /></div>
+                <h3>Travel Centers</h3>
+                <p>Major truck stops and travel plazas with 24/7 restroom access</p>
               </motion.div>
 
               <motion.div
-                className="impact-card"
+                className="highway-card"
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.6 }}
-                whileHover={{ scale: 1.05, rotate: 2 }}
+                whileHover={{ scale: 1.05, rotate: 1 }}
               >
-                <div className="impact-icon">✨</div>
-                <h3>Always Improving</h3>
-                <p>Constantly evolving with new features</p>
+                <div className="highway-icon"><FaCar /></div>
+                <h3>Exit Services</h3>
+                <p>Quick access to restrooms at highway exits and service areas</p>
               </motion.div>
             </div>
 
             <motion.button
-              className="community-cta"
+              className="highway-cta"
               onClick={() => navigate('/map')}
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -278,7 +278,7 @@ const HomePage = () => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              <FaGlobe /> Start Your Journey
+              <FaRoad /> Find Highway Stops
             </motion.button>
           </motion.div>
         </div>

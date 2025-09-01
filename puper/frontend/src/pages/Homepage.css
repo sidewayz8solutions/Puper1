@@ -495,34 +495,34 @@
   opacity: 0.9;
 }
 
-/* Community Impact Section */
-.community-section {
+/* Highway Rest Stops Section */
+.highway-section {
   padding: 6rem 0;
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+  background: linear-gradient(135deg, #2c3e50, #34495e, #3498db, #2980b9);
   background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  animation: roadAnimation 20s ease infinite;
   position: relative;
   overflow: hidden;
 }
 
-@keyframes gradientShift {
+@keyframes roadAnimation {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-.community-section::before {
+.highway-section::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(1px);
 }
 
-.community-container {
+.highway-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
@@ -530,33 +530,33 @@
   z-index: 2;
 }
 
-.community-content {
+.highway-content {
   text-align: center;
 }
 
-.community-title {
+.highway-title {
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 800;
   color: white;
   margin-bottom: 1rem;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
-.community-subtitle {
+.highway-subtitle {
   font-size: clamp(1.2rem, 2.5vw, 1.8rem);
   color: rgba(255, 255, 255, 0.9);
   margin-bottom: 4rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.impact-grid {
+.highway-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   margin-bottom: 4rem;
 }
 
-.impact-card {
+.highway-card {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
   border: 2px solid rgba(255, 255, 255, 0.2);
@@ -568,7 +568,7 @@
   overflow: hidden;
 }
 
-.impact-card::before {
+.highway-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -580,25 +580,26 @@
   transition: all 0.3s ease;
 }
 
-.impact-card:hover {
+.highway-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   border-color: rgba(255, 255, 255, 0.4);
 }
 
-.impact-card:hover::before {
+.highway-card:hover::before {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
 }
 
-.impact-icon {
+.highway-icon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  color: #f39c12;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
   position: relative;
   z-index: 1;
 }
 
-.impact-card h3 {
+.highway-card h3 {
   font-size: 1.8rem;
   font-weight: 700;
   color: white;
@@ -607,7 +608,7 @@
   z-index: 1;
 }
 
-.impact-card p {
+.highway-card p {
   font-size: 1.1rem;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
@@ -615,8 +616,8 @@
   z-index: 1;
 }
 
-.community-cta {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+.highway-cta {
+  background: linear-gradient(135deg, #2c3e50, #3498db);
   color: white;
   border: none;
   padding: 1.5rem 3rem;
@@ -627,32 +628,33 @@
   display: inline-flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
   text-decoration: none;
 }
 
-.community-cta:hover {
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+.highway-cta:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
   transform: translateY(-3px);
+  background: linear-gradient(135deg, #34495e, #2980b9);
 }
 
 /* Mobile tweaks */
 @media (max-width: 768px) {
   .features-section { padding: 4rem 0; }
 
-  .community-section { padding: 4rem 0; }
+  .highway-section { padding: 4rem 0; }
 
-  .impact-grid {
+  .highway-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 
-  .impact-card {
+  .highway-card {
     padding: 2rem 1.5rem;
   }
 
-  .community-cta {
+  .highway-cta {
     padding: 1.2rem 2.5rem;
     font-size: 1.1rem;
   }
