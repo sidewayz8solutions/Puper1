@@ -45,5 +45,18 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app uses location to find nearby restrooms.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app uses location to find nearby restrooms.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera to take photos of restrooms.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app may use the microphone for voice features.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
