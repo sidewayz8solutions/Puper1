@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FaToilet, FaMapMarkerAlt, FaStar, FaUsers, FaWheelchair, FaShieldAlt, FaGlobe } from 'react-icons/fa';
-import marbleBg from '../assets/images/marble-hero-bg.png';
+import { FaMapMarkerAlt, FaWheelchair, FaShieldAlt, FaGlobe } from 'react-icons/fa';
 import paperBg from '../assets/images/wood.png';
 import heroVideo from '../assets/images/hero-video.mp4';
 import './Homepage.css';
@@ -40,13 +39,7 @@ const HomePage = () => {
     },
   ];
 
-  // Stats data
-  const stats = [
-    { icon: <FaToilet />, number: "10,000+", label: "Restrooms Listed" },
-    { icon: <FaUsers />, number: "50,000+", label: "Happy Users" },
-    { icon: <FaStar />, number: "4.8/5", label: "Average Rating" },
-    { icon: <FaGlobe />, number: "100+", label: "Cities Covered" }
-  ];
+
 
   // Auto-rotate features
   useEffect(() => {
@@ -115,8 +108,17 @@ const HomePage = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2 }}
             >
-              Click to explore restrooms worldwide
+              Nationwide coverage
             </motion.p>
+            <motion.button
+              className="globe-map-button"
+              onClick={() => navigate('/map')}
+              initial={{ opacity: 0, x: -20 }}
+              whileHover={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              Map
+            </motion.button>
           </motion.div>
         </div>
 
@@ -210,26 +212,7 @@ const HomePage = () => {
           </div></>
       </section>
 
-      {/* Stats Section */}
-      <section className="stats-section" style={{ background: `url(${marbleBg})`, backgroundSize: 'cover' }}>
-        <div className="stats-container">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              className="stat-card"
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, type: "spring" }}
-              whileHover={{ y: -10 }}
-            >
-              <div className="stat-icon">{stat.icon}</div>
-              <div className="stat-number">{stat.number}</div>
-              <div className="stat-label">{stat.label}</div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+
 
       {/* Community Impact Section */}
       <section className="community-section">
