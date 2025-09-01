@@ -7,14 +7,14 @@
 }
 
 html, body {
-  background: rgb(0, 88, 71) !important;
+  background: transparent !important;
 }
 
 body {
   font-family: 'Poppins', sans-serif;
   line-height: 1.6;
   color: var(--dark-brown);
-  background: rgb(0, 88, 71) !important;
+  background: transparent !important;
   background-attachment: fixed;
 }
 

@@ -142,8 +142,6 @@
 				Base,
 			);
 			mainGroup = 504EC2FB1FED79650016851F;
-			packageReferences = (
-			);
 			productRefGroup = 504EC3051FED79650016851F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -194,18 +192,13 @@
 			files = (
 			);
 			inputPaths = (
-				"${BUILT_PRODUCTS_DIR}/Capacitor/Capacitor.framework",
-				"${BUILT_PRODUCTS_DIR}/CapacitorCordova/Cordova.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Capacitor.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cordova.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Embed frameworks manually to avoid sandbox issues\nmkdir -p \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Copy Capacitor framework\nif [ -d \"${BUILT_PRODUCTS_DIR}/Capacitor/Capacitor.framework\" ]; then\n    echo \"Copying Capacitor.framework\"\n    cp -R \"${BUILT_PRODUCTS_DIR}/Capacitor/Capacitor.framework\" \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/\"\n    # Remove unnecessary files\n    rm -rf \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Capacitor.framework/Headers\" 2>/dev/null || true\n    rm -rf \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Capacitor.framework/Modules\" 2>/dev/null || true\nfi\n\n# Copy CapacitorCordova framework\nif [ -d \"${BUILT_PRODUCTS_DIR}/CapacitorCordova/Cordova.framework\" ]; then\n    echo \"Copying Cordova.framework\"\n    cp -R \"${BUILT_PRODUCTS_DIR}/CapacitorCordova/Cordova.framework\" \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/\"\n    # Remove unnecessary files\n    rm -rf \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cordova.framework/Headers\" 2>/dev/null || true\n    rm -rf \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cordova.framework/Modules\" 2>/dev/null || true\nfi\n\necho \"Framework embedding completed\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

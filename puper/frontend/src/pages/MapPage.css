@@ -2,12 +2,98 @@
 
 .map-page {
   min-height: 100vh;
-  background: var(--marble-background);
+  background: transparent;
   background-attachment: fixed;
   color: var(--cream);
   font-family: 'Bebas Neue', cursive;
   position: relative;
   overflow: hidden;
+}
+
+/* Floating Globe Styles for Map Page */
+.map-page .hero-globe-container {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 2000;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.map-page .interactive-globe {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,
+    #4a90e2 0%,     /* Ocean blue */
+    #2e7d32 25%,    /* Forest green */
+    #8bc34a 35%,    /* Land green */
+    #4a90e2 50%,    /* Ocean blue */
+    #2e7d32 65%,    /* Forest green */
+    #d4af37 75%,    /* Desert gold */
+    #4a90e2 100%    /* Ocean blue */
+  );
+  background-size: 200% 200%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 0 20px rgba(74, 144, 226, 0.4),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  animation: globeRotate 10s linear infinite;
+}
+
+.map-page .interactive-globe::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background: linear-gradient(135deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.map-page .interactive-globe svg {
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.9);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  z-index: 1;
+}
+
+.map-page .globe-pulse {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  border-radius: 50%;
+  border: 2px solid rgba(74, 144, 226, 0.4);
+  animation: pulse 3s infinite;
+  top: -10%;
+  left: -10%;
+}
+
+.map-page .globe-text {
+  color: white;
+  font-size: 0.8rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  font-weight: 600;
+  white-space: nowrap;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
 }
 
 /* Psychedelic background animations */
@@ -628,6 +714,28 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  /* Mobile Globe Styles */
+  .map-page .hero-globe-container {
+    top: 0.5rem;
+    left: 0.5rem;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .map-page .interactive-globe {
+    width: 60px;
+    height: 60px;
+  }
+
+  .map-page .interactive-globe svg {
+    font-size: 1.5rem;
+  }
+
+  .map-page .globe-text {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
   .search-panel {
     top: 0.5rem;
     right: 0.5rem;

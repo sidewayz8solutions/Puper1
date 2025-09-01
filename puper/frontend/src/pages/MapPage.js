@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   FaPlus, FaTimes, FaSearch, FaFilter, FaUsers,
   FaMapMarkerAlt, FaToilet, FaClock, FaWifi, FaBolt, FaSync,
@@ -14,6 +14,7 @@ import './MapPage.css';
 
 const MapPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const mapRef = useRef(null);
   const googleMapRef = useRef(null);
   const markersRef = useRef([]);
@@ -820,6 +821,44 @@ const MapPage = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Floating Globe - Top Left */}
+      <motion.div
+        className="hero-globe-container"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.3, type: "spring" }}
+      >
+        <motion.div
+          className="interactive-globe"
+          onClick={() => navigate('/')}
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          whileTap={{ scale: 0.95 }}
+          animate={{
+            rotate: [0, 360],
+            boxShadow: [
+              '0 0 20px rgba(0, 255, 255, 0.5)',
+              '0 0 40px rgba(255, 0, 255, 0.5)',
+              '0 0 20px rgba(0, 255, 255, 0.5)'
+            ]
+          }}
+          transition={{
+            rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+            boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+          }}
+        >
+          <FaGlobe />
+          <div className="globe-pulse"></div>
+        </motion.div>
+        <motion.p
+          className="globe-text"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          Back to Home
+        </motion.p>
+      </motion.div>
+
       {/* Main Map Container */}
       <div className="map-content">
         <div
