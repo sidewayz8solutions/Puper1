@@ -822,42 +822,49 @@ const MapPage = () => {
       transition={{ duration: 0.5 }}
     >
       {/* Floating Globe - Top Left */}
-      <motion.div
+      <div
         className="hero-globe-container"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.3, type: "spring" }}
+        style={{
+          position: 'fixed',
+          top: '1rem',
+          left: '1rem',
+          zIndex: 2000,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}
       >
-        <motion.div
+        <button
           className="interactive-globe"
           onClick={() => navigate('/')}
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          whileTap={{ scale: 0.95 }}
-          animate={{
-            rotate: [0, 360],
-            boxShadow: [
-              '0 0 20px rgba(0, 255, 255, 0.5)',
-              '0 0 40px rgba(255, 0, 255, 0.5)',
-              '0 0 20px rgba(0, 255, 255, 0.5)'
-            ]
-          }}
-          transition={{
-            rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-            boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+          style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #4a90e2, #2e7d32)',
+            border: '2px solid rgba(255, 255, 255, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '1.5rem',
+            color: 'white'
           }}
         >
           <FaGlobe />
-          <div className="globe-pulse"></div>
-        </motion.div>
-        <motion.p
-          className="globe-text"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+        </button>
+        <span
+          style={{
+            color: 'white',
+            fontSize: '0.8rem',
+            background: 'rgba(0, 0, 0, 0.5)',
+            padding: '0.25rem 0.5rem',
+            borderRadius: '12px'
+          }}
         >
-          Back to Home
-        </motion.p>
-      </motion.div>
+          Home
+        </span>
+      </div>
 
       {/* Main Map Container */}
       <div className="map-content">
