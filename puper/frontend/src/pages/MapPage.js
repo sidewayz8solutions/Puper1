@@ -389,12 +389,12 @@ const MapPage = () => {
 
       // Add markers for all restrooms with brown color and toilet icons
       const newMarkers = combinedRestrooms.map(restroom => {
-        const isCustomRestroom = restroom.source !== 'google_places';
+
         const rating = restroom.avg_rating || 0;
         const ratingColor = rating >= 4 ? '#27AE60' : rating >= 3 ? '#FFD700' : rating >= 2 ? '#FF6347' : '#E74C3C';
 
-        // Create custom brown toilet marker for our restrooms
-        const customIcon = isCustomRestroom ? {
+        // Create custom brown toilet marker for ALL restrooms
+        const customIcon = {
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
             <svg width="50" height="60" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
               <!-- Drop shadow -->
@@ -417,16 +417,6 @@ const MapPage = () => {
           `),
           scaledSize: new window.google.maps.Size(50, 60),
           anchor: new window.google.maps.Point(25, 57)
-        } : {
-          // Default Google Places marker
-          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-            <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 30 20 30s20-15 20-30C40 8.95 31.05 0 20 0z" fill="#0dffe7"/>
-              <text x="20" y="25" text-anchor="middle" fill="white" font-size="20">🏢</text>
-            </svg>
-          `),
-          scaledSize: new window.google.maps.Size(40, 50),
-          anchor: new window.google.maps.Point(20, 50)
         };
 
         const marker = new window.google.maps.Marker({
@@ -444,7 +434,7 @@ const MapPage = () => {
         const sourceLabel = restroom.source === 'google_places' ? 'Google Places' : 'Community Added';
         const toiletRating = restroom.avg_rating || 0;
         const toiletIcons = Array(5).fill(0).map((_, i) =>
-          i < Math.round(toiletRating) ? '🚽' : '🚿'
+          i < Math.round(toiletRating) ? '🚽' : '🚾'
         ).join('');
 
         marker.addListener('click', () => {
