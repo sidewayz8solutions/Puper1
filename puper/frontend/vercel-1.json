@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "create-react-app",
+  "env": {
+    "SKIP_PREFLIGHT_CHECK": "true"
+  }
+}
