@@ -379,7 +379,7 @@
 }
 
 .hero-cta-button:hover {
-  background: #553C9A !important;
+  background: #a38ede !important;
   border-color: #7C3AED !important;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(107, 70, 193, 0.6) !important;
@@ -388,14 +388,14 @@
 .hero-cta-button.secondary-cta {
   background: rgba(255, 255, 255, 0.95) !important;
   border: 2px solid #6B46C1 !important;
-  color: #6B46C1 !important;
+  color: #fefeff !important;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
 }
 
 .hero-cta-button.secondary-cta:hover {
   background: rgba(255, 255, 255, 1) !important;
   border-color: #553C9A !important;
-  color: #553C9A !important;
+  color: #ffffff !important;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25) !important;
 }
