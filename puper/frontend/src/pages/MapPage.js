@@ -7,7 +7,7 @@ import {
   FaChartLine, FaGlobe, FaExpand, FaCompass, FaCrosshairs,
   FaCheckCircle, FaTimesCircle, FaStar
 } from 'react-icons/fa';
-import woodBg from '../assets/images/wood5.png';
+
 import { restroomService, supabase } from '../services/supabase';
 import { googlePlacesService, initGoogleMaps } from '../services/googleMaps';
 import './MapPage.css';
@@ -834,25 +834,30 @@ const MapPage = () => {
           gap: '0.5rem'
         }}
       >
-        <button
+        <motion.button
           className="interactive-globe"
           onClick={() => navigate('/')}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
           style={{
             width: '60px',
             height: '60px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #4a90e2, #2e7d32)',
+            background: 'linear-gradient(135deg, #4a90e2 0%, #2e7d32 25%, #8bc34a 35%, #4a90e2 50%, #2e7d32 65%, #d4af37 75%, #4a90e2 100%)',
+            backgroundSize: '200% 200%',
             border: '2px solid rgba(255, 255, 255, 0.4)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
             fontSize: '1.5rem',
-            color: 'white'
+            color: 'white',
+            boxShadow: '0 0 20px rgba(74, 144, 226, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.1)',
+            animation: 'globeRotate 10s linear infinite'
           }}
         >
           <FaGlobe />
-        </button>
+        </motion.button>
         <span
           style={{
             color: 'white',
@@ -880,7 +885,6 @@ const MapPage = () => {
           initial={{ x: 400, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          style={{ backgroundImage: `url(${woodBg})` }}
         >
           <div className="search-content">
             <div className="search-input-wrapper">
@@ -974,7 +978,6 @@ const MapPage = () => {
           initial={{ y: 200, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          style={{ backgroundImage: `url(${woodBg})` }}
         >
           <div className="stats-header">
             <FaChartLine className="stats-icon" />
@@ -1136,7 +1139,7 @@ const MapPage = () => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              style={{ backgroundImage: `url(${woodBg})` }}
+
             >
               <div className="modal-header">
                 <FaPlus className="modal-icon" />
@@ -1297,7 +1300,7 @@ const MapPage = () => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              style={{ backgroundImage: `url(${woodBg})` }}
+
             >
               <div className="modal-header">
                 <FaToilet className="modal-icon" />
@@ -1368,21 +1371,7 @@ const MapPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Loading Overlay */}
-      {loading && (
-        <motion.div
-          className="loading-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <div className="loading-content">
-            <div className="holographic-loader">
-              <FaGlobe className="spinning-globe" />
-            </div>
-            <span className="loading-text">LOADING RESTROOMS...</span>
-          </div>
-        </motion.div>
-      )}
+
     </motion.div>
   );
 };

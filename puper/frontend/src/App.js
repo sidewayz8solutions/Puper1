@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
@@ -17,6 +17,33 @@ import './App.css';
 
 const queryClient = new QueryClient();
 
+function AppContent() {
+  const location = useLocation();
+  const isMapPage = location.pathname === '/map';
+
+  return (
+    <div className="App">
+      {/* Psychedelic background animations */}
+      <div className="psychedelic-bg"></div>
+
+      {!isMapPage && <Header />}
+      <main className={`main-content ${isMapPage ? 'map-fullscreen' : ''}`}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/map" element={<MapPage />} />
+          <Route path="/profile/:id?" element={<ProfilePage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/test" element={<ConnectionTest />} />
+          <Route path="/geospatial" element={<GeospatialTest />} />
+        </Routes>
+      </main>
+      {!isMapPage && <Footer />}
+      <Toaster position="bottom-right" />
+    </div>
+  );
+}
+
 function App() {
   // Global initMap function for Google Maps API callback (from demo integration)
   window.initMap = () => {
@@ -27,25 +54,7 @@ function App() {
       <AuthProvider>
         <AppProvider>
           <Router>
-            <div className="App">
-              {/* Psychedelic background animations */}
-              <div className="psychedelic-bg"></div>
-
-              <Header />
-              <main className="main-content">
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/map" element={<MapPage />} />
-                  <Route path="/profile/:id?" element={<ProfilePage />} />
-                  <Route path="/leaderboard" element={<LeaderboardPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="/test" element={<ConnectionTest />} />
-                  <Route path="/geospatial" element={<GeospatialTest />} />
-                </Routes>
-              </main>
-              <Footer />
-              <Toaster position="bottom-right" />
-            </div>
+            <AppContent />
           </Router>
         </AppProvider>
       </AuthProvider>
