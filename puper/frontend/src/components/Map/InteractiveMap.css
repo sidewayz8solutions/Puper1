@@ -44,15 +44,17 @@
   cursor: pointer;
   transition: var(--transition);
   font-weight: 600;
-  color: var(--primary-brown);
+  color: #F5DEB3;
   font-family: inherit;
   min-width: 140px;
+  text-shadow: 0 0 8px rgba(245, 222, 179, 0.8), 0 0 16px rgba(245, 222, 179, 0.6);
 }
 
 .add-restroom-btn:hover {
   background: rgba(107, 68, 35, 0.1);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+  text-shadow: 0 0 12px rgba(245, 222, 179, 1), 0 0 24px rgba(245, 222, 179, 0.8);
 }
 
 .add-restroom-btn.active {

@@ -74,8 +74,9 @@
 
 .restroom-info-window h3 {
   margin: 0 0 0.5rem 0;
-  color: var(--primary-brown);
+  color: #2D1810;
   font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .restroom-info-window p {
