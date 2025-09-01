@@ -1,11 +1,11 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import {
   FaPlus, FaTimes, FaSearch, FaFilter, FaUsers,
   FaMapMarkerAlt, FaToilet, FaClock, FaWifi, FaBolt, FaSync,
-  FaChartLine, FaGlobe, FaExpand, FaCompass, FaCrosshairs
+  FaChartLine, FaGlobe, FaExpand, FaCompass, FaCrosshairs,
+  FaCheckCircle, FaTimesCircle, FaStar
 } from 'react-icons/fa';
 import woodBg from '../assets/images/wood5.png';
 import { restroomService, supabase } from '../services/supabase';
@@ -33,6 +33,15 @@ const MapPage = () => {
   const [loading, setLoading] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingRestroomId, setRatingRestroomId] = useState(null);
+  const [detailedRating, setDetailedRating] = useState({
+    overall: 0,
+    cleanliness: 0,
+    stocked: 0,
+    availability: 0,
+    comment: ''
+  });
   
   // Stats
   const [stats, setStats] = useState({
@@ -315,27 +324,58 @@ const MapPage = () => {
     }
   }, [map, mapLoaded, userLocation]);
 
+  // Open detailed rating modal
+  const openRatingModal = (restroomId) => {
+    setRatingRestroomId(restroomId);
+    setDetailedRating({
+      overall: 0,
+      cleanliness: 0,
+      stocked: 0,
+      availability: 0,
+      comment: ''
+    });
+    setShowRatingModal(true);
+  };
+
+  // Submit detailed rating
+  const submitDetailedRating = async () => {
+    try {
+      console.log(`Submitting detailed rating for restroom ${ratingRestroomId}:`, detailedRating);
+
+      // Calculate average rating
+      const avgRating = (detailedRating.overall + detailedRating.cleanliness + 
+                        detailedRating.stocked + detailedRating.availability) / 4;
+
+      // Here you would typically make an API call to save the rating
+      // For now, we'll just show a confirmation
+      const confirmed = window.confirm(
+        `Submit rating?\n\n` +
+        `Overall: ${detailedRating.overall} 🚽\n` +
+        `Cleanliness: ${detailedRating.cleanliness} 🚽\n` +
+        `Stocked: ${detailedRating.stocked} 🚽\n` +
+        `Availability: ${detailedRating.availability} 🚽\n` +
+        `Average: ${avgRating.toFixed(1)} 🚽\n` +
+        `${detailedRating.comment ? `Comment: ${detailedRating.comment}` : ''}`
+      );
+
+      if (confirmed) {
+        // TODO: Implement actual rating API call
+        alert(`Thank you for your detailed rating! Average: ${avgRating.toFixed(1)} toilets`);
+        setShowRatingModal(false);
+        
+        // Optionally refresh the restrooms data to show updated rating
+        loadRestrooms(userLocation);
+      }
+    } catch (error) {
+      console.error('Error submitting detailed rating:', error);
+      alert('Failed to submit rating. Please try again.');
+    }
+  };
+
   // Add global rating function for info window clicks
   useEffect(() => {
-    window.rateRestroom = async (restroomId, rating) => {
-      try {
-        console.log(`Rating restroom ${restroomId} with ${rating} toilets`);
-
-        // Here you would typically make an API call to save the rating
-        // For now, we'll just show a confirmation
-        const confirmed = window.confirm(`Rate this restroom ${rating} toilet${rating !== 1 ? 's' : ''}?`);
-
-        if (confirmed) {
-          // TODO: Implement actual rating API call
-          alert(`Thank you for rating this restroom ${rating} toilet${rating !== 1 ? 's' : ''}!`);
-
-          // Optionally refresh the restrooms data to show updated rating
-          // loadRestrooms(userLocation);
-        }
-      } catch (error) {
-        console.error('Error rating restroom:', error);
-        alert('Failed to submit rating. Please try again.');
-      }
+    window.rateRestroom = (restroomId) => {
+      openRatingModal(restroomId);
     };
 
     // Cleanup function
@@ -433,10 +473,8 @@ const MapPage = () => {
                     fill="#8B4513" stroke="#654321" stroke-width="2"/>
               <!-- Inner white circle -->
               <circle cx="25" cy="21" r="13" fill="white" stroke="#654321" stroke-width="1.5"/>
-              <!-- Umlaut above toilet -->
-              <text x="25" y="14" text-anchor="middle" fill="#654321" font-size="6" font-weight="bold">¨</text>
-              <!-- White toilet icon -->
-              <text x="25" y="26" text-anchor="middle" fill="#654321" font-size="18" font-weight="bold">🚽</text>
+              <!-- Toilet icon -->
+              <text x="25" y="28" text-anchor="middle" fill="#654321" font-size="20">🚽</text>
               <!-- Rating badge -->
               ${rating > 0 ? `
                 <circle cx="38" cy="8" r="7" fill="${ratingColor}" stroke="white" stroke-width="2"/>
@@ -463,55 +501,90 @@ const MapPage = () => {
         const sourceLabel = restroom.source === 'google_places' ? 'Google Places' : 'Community Added';
         const toiletRating = restroom.avg_rating || 0;
 
-        // Create clickable toilet rating system
-        const createClickableToiletRating = (currentRating) => {
+        // Create clickable toilet rating display
+        const createToiletRatingDisplay = (currentRating) => {
           return Array(5).fill(0).map((_, i) => {
             const isActive = i < Math.round(currentRating);
-            return `<span
-              style="
-                font-size: 20px;
-                cursor: pointer;
-                margin-right: 2px;
-                transition: all 0.2s ease;
-                display: inline-block;
-                transform: scale(1);
-              "
-              onmouseover="this.style.transform='scale(1.2)'; this.style.textShadow='0 0 10px rgba(255,215,0,0.8)';"
-              onmouseout="this.style.transform='scale(1)'; this.style.textShadow='none';"
-              onclick="window.rateRestroom && window.rateRestroom(${restroom.id}, ${i + 1})"
-              title="Rate ${i + 1} toilet${i !== 0 ? 's' : ''}"
-            >${isActive ? '🚽' : '🚾'}</span>`;
+            return `<span style="font-size: 24px; margin-right: 2px;">
+              ${isActive ? '🚽' : '🚾'}
+            </span>`;
           }).join('');
         };
 
         marker.addListener('click', () => {
           if (infoWindow) {
             infoWindow.setContent(`
-              <div style="padding: 12px; min-width: 240px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
+              <div style="padding: 12px; min-width: 280px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
                 <h3 style="margin: 0 0 12px 0; color: #2d3748; font-size: 18px; font-weight: 600;">
                   🚽 ${restroom.name}
                 </h3>
                 <div style="margin: 8px 0; padding: 8px; background: #f7fafc; border-radius: 8px;">
-                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                    <span style="font-size: 14px; color: #4a5568; font-weight: 500;">Rate this restroom:</span>
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 14px; color: #4a5568; font-weight: 500;">Overall Rating:</span>
                   </div>
                   <div style="display: flex; align-items: center; gap: 8px;">
-                    ${createClickableToiletRating(toiletRating)}
+                    ${createToiletRatingDisplay(toiletRating)}
                     <span style="color: #4a5568; font-weight: 500; font-size: 14px; margin-left: 8px;">
-                      ${toiletRating.toFixed(1)} toilet${toiletRating !== 1 ? 's' : ''} (${restroom.review_count || 0} reviews)
+                      ${toiletRating.toFixed(1)} (${restroom.review_count || 0} reviews)
                     </span>
                   </div>
                 </div>
+                
+                ${restroom.cleanliness_rating ? `
+                <div style="margin: 4px 0; padding: 4px 8px; background: #edf2f7; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 12px; color: #4a5568;">Cleanliness:</span>
+                  <span style="font-size: 14px;">${'🚽'.repeat(Math.round(restroom.cleanliness_rating))}${'🚾'.repeat(5 - Math.round(restroom.cleanliness_rating))}</span>
+                </div>
+                ` : ''}
+                
+                ${restroom.stocked_rating ? `
+                <div style="margin: 4px 0; padding: 4px 8px; background: #edf2f7; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 12px; color: #4a5568;">Stocked:</span>
+                  <span style="font-size: 14px;">${'🚽'.repeat(Math.round(restroom.stocked_rating))}${'🚾'.repeat(5 - Math.round(restroom.stocked_rating))}</span>
+                </div>
+                ` : ''}
+                
+                ${restroom.availability_rating ? `
+                <div style="margin: 4px 0; padding: 4px 8px; background: #edf2f7; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 12px; color: #4a5568;">Availability:</span>
+                  <span style="font-size: 14px;">${'🚽'.repeat(Math.round(restroom.availability_rating))}${'🚾'.repeat(5 - Math.round(restroom.availability_rating))}</span>
+                </div>
+                ` : ''}
+                
+                <button
+                  onclick="window.rateRestroom && window.rateRestroom('${restroom.id}')"
+                  style="
+                    width: 100%;
+                    margin-top: 12px;
+                    padding: 10px;
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+                  "
+                  onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.4)';"
+                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)';"
+                >
+                  Rate This Restroom
+                </button>
+                
                 <div style="margin: 8px 0; padding: 8px; background: #edf2f7; border-radius: 8px;">
                   <span style="color: ${restroom.wheelchair_accessible ? '#27AE60' : '#E74C3C'}; font-weight: 500; font-size: 12px;">
                     ♿ ${restroom.wheelchair_accessible ? 'Wheelchair Accessible' : 'Not Accessible'}
                   </span>
                 </div>
+                
                 ${restroom.address ? `
                   <p style="margin: 8px 0 0 0; color: #718096; font-size: 13px; padding: 6px 8px; background: #f7fafc; border-radius: 6px; border-left: 3px solid #667eea;">
                     📍 ${restroom.address}
                   </p>
                 ` : ''}
+                
                 <p style="margin: 8px 0 0 0; color: #a0aec0; font-size: 11px; font-style: italic; text-align: center;">
                   Source: ${sourceLabel}
                 </p>
@@ -624,6 +697,36 @@ const MapPage = () => {
     return R * c * 1000; // Distance in meters
   };
 
+  // Create toilet rating selector component
+  const ToiletRatingSelector = ({ value, onChange, label }) => (
+    <div className="toilet-rating-selector">
+      <label>{label}</label>
+      <div className="toilet-icons">
+        {[1, 2, 3, 4, 5].map((rating) => (
+          <span
+            key={rating}
+            className={`toilet-icon ${value >= rating ? 'active' : ''}`}
+            onClick={() => onChange(rating)}
+            style={{
+              fontSize: '28px',
+              cursor: 'pointer',
+              margin: '0 4px',
+              transition: 'all 0.2s ease',
+              display: 'inline-block',
+              transform: value >= rating ? 'scale(1.1)' : 'scale(1)',
+              filter: value >= rating ? 'none' : 'grayscale(1) opacity(0.5)'
+            }}
+          >
+            🚽
+          </span>
+        ))}
+        <span style={{ marginLeft: '12px', color: '#4a5568', fontWeight: '500' }}>
+          {value > 0 ? `${value} toilet${value !== 1 ? 's' : ''}` : 'Not rated'}
+        </span>
+      </div>
+    </div>
+  );
+
   return (
     <motion.div
       className="map-page"
@@ -648,55 +751,58 @@ const MapPage = () => {
           style={{ backgroundImage: `url(${woodBg})` }}
         >
           <div className="search-content">
-            <FaSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search restrooms..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="search-input"
-            />
+            <div className="search-input-wrapper">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search restrooms..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="search-input"
+              />
+            </div>
           </div>
           <div className="connection-status">
             <FaWifi className={`status-icon ${stats.networkStatus.toLowerCase()}`} />
             <span className="status-text">Status: {stats.networkStatus}</span>
           </div>
-          <motion.button
-            className={`add-restroom-btn ${addMode ? 'active' : ''}`}
-            onClick={() => {
-              if (addMode) {
-                // Cancel add mode
-                setAddMode(false);
-                setShowAddForm(false);
-                setAddLocation(null);
-                if (window.tempMarker) {
-                  window.tempMarker.setMap(null);
-                  window.tempMarker = null;
+          <div className="control-buttons">
+            <motion.button
+              className={`add-restroom-btn ${addMode ? 'active' : ''}`}
+              onClick={() => {
+                if (addMode) {
+                  // Cancel add mode
+                  setAddMode(false);
+                  setShowAddForm(false);
+                  setAddLocation(null);
+                  if (window.tempMarker) {
+                    window.tempMarker.setMap(null);
+                    window.tempMarker = null;
+                  }
+                } else {
+                  // Enter add mode
+                  setAddMode(true);
+                  alert('Click anywhere on the map to add a new restroom!');
                 }
-              } else {
-                // Enter add mode
-                setAddMode(true);
-                alert('Click anywhere on the map to add a new restroom!');
-              }
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FaPlus />
-            <span>{addMode ? 'Cancel Adding' : 'Add Restroom'}</span>
-          </motion.button>
-          <motion.button
-            className="refresh-btn"
-            onClick={() => {
-              getUserLocation();
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            style={{ marginTop: '0.5rem' }}
-          >
-            <FaCrosshairs style={{ marginRight: 6 }} />
-            Get My Location
-          </motion.button>
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <FaPlus />
+              <span>{addMode ? 'Cancel Adding' : 'Add Restroom'}</span>
+            </motion.button>
+            <motion.button
+              className="refresh-btn"
+              onClick={() => {
+                getUserLocation();
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <FaCrosshairs style={{ marginRight: 6 }} />
+              Get My Location
+            </motion.button>
+          </div>
           {locationError && (
             <div style={{ color: '#ff6b6b', fontSize: '0.8rem', marginTop: '0.5rem' }}>
               ⚠️ {locationError}
@@ -784,7 +890,7 @@ const MapPage = () => {
                 {addLocation ? (
                   <div className="location-confirmation">
                     <p style={{ color: 'var(--psychedelic-lime)', fontWeight: 'bold', marginBottom: '1rem' }}>
-                      ✓ Location Selected: {addLocation.lat.toFixed(6)}, {addLocation.lng.toFixed(6)}
+                      ✔ Location Selected: {addLocation.lat.toFixed(6)}, {addLocation.lng.toFixed(6)}
                     </p>
                   </div>
                 ) : (
@@ -828,6 +934,93 @@ const MapPage = () => {
                     {addLocation ? 'Add Restroom' : 'Select location on map'}
                   </button>
                 </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Detailed Rating Modal */}
+      <AnimatePresence>
+        {showRatingModal && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowRatingModal(false)}
+          >
+            <motion.div
+              className="rating-modal-content"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ backgroundImage: `url(${woodBg})` }}
+            >
+              <div className="modal-header">
+                <FaToilet className="modal-icon" />
+                <span>Rate This Restroom</span>
+                <button
+                  className="close-btn"
+                  onClick={() => setShowRatingModal(false)}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+              <div className="rating-modal-body">
+                <ToiletRatingSelector
+                  label="Overall Experience"
+                  value={detailedRating.overall}
+                  onChange={(value) => setDetailedRating({...detailedRating, overall: value})}
+                />
+                
+                <ToiletRatingSelector
+                  label="Cleanliness"
+                  value={detailedRating.cleanliness}
+                  onChange={(value) => setDetailedRating({...detailedRating, cleanliness: value})}
+                />
+                
+                <ToiletRatingSelector
+                  label="Stocked (Paper, Soap, etc.)"
+                  value={detailedRating.stocked}
+                  onChange={(value) => setDetailedRating({...detailedRating, stocked: value})}
+                />
+                
+                <ToiletRatingSelector
+                  label="Availability (Not Busy/Closed)"
+                  value={detailedRating.availability}
+                  onChange={(value) => setDetailedRating({...detailedRating, availability: value})}
+                />
+                
+                <div className="rating-comment-section">
+                  <label>Additional Comments (Optional)</label>
+                  <textarea
+                    placeholder="Share your experience..."
+                    value={detailedRating.comment}
+                    onChange={(e) => setDetailedRating({...detailedRating, comment: e.target.value})}
+                    className="form-input"
+                    rows="3"
+                  />
+                </div>
+                
+                <div className="rating-summary">
+                  <div className="average-display">
+                    <span>Average Rating: </span>
+                    <strong>
+                      {((detailedRating.overall + detailedRating.cleanliness + 
+                         detailedRating.stocked + detailedRating.availability) / 4).toFixed(1)} 🚽
+                    </strong>
+                  </div>
+                </div>
+                
+                <button
+                  className="form-submit enabled"
+                  onClick={submitDetailedRating}
+                  disabled={detailedRating.overall === 0}
+                >
+                  Submit Rating
+                </button>
               </div>
             </motion.div>
           </motion.div>

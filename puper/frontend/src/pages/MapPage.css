@@ -152,7 +152,6 @@
   }
 }
 
-
 /* Modern Refresh Button */
 .refresh-btn {
   background: rgba(255, 255, 255, 0.9);
@@ -221,7 +220,8 @@
   font-size: 0.9rem;
 }
 
-.status-icon.realtime {
+.status-icon.realtime,
+.status-icon.locating {
   color: var(--psychedelic-lime);
   animation: pulse 2s infinite;
 }
@@ -246,76 +246,6 @@
 .status-text {
   font-family: 'Bebas Neue', cursive;
   font-size: 0.8rem;
-  letter-spacing: 1px;
-  color: var(--cream);
-}
-
-/* Real-time Status Badge - Top Left */
-.realtime-badge {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: var(--wood-grain);
-  background-size: cover;
-  background-position: center;
-  border: 2px solid var(--psychedelic-lime);
-  border-radius: 25px;
-  padding: 0.75rem 1.5rem;
-  box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-lime);
-  z-index: 150;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-.realtime-badge.realtime {
-  border-color: var(--psychedelic-lime);
-  box-shadow: var(--shadow-wood), 0 0 20px var(--psychedelic-lime);
-  animation: pulse-glow 2s infinite;
-}
-
-.realtime-badge.connecting {
-  border-color: var(--psychedelic-pink);
-  box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-pink);
-}
-
-.realtime-badge.error {
-  border-color: #ff4444;
-  box-shadow: var(--shadow-wood), 0 0 15px #ff4444;
-}
-
-.realtime-badge.disconnected {
-  border-color: orange;
-  box-shadow: var(--shadow-wood), 0 0 15px orange;
-}
-
-.realtime-icon {
-  font-size: 1rem;
-  color: var(--psychedelic-lime);
-}
-
-.realtime-badge.realtime .realtime-icon {
-  color: var(--psychedelic-lime);
-}
-
-.realtime-badge.connecting .realtime-icon {
-  color: var(--psychedelic-pink);
-  animation: pulse 1s infinite;
-}
-
-.realtime-badge.error .realtime-icon {
-  color: #ff4444;
-}
-
-.realtime-badge.disconnected .realtime-icon {
-  color: orange;
-}
-
-.realtime-text {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 0.9rem;
-  font-weight: bold;
   letter-spacing: 1px;
   color: var(--cream);
 }
@@ -415,7 +345,8 @@
   z-index: 2000;
 }
 
-.modal-content {
+.modal-content,
+.rating-modal-content {
   background: var(--wood-grain);
   background-size: cover;
   background-position: center;
@@ -426,6 +357,10 @@
   max-width: 500px;
   max-height: 90vh;
   overflow: auto;
+}
+
+.rating-modal-content {
+  max-width: 600px;
 }
 
 .modal-header {
@@ -467,7 +402,8 @@
   transform: scale(1.1);
 }
 
-.modal-body {
+.modal-body,
+.rating-modal-body {
   padding: 2rem;
 }
 
@@ -561,18 +497,94 @@
   border-color: #555;
 }
 
-/* Animations */
-@keyframes pulse-glow {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.05);
-  }
+/* Toilet Rating Selector Styles */
+.toilet-rating-selector {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--psychedelic-purple);
+  border-radius: 10px;
+  transition: all 0.3s ease;
 }
 
+.toilet-rating-selector:hover {
+  border-color: var(--psychedelic-lime);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.toilet-rating-selector label {
+  display: block;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: var(--psychedelic-lime);
+  margin-bottom: 0.75rem;
+}
+
+.toilet-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toilet-icon {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.toilet-icon:hover {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.toilet-icon.active {
+  animation: toilet-bounce 0.3s ease;
+}
+
+@keyframes toilet-bounce {
+  0%, 100% { transform: scale(1.1) rotate(0deg); }
+  50% { transform: scale(1.3) rotate(-5deg); }
+}
+
+/* Rating Comment Section */
+.rating-comment-section {
+  margin-top: 1.5rem;
+}
+
+.rating-comment-section label {
+  display: block;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: var(--psychedelic-lime);
+  margin-bottom: 0.5rem;
+}
+
+/* Rating Summary */
+.rating-summary {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(13, 255, 231, 0.1);
+  border: 2px solid var(--psychedelic-lime);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.average-display {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.2rem;
+  color: var(--cream);
+  letter-spacing: 1px;
+}
+
+.average-display strong {
+  color: var(--psychedelic-lime);
+  font-size: 1.4rem;
+  margin-left: 0.5rem;
+  text-shadow: 0 0 10px var(--psychedelic-lime);
+}
+
+/* Animations */
 @keyframes psychedelic-pulse {
   0%, 100% {
     opacity: 0.1;
@@ -584,15 +596,13 @@
   }
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-  .realtime-badge {
-    top: 0.5rem;
-    left: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
-  }
-
   .search-panel {
     top: 0.5rem;
     right: 0.5rem;
@@ -621,6 +631,15 @@
 
   .stat-label {
     font-size: 0.7rem;
+  }
+  
+  .rating-modal-content {
+    width: 95vw;
+    max-width: none;
+  }
+  
+  .toilet-icons {
+    flex-wrap: wrap;
   }
 }
 
@@ -654,6 +673,14 @@
     flex-direction: column;
     text-align: center;
     min-width: 60px;
+  }
+  
+  .toilet-rating-selector {
+    padding: 0.75rem;
+  }
+  
+  .toilet-icon {
+    font-size: 24px;
   }
 }
 
@@ -702,83 +729,25 @@
   to { transform: rotate(360deg); }
 }
 
-/* Instructions Overlay */
-.instructions-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 3000;
+/* Custom Scrollbar for Modals */
+.modal-content::-webkit-scrollbar,
+.rating-modal-content::-webkit-scrollbar {
+  width: 8px;
 }
 
-.instructions-content {
-  background: var(--wood-grain);
-  background-size: cover;
-  background-position: center;
-  border: 3px solid var(--psychedelic-lime);
-  border-radius: 20px;
-  box-shadow: var(--shadow-wood), 0 0 30px var(--psychedelic-lime);
-  padding: 2rem;
-  max-width: 500px;
-  text-align: center;
+.modal-content::-webkit-scrollbar-track,
+.rating-modal-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
 }
 
-.instructions-content h3 {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 1.8rem;
-  color: var(--psychedelic-lime);
-  margin-bottom: 1.5rem;
-  letter-spacing: 2px;
-}
-
-.instructions-list {
-  text-align: left;
-  margin-bottom: 2rem;
-}
-
-.instructions-list p {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 1.1rem;
-  color: var(--cream);
-  margin: 1rem 0;
-  letter-spacing: 1px;
-  line-height: 1.4;
-}
-
-.instructions-list strong {
-  color: var(--psychedelic-lime);
-}
-
-.instructions-close {
-  background: var(--psychedelic-purple);
-  border: 2px solid var(--psychedelic-pink);
-  color: var(--cream);
-  padding: 1rem 2rem;
-  border-radius: 10px;
-  font-family: 'Bebas Neue', cursive;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-wood);
-}
-
-.instructions-close:hover {
+.modal-content::-webkit-scrollbar-thumb,
+.rating-modal-content::-webkit-scrollbar-thumb {
   background: var(--psychedelic-lime);
-  color: var(--dark-brown);
-  border-color: var(--psychedelic-purple);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-lime);
+  border-radius: 4px;
 }
 
-
-
-
-
-
+.modal-content::-webkit-scrollbar-thumb:hover,
+.rating-modal-content::-webkit-scrollbar-thumb:hover {
+  background: var(--psychedelic-purple);
+}

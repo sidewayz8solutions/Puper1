@@ -50,7 +50,11 @@ const Modal = ({ isOpen, onClose, title, children, size = 'medium' }) => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              {title && <h2 className="modal-title">{title}</h2>}
+              {title && (
+                <h2 className={`modal-title ${(title.includes('Login') || title.includes('Sign Up')) ? 'auth-title' : ''}`}>
+                  {title}
+                </h2>
+              )}
               <button className="modal-close" onClick={onClose}>
                 <FaTimes />
               </button>

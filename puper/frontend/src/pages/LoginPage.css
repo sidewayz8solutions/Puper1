@@ -165,11 +165,15 @@
 }
 
 .auth-tab.active {
-  color: #FFD700;
+  color: white;
   background: linear-gradient(135deg, #8B4513, #654321);
   box-shadow:
     0 4px 12px rgba(139, 69, 19, 0.6),
     0 0 15px rgba(255, 215, 0, 0.3);
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.6),
+    0 0 30px rgba(255, 255, 255, 0.4);
   text-shadow:
     0 0 10px rgba(255, 215, 0, 0.8),
     0 0 20px rgba(255, 215, 0, 0.4);
