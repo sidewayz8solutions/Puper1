@@ -1,4 +1,4 @@
-/* Modern Modal Auth Form Styles */
+/* Toilet-Themed Brown Modal Auth Form Styles */
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -14,32 +14,37 @@
 
 .form-group label {
   font-weight: 600;
-  color: #2d3748;
+  color: #FFD700;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
 
 .form-group input {
   padding: 1rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid rgba(139, 69, 19, 0.4);
   border-radius: 12px;
   font-size: 1rem;
-  background: #f7fafc;
-  color: #2d3748;
+  background: rgba(101, 67, 33, 0.2);
+  color: #F5DEB3;
   transition: all 0.3s ease;
   font-weight: 500;
+  text-shadow: 0 0 5px rgba(245, 222, 179, 0.5);
 }
 
 .form-group input:focus {
-  border-color: #667eea;
-  background: white;
+  border-color: #8B4513;
+  background: rgba(62, 39, 35, 0.4);
   outline: none;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  box-shadow:
+    0 0 0 4px rgba(139, 69, 19, 0.2),
+    0 0 15px rgba(255, 215, 0, 0.2);
 }
 
 .form-group input::placeholder {
-  color: #a0aec0;
+  color: #D2B48C;
   font-weight: 400;
+  text-shadow: 0 0 3px rgba(210, 180, 140, 0.4);
 }
 
 .auth-submit {
@@ -47,18 +52,29 @@
   padding: 1.25rem;
   font-size: 1.1rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  background: linear-gradient(135deg, #8B4513, #654321);
+  color: #FFD700;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  box-shadow:
+    0 8px 24px rgba(139, 69, 19, 0.4),
+    0 0 15px rgba(255, 215, 0, 0.2);
+  text-shadow:
+    0 0 10px rgba(255, 215, 0, 0.8),
+    0 0 20px rgba(255, 215, 0, 0.4);
+  border: 1px solid rgba(255, 215, 0, 0.3);
 }
 
 .auth-submit:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+  box-shadow:
+    0 12px 32px rgba(139, 69, 19, 0.6),
+    0 0 25px rgba(255, 215, 0, 0.4);
+  text-shadow:
+    0 0 15px rgba(255, 215, 0, 1),
+    0 0 25px rgba(255, 215, 0, 0.6);
 }
 
 .auth-submit:disabled {
@@ -73,9 +89,10 @@
 }
 
 .auth-switch p {
-  color: #718096;
+  color: #D2B48C;
   margin: 0;
   font-size: 0.95rem;
+  text-shadow: 0 0 5px rgba(210, 180, 140, 0.5);
 }
 
 .switch-btn {

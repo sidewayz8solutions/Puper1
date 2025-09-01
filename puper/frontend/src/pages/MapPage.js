@@ -315,6 +315,35 @@ const MapPage = () => {
     }
   }, [map, mapLoaded, userLocation]);
 
+  // Add global rating function for info window clicks
+  useEffect(() => {
+    window.rateRestroom = async (restroomId, rating) => {
+      try {
+        console.log(`Rating restroom ${restroomId} with ${rating} toilets`);
+
+        // Here you would typically make an API call to save the rating
+        // For now, we'll just show a confirmation
+        const confirmed = window.confirm(`Rate this restroom ${rating} toilet${rating !== 1 ? 's' : ''}?`);
+
+        if (confirmed) {
+          // TODO: Implement actual rating API call
+          alert(`Thank you for rating this restroom ${rating} toilet${rating !== 1 ? 's' : ''}!`);
+
+          // Optionally refresh the restrooms data to show updated rating
+          // loadRestrooms(userLocation);
+        }
+      } catch (error) {
+        console.error('Error rating restroom:', error);
+        alert('Failed to submit rating. Please try again.');
+      }
+    };
+
+    // Cleanup function
+    return () => {
+      delete window.rateRestroom;
+    };
+  }, [userLocation]);
+
   // Load restrooms function
   const loadRestrooms = async (location = null) => {
     try {
@@ -433,9 +462,27 @@ const MapPage = () => {
         // Info window content with toilet rating system
         const sourceLabel = restroom.source === 'google_places' ? 'Google Places' : 'Community Added';
         const toiletRating = restroom.avg_rating || 0;
-        const toiletIcons = Array(5).fill(0).map((_, i) =>
-          i < Math.round(toiletRating) ? '🚽' : '🚾'
-        ).join('');
+
+        // Create clickable toilet rating system
+        const createClickableToiletRating = (currentRating) => {
+          return Array(5).fill(0).map((_, i) => {
+            const isActive = i < Math.round(currentRating);
+            return `<span
+              style="
+                font-size: 20px;
+                cursor: pointer;
+                margin-right: 2px;
+                transition: all 0.2s ease;
+                display: inline-block;
+                transform: scale(1);
+              "
+              onmouseover="this.style.transform='scale(1.2)'; this.style.textShadow='0 0 10px rgba(255,215,0,0.8)';"
+              onmouseout="this.style.transform='scale(1)'; this.style.textShadow='none';"
+              onclick="window.rateRestroom && window.rateRestroom(${restroom.id}, ${i + 1})"
+              title="Rate ${i + 1} toilet${i !== 0 ? 's' : ''}"
+            >${isActive ? '🚽' : '🚾'}</span>`;
+          }).join('');
+        };
 
         marker.addListener('click', () => {
           if (infoWindow) {
@@ -444,11 +491,16 @@ const MapPage = () => {
                 <h3 style="margin: 0 0 12px 0; color: #2d3748; font-size: 18px; font-weight: 600;">
                   🚽 ${restroom.name}
                 </h3>
-                <div style="margin: 8px 0; padding: 8px; background: #f7fafc; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                  <span style="font-size: 16px;">${toiletIcons}</span>
-                  <span style="color: #4a5568; font-weight: 500; font-size: 14px;">
-                    ${toiletRating.toFixed(1)} toilet${toiletRating !== 1 ? 's' : ''} (${restroom.review_count || 0} reviews)
-                  </span>
+                <div style="margin: 8px 0; padding: 8px; background: #f7fafc; border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span style="font-size: 14px; color: #4a5568; font-weight: 500;">Rate this restroom:</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    ${createClickableToiletRating(toiletRating)}
+                    <span style="color: #4a5568; font-weight: 500; font-size: 14px; margin-left: 8px;">
+                      ${toiletRating.toFixed(1)} toilet${toiletRating !== 1 ? 's' : ''} (${restroom.review_count || 0} reviews)
+                    </span>
+                  </div>
                 </div>
                 <div style="margin: 8px 0; padding: 8px; background: #edf2f7; border-radius: 8px;">
                   <span style="color: ${restroom.wheelchair_accessible ? '#27AE60' : '#E74C3C'}; font-weight: 500; font-size: 12px;">
