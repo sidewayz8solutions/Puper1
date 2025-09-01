@@ -1,0 +1,458 @@
+/* Directions Panel Component */
+
+.directions-panel {
+  background: var(--marble-background);
+  border: 2px solid var(--primary-brown);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 350px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.directions-panel.expanded {
+  width: 450px;
+  max-height: 90vh;
+}
+
+/* Header */
+.directions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary-brown), var(--psychedelic-purple));
+  color: white;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-icon {
+  font-size: 1.25rem;
+}
+
+.header-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-family: 'Bebas Neue', cursive;
+  letter-spacing: 1px;
+}
+
+.destination-name {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+.header-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.expand-button,
+.close-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.expand-button:hover,
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Travel Mode Selector */
+.travel-mode-selector {
+  display: flex;
+  padding: 1rem;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(107, 68, 35, 0.2);
+}
+
+.mode-button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  background: rgba(107, 68, 35, 0.1);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.mode-button:hover {
+  background: rgba(107, 68, 35, 0.2);
+  transform: translateY(-2px);
+}
+
+.mode-button.active {
+  background: var(--mode-color, var(--primary-brown));
+  color: white;
+  border-color: var(--mode-color, var(--primary-brown));
+  box-shadow: var(--shadow);
+}
+
+.mode-button svg {
+  font-size: 1.2rem;
+}
+
+/* Route Summary */
+.route-summary {
+  display: flex;
+  justify-content: space-around;
+  padding: 1rem;
+  background: rgba(111, 2, 214, 0.1);
+  border-bottom: 1px solid rgba(107, 68, 35, 0.2);
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--dark-purple);
+}
+
+.summary-icon {
+  color: var(--psychedelic-purple);
+}
+
+.step-count {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Route Options */
+.route-options {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(107, 68, 35, 0.2);
+}
+
+.route-options h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--primary-brown);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.route-option-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.route-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.route-option:hover {
+  background: rgba(111, 2, 214, 0.1);
+  border-color: var(--psychedelic-purple);
+}
+
+.route-option.active {
+  background: var(--psychedelic-purple);
+  color: white;
+  border-color: var(--psychedelic-purple);
+}
+
+.route-mode {
+  font-size: 1.2rem;
+}
+
+.route-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.route-duration {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.route-distance {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(107, 68, 35, 0.3);
+  border-top: 2px solid var(--primary-brown);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Error State */
+.error-state {
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 2px solid var(--red);
+  border-radius: var(--radius);
+  margin: 1rem;
+  color: var(--red);
+  text-align: center;
+}
+
+.retry-button {
+  background: var(--red);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.retry-button:hover {
+  background: #DC2626;
+  transform: translateY(-1px);
+}
+
+/* Directions Content */
+.directions-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.directions-display {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Google Maps injected styles override */
+.directions-display .adp-summary {
+  background: rgba(111, 2, 214, 0.1) !important;
+  border-radius: var(--radius) !important;
+  padding: 0.75rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.directions-display .adp-substep {
+  padding: 0.5rem 0 !important;
+  border-bottom: 1px solid rgba(107, 68, 35, 0.1) !important;
+}
+
+/* Step Instructions */
+.step-instructions {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid rgba(107, 68, 35, 0.2);
+}
+
+.step-instructions h4 {
+  margin: 0 0 1rem 0;
+  color: var(--primary-brown);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.instruction-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.instruction-step {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(107, 68, 35, 0.1);
+}
+
+.instruction-step:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.step-number {
+  background: var(--primary-brown);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-instruction {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.step-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Action Buttons */
+.directions-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-top: 1px solid rgba(107, 68, 35, 0.2);
+}
+
+.action-button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.action-button.primary {
+  background: linear-gradient(135deg, var(--primary-brown), var(--psychedelic-purple));
+  color: white;
+}
+
+.action-button.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--psychedelic-purple), var(--primary-brown));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.action-button.secondary {
+  background: rgba(111, 2, 214, 0.1);
+  border: 2px solid var(--psychedelic-purple);
+  color: var(--psychedelic-purple);
+}
+
+.action-button.secondary:hover:not(:disabled) {
+  background: var(--psychedelic-purple);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .directions-panel {
+    width: 100%;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+
+  .directions-panel.expanded {
+    width: 100%;
+  }
+
+  .travel-mode-selector {
+    flex-wrap: wrap;
+  }
+
+  .mode-button {
+    min-width: calc(50% - 0.25rem);
+  }
+
+  .route-summary {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .directions-header {
+    padding: 0.75rem;
+  }
+
+  .header-info h3 {
+    font-size: 1rem;
+  }
+
+  .travel-mode-selector {
+    padding: 0.75rem;
+  }
+
+  .mode-button {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.7rem;
+  }
+
+  .directions-content {
+    padding: 0.75rem;
+  }
+
+  .directions-actions {
+    padding: 0.75rem;
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "appId": "com.sidewayz8.puper",
+  "appName": "Puper",
+  "webDir": "build",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#005847",
+      "showSpinner": false
+    }
+  }
+}

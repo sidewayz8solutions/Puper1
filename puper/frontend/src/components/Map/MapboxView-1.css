@@ -1,0 +1,169 @@
+.mapbox-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.geocoder-container {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  width: 90%;
+  max-width: 400px;
+}
+
+.mapboxgl-ctrl-geocoder {
+  max-width: none !important;
+  width: 100%;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow) !important;
+  border: 2px solid var(--psychedelic-cyan) !important;
+}
+
+.mapboxgl-ctrl-geocoder input {
+  background: var(--cream) !important;
+  color: var(--dark-brown) !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.custom-marker {
+  width: 40px;
+  height: 40px;
+  border-radius: 50% 50% 50% 0;
+  position: relative;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: var(--transition);
+  border: 3px solid white;
+}
+
+.custom-marker:hover {
+  transform: rotate(-45deg) scale(1.1);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+.marker-icon {
+  transform: rotate(45deg);
+  font-size: 18px;
+  color: white;
+}
+
+.marker-pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50% 50% 50% 0;
+  animation: pulse 2s infinite;
+  background: inherit;
+  opacity: 0.5;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.restroom-popup .mapboxgl-popup-content {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 0;
+  min-width: 250px;
+  border: 2px solid var(--psychedelic-cyan);
+}
+
+.popup-content {
+  padding: 1rem;
+}
+
+.popup-content h3 {
+  color: var(--primary-brown);
+  margin-bottom: 0.5rem;
+  font-size: 1.125rem;
+}
+
+.popup-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--dark-brown);
+}
+
+.popup-amenities {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  color: var(--primary-brown);
+}
+
+.popup-directions-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--wood-grain);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.popup-directions-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.mapboxgl-ctrl-attrib {
+  display: none !important;
+}
+
+/* Direction controls styling */
+.mapboxgl-directions-control {
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.mapboxgl-ctrl-directions {
+  background: white !important;
+  border: 2px solid var(--psychedelic-cyan) !important;
+}
+
+/* Geolocate control pulse */
+.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-active {
+  color: var(--psychedelic-cyan) !important;
+}
+
+.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-active:not(.mapboxgl-ctrl-geolocate-active-error) {
+  color: var(--success-green) !important;
+}
+
+/* Navigation controls */
+.mapboxgl-ctrl-nav-compass {
+  background: var(--cream) !important;
+}
+
+.mapboxgl-ctrl button {
+  transition: var(--transition);
+}
+
+.mapboxgl-ctrl button:hover {
+  background: var(--psychedelic-cyan) !important;
+  color: white !important;
+}
