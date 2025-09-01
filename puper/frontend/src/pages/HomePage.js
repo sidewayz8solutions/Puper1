@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaWheelchair, FaShieldAlt, FaGlobe } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaWheelchair, FaShieldAlt, FaGlobe, FaStar } from 'react-icons/fa';
 import paperBg from '../assets/images/wood.png';
 import heroVideo from '../assets/images/hero-video.mp4';
 import './Homepage.css';
