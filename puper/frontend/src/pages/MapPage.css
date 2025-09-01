@@ -765,6 +765,39 @@
   cursor: crosshair !important;
 }
 
+/* Clickable map cursor */
+.map-container:not(.add-mode) {
+  cursor: pointer;
+}
+
+.map-container:not(.add-mode):hover::after {
+  content: '🚽 Click to add restroom';
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--psychedelic-lime);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 1000;
+  pointer-events: none;
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 /* Loading Overlay */
 .loading-overlay {
   position: fixed;

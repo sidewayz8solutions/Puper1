@@ -33,6 +33,8 @@ const MapPage = () => {
   const [loading, setLoading] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [showAddConfirmation, setShowAddConfirmation] = useState(false);
+  const [pendingLocation, setPendingLocation] = useState(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingRestroomId, setRatingRestroomId] = useState(null);
   const [detailedRating, setDetailedRating] = useState({
@@ -274,22 +276,29 @@ const MapPage = () => {
 
   // Handle map click
   const handleMapClick = (event) => {
-    // Only handle clicks when in add mode
-    if (!addMode) return;
-
-    setAddLocation({
+    const clickLocation = {
       lat: event.latLng.lat(),
       lng: event.latLng.lng()
-    });
+    };
 
-    // Clear any existing temporary markers
-    if (window.tempMarker) {
-      window.tempMarker.setMap(null);
+    // If in add mode, handle the click for adding restroom
+    if (addMode) {
+      setAddLocation(clickLocation);
+
+      // Clear any existing temporary markers
+      if (window.tempMarker) {
+        window.tempMarker.setMap(null);
+      }
+    } else {
+      // If not in add mode, show a confirmation modal to add restroom at this location
+      setPendingLocation(clickLocation);
+      setShowAddConfirmation(true);
+      return; // Don't create marker yet, wait for confirmation
     }
 
     // Add temporary marker with cyan toilet icon for new location
     window.tempMarker = new window.google.maps.Marker({
-      position: event.latLng,
+      position: { lat: clickLocation.lat, lng: clickLocation.lng },
       map: googleMapRef.current,
       icon: {
         url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
@@ -395,6 +404,52 @@ const MapPage = () => {
       delete window.rateRestroom;
     };
   }, [userLocation]);
+
+  // Handle add restroom confirmation
+  const handleConfirmAddRestroom = () => {
+    if (pendingLocation) {
+      setAddLocation(pendingLocation);
+      setAddMode(true);
+      setShowAddForm(true);
+      setShowAddConfirmation(false);
+      setPendingLocation(null);
+
+      // Clear any existing temporary markers
+      if (window.tempMarker) {
+        window.tempMarker.setMap(null);
+      }
+
+      // Add temporary marker with cyan toilet icon for new location
+      window.tempMarker = new window.google.maps.Marker({
+        position: { lat: pendingLocation.lat, lng: pendingLocation.lng },
+        map: googleMapRef.current,
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="50" height="60" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
+              <!-- Drop shadow -->
+              <ellipse cx="25" cy="57" rx="10" ry="3" fill="rgba(0,0,0,0.4)"/>
+              <!-- Main marker body (cyan) -->
+              <path d="M25 3C15.1 3 7 11.1 7 21c0 18 18 36 18 36s18-18 18-36C43 11.1 34.9 3 25 3z"
+                    fill="#0dffe7" stroke="#00bfa5" stroke-width="2"/>
+              <!-- Inner white circle -->
+              <circle cx="25" cy="21" r="13" fill="white" stroke="#00bfa5" stroke-width="1.5"/>
+              <!-- Plus icon for new restroom -->
+              <text x="25" y="28" text-anchor="middle" fill="#00bfa5" font-size="24" font-weight="bold">+</text>
+            </svg>
+          `),
+          scaledSize: new window.google.maps.Size(50, 60),
+          anchor: new window.google.maps.Point(25, 60)
+        },
+        title: 'New Restroom Location',
+        animation: window.google.maps.Animation.DROP
+      });
+    }
+  };
+
+  const handleCancelAddRestroom = () => {
+    setShowAddConfirmation(false);
+    setPendingLocation(null);
+  };
 
   // Load restrooms function
   const loadRestrooms = async (location = null) => {
@@ -913,6 +968,89 @@ const MapPage = () => {
               <FaMapMarkerAlt className="instructions-icon" />
               <span>Click anywhere on the map to place a new restroom!</span>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Add Restroom Confirmation Modal */}
+      <AnimatePresence>
+        {showAddConfirmation && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleCancelAddRestroom}
+          >
+            <motion.div
+              className="modal-content"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                maxWidth: '400px',
+                padding: '2rem',
+                textAlign: 'center'
+              }}
+            >
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚽</div>
+                <h3 style={{
+                  color: 'var(--psychedelic-lime)',
+                  fontFamily: 'Bebas Neue, cursive',
+                  fontSize: '1.5rem',
+                  letterSpacing: '2px',
+                  marginBottom: '0.5rem'
+                }}>
+                  Add Restroom Here?
+                </h3>
+                <p style={{
+                  color: 'var(--psychedelic-lime)',
+                  fontSize: '1rem',
+                  opacity: 0.8
+                }}>
+                  Would you like to add a new restroom at this location?
+                </p>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                gap: '1rem',
+                justifyContent: 'center'
+              }}>
+                <button
+                  onClick={handleCancelAddRestroom}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: 'transparent',
+                    border: '2px solid var(--psychedelic-pink)',
+                    borderRadius: '12px',
+                    color: 'var(--psychedelic-pink)',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmAddRestroom}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: 'linear-gradient(135deg, var(--psychedelic-lime), var(--psychedelic-cyan))',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: 'black',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  Yes, Add Restroom
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
