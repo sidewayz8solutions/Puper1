@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FaToilet, FaMapMarkerAlt, FaStar, FaUsers, FaPlus, FaWheelchair, FaShieldAlt, FaMobile, FaGlobe } from 'react-icons/fa';
-import woodBg from '../assets/images/wood5.png';
+import { FaToilet, FaMapMarkerAlt, FaStar, FaUsers, FaWheelchair, FaShieldAlt, FaGlobe } from 'react-icons/fa';
 import marbleBg from '../assets/images/marble-hero-bg.png';
 import paperBg from '../assets/images/wood.png';
 import heroVideo from '../assets/images/hero-video.mp4';
@@ -83,51 +82,41 @@ const HomePage = () => {
         {/* Hero Content - Only Buttons */}
         <div className="hero-content-minimal">
 
-          <motion.div 
-            className="hero-buttons"
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+          <motion.div
+            className="hero-globe-container"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6, type: "spring" }}
           >
-            <button
-              className="hero-cta-button primary-cta"
+            <motion.div
+              className="interactive-globe"
               onClick={() => navigate('/map')}
-              style={{
-                background: '#4B0082',
-                border: '2px solid #8A2BE2',
-                padding: '1rem 2rem',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                borderRadius: '50px',
-                boxShadow: '0 4px 15px rgba(75, 0, 130, 0.4)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                transition: 'all 0.3s ease'
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
+              animate={{
+                rotate: [0, 360],
+                boxShadow: [
+                  '0 0 20px rgba(0, 255, 255, 0.5)',
+                  '0 0 40px rgba(255, 0, 255, 0.5)',
+                  '0 0 20px rgba(0, 255, 255, 0.5)'
+                ]
+              }}
+              transition={{
+                rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" }
               }}
             >
-              <FaMapMarkerAlt /> Find Restrooms Near Me
-            </button>
-            <button
-              className="hero-cta-button secondary-cta"
-              onClick={() => navigate('/map?add=true')}
-              style={{
-                background: 'rgba(255, 255, 255, 0.9)',
-                border: '2px solid #4B0082',
-                color: '#4B0082',
-                padding: '1rem 2rem',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                borderRadius: '50px',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                transition: 'all 0.3s ease'
-              }}
+              <FaGlobe />
+              <div className="globe-pulse"></div>
+            </motion.div>
+            <motion.p
+              className="globe-text"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2 }}
             >
-              <FaPlus /> Add a Restroom
-            </button>
+              Click to explore restrooms worldwide
+            </motion.p>
           </motion.div>
         </div>
 
@@ -242,51 +231,74 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="cta-section" style={{ background: `url(${woodBg})`, backgroundSize: 'cover' }}>
-        <motion.div
-          className="cta-content"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          <h2>Ready to Find Your Next Stop?</h2>
-          <p>Join thousands of users who never worry about finding a clean restroom again</p>
-          <div className="cta-buttons">
-            <button 
-              className="btn-cta-primary"
+      {/* Community Impact Section */}
+      <section className="community-section">
+        <div className="community-container">
+          <motion.div
+            className="community-content"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="community-title">Join Our Growing Community</h2>
+            <p className="community-subtitle">Making restroom access easier for everyone, everywhere</p>
+
+            <div className="impact-grid">
+              <motion.div
+                className="impact-card"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                whileHover={{ scale: 1.05, rotate: 2 }}
+              >
+                <div className="impact-icon">🌍</div>
+                <h3>Global Reach</h3>
+                <p>Connecting restroom seekers across continents</p>
+              </motion.div>
+
+              <motion.div
+                className="impact-card"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+                whileHover={{ scale: 1.05, rotate: -2 }}
+              >
+                <div className="impact-icon">🤝</div>
+                <h3>Community Driven</h3>
+                <p>Built by users, for users, with love</p>
+              </motion.div>
+
+              <motion.div
+                className="impact-card"
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6 }}
+                whileHover={{ scale: 1.05, rotate: 2 }}
+              >
+                <div className="impact-icon">✨</div>
+                <h3>Always Improving</h3>
+                <p>Constantly evolving with new features</p>
+              </motion.div>
+            </div>
+
+            <motion.button
+              className="community-cta"
               onClick={() => navigate('/map')}
-              style={{
-                background: '#4B0082',
-                color: 'white',
-                padding: '1.2rem 2.5rem',
-                fontSize: '1.2rem',
-                border: '2px solid #8A2BE2',
-                borderRadius: '10px',
-                fontWeight: 'bold',
-                boxShadow: '0 6px 20px rgba(75, 0, 130, 0.4)'
-              }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.8, type: "spring" }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <FaGlobe /> Explore Map
-            </button>
-            <button 
-              className="btn-cta-secondary"
-              onClick={() => navigate('/login')}
-              style={{
-                background: 'white',
-                color: '#4B0082',
-                padding: '1.2rem 2.5rem',
-                fontSize: '1.2rem',
-                border: '2px solid #4B0082',
-                borderRadius: '10px',
-                fontWeight: 'bold',
-                boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)'
-              }}
-            >
-              <FaMobile /> Get Started Free
-            </button>
-          </div>
-        </motion.div>
+              <FaGlobe /> Start Your Journey
+            </motion.button>
+          </motion.div>
+        </div>
       </section>
 
       {/* Footer */}
