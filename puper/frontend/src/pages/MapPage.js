@@ -42,6 +42,13 @@ const MapPage = () => {
     availability: 0,
     comment: ''
   });
+  const [newRestroomRating, setNewRestroomRating] = useState({
+    overall: 0,
+    cleanliness: 0,
+    stocked: 0,
+    availability: 0,
+    comment: ''
+  });
   
   // Stats
   const [stats, setStats] = useState({
@@ -280,7 +287,7 @@ const MapPage = () => {
       window.tempMarker.setMap(null);
     }
 
-    // Add temporary marker with brown toilet icon
+    // Add temporary marker with cyan toilet icon for new location
     window.tempMarker = new window.google.maps.Marker({
       position: event.latLng,
       map: googleMapRef.current,
@@ -289,7 +296,7 @@ const MapPage = () => {
           <svg width="50" height="60" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
             <!-- Drop shadow -->
             <ellipse cx="25" cy="57" rx="10" ry="3" fill="rgba(0,0,0,0.4)"/>
-            <!-- Main marker body (brown) -->
+            <!-- Main marker body (cyan) -->
             <path d="M25 3C15.1 3 7 11.1 7 21c0 18 18 36 18 36s18-18 18-36C43 11.1 34.9 3 25 3z"
                   fill="#0dffe7" stroke="#00bfa5" stroke-width="2"/>
             <!-- Inner white circle -->
@@ -301,7 +308,7 @@ const MapPage = () => {
         scaledSize: new window.google.maps.Size(50, 60),
         anchor: new window.google.maps.Point(25, 57)
       },
-      title: 'Click to add restroom here',
+      title: 'New restroom location',
       animation: window.google.maps.Animation.BOUNCE
     });
 
@@ -311,6 +318,11 @@ const MapPage = () => {
         window.tempMarker.setAnimation(null);
       }
     }, 2000);
+
+    // Reset cursor to normal
+    if (googleMapRef.current) {
+      googleMapRef.current.setOptions({ draggableCursor: null });
+    }
 
     setShowAddForm(true);
   };
@@ -652,6 +664,10 @@ const MapPage = () => {
         return;
       }
 
+      // Calculate average rating from the new restroom ratings
+      const avgRating = (newRestroomRating.overall + newRestroomRating.cleanliness + 
+                        newRestroomRating.stocked + newRestroomRating.availability) / 4;
+
       const newRestroom = await restroomService.createWithLocation({
         name: data.name,
         lat: data.lat,
@@ -661,14 +677,29 @@ const MapPage = () => {
         baby_changing: false,
         gender_neutral: false,
         requires_fee: false,
-        verified: false
+        verified: false,
+        avg_rating: avgRating,
+        overall_rating: newRestroomRating.overall,
+        cleanliness_rating: newRestroomRating.cleanliness,
+        stocked_rating: newRestroomRating.stocked,
+        availability_rating: newRestroomRating.availability,
+        rating_comment: newRestroomRating.comment,
+        review_count: avgRating > 0 ? 1 : 0
       });
 
-      console.log('✅ Restroom created:', newRestroom);
+      console.log('✅ Restroom created with rating:', newRestroom);
 
+      // Reset states
       setShowAddForm(false);
       setAddMode(false);
       setAddLocation(null);
+      setNewRestroomRating({
+        overall: 0,
+        cleanliness: 0,
+        stocked: 0,
+        availability: 0,
+        comment: ''
+      });
 
       if (window.tempMarker) {
         window.tempMarker.setMap(null);
@@ -678,7 +709,7 @@ const MapPage = () => {
       // Reload restrooms to include the new one
       loadRestrooms(userLocation);
 
-      alert('Restroom added successfully!');
+      alert(`Restroom added successfully with rating: ${avgRating.toFixed(1)} 🚽!`);
     } catch (error) {
       console.error('❌ Error adding restroom:', error);
       alert(`Failed to add restroom: ${error.message}`);
@@ -775,6 +806,13 @@ const MapPage = () => {
                   setAddMode(false);
                   setShowAddForm(false);
                   setAddLocation(null);
+                  setNewRestroomRating({
+                    overall: 0,
+                    cleanliness: 0,
+                    stocked: 0,
+                    availability: 0,
+                    comment: ''
+                  });
                   if (window.tempMarker) {
                     window.tempMarker.setMap(null);
                     window.tempMarker = null;
@@ -782,14 +820,33 @@ const MapPage = () => {
                 } else {
                   // Enter add mode
                   setAddMode(true);
-                  alert('Click anywhere on the map to add a new restroom!');
+                  setShowInstructions(true);
+                  
+                  // Show instructions briefly
+                  setTimeout(() => {
+                    setShowInstructions(false);
+                  }, 3000);
+                  
+                  // Change cursor to crosshair
+                  if (googleMapRef.current) {
+                    googleMapRef.current.setOptions({ draggableCursor: 'crosshair' });
+                  }
                 }
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <FaPlus />
-              <span>{addMode ? 'Cancel Adding' : 'Add Restroom'}</span>
+              {addMode ? (
+                <>
+                  <FaTimes />
+                  <span>Cancel Adding</span>
+                </>
+              ) : (
+                <>
+                  <FaPlus />
+                  <span>Add Restroom</span>
+                </>
+              )}
             </motion.button>
             <motion.button
               className="refresh-btn"
@@ -842,6 +899,24 @@ const MapPage = () => {
         </motion.div>
       </div>
 
+      {/* Instructions Overlay */}
+      <AnimatePresence>
+        {showInstructions && addMode && (
+          <motion.div
+            className="instructions-toast"
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="instructions-content-toast">
+              <FaMapMarkerAlt className="instructions-icon" />
+              <span>Click anywhere on the map to place a new restroom!</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Add Restroom Modal */}
       <AnimatePresence>
         {showAddForm && (
@@ -854,14 +929,25 @@ const MapPage = () => {
               setShowAddForm(false);
               setAddMode(false);
               setAddLocation(null);
+              setNewRestroomRating({
+                overall: 0,
+                cleanliness: 0,
+                stocked: 0,
+                availability: 0,
+                comment: ''
+              });
               if (window.tempMarker) {
                 window.tempMarker.setMap(null);
                 window.tempMarker = null;
               }
+              // Reset cursor
+              if (googleMapRef.current) {
+                googleMapRef.current.setOptions({ draggableCursor: null });
+              }
             }}
           >
             <motion.div
-              className="modal-content"
+              className="add-restroom-modal-content"
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
@@ -870,16 +956,27 @@ const MapPage = () => {
             >
               <div className="modal-header">
                 <FaPlus className="modal-icon" />
-                <span>Add New Restroom</span>
+                <span>Add & Rate New Restroom</span>
                 <button
                   className="close-btn"
                   onClick={() => {
                     setShowAddForm(false);
                     setAddMode(false);
                     setAddLocation(null);
+                    setNewRestroomRating({
+                      overall: 0,
+                      cleanliness: 0,
+                      stocked: 0,
+                      availability: 0,
+                      comment: ''
+                    });
                     if (window.tempMarker) {
                       window.tempMarker.setMap(null);
                       window.tempMarker = null;
+                    }
+                    // Reset cursor
+                    if (googleMapRef.current) {
+                      googleMapRef.current.setOptions({ draggableCursor: null });
                     }
                   }}
                 >
@@ -895,7 +992,7 @@ const MapPage = () => {
                   </div>
                 ) : (
                   <p className="modal-instruction">
-                    Please click on the map to select a location first.
+                    Click anywhere on the map to place your restroom!
                   </p>
                 )}
                 <form onSubmit={(e) => {
@@ -912,7 +1009,7 @@ const MapPage = () => {
                   <input
                     type="text"
                     name="name"
-                    placeholder="Restroom name..."
+                    placeholder="Restroom name (e.g., Starbucks on Main St)..."
                     required
                     className="form-input"
                   />
@@ -920,18 +1017,78 @@ const MapPage = () => {
                     name="description"
                     placeholder="Description (optional)..."
                     className="form-input"
-                    rows="3"
+                    rows="2"
                   />
+                  
+                  <div className="rating-section">
+                    <h3 style={{ 
+                      color: 'var(--psychedelic-lime)', 
+                      fontFamily: 'Bebas Neue, cursive',
+                      letterSpacing: '1px',
+                      marginBottom: '1rem',
+                      textAlign: 'center'
+                    }}>
+                      Rate This Restroom
+                    </h3>
+                    
+                    <ToiletRatingSelector
+                      label="Overall Experience"
+                      value={newRestroomRating.overall}
+                      onChange={(value) => setNewRestroomRating({...newRestroomRating, overall: value})}
+                    />
+                    
+                    <ToiletRatingSelector
+                      label="Cleanliness"
+                      value={newRestroomRating.cleanliness}
+                      onChange={(value) => setNewRestroomRating({...newRestroomRating, cleanliness: value})}
+                    />
+                    
+                    <ToiletRatingSelector
+                      label="Stocked (Paper, Soap, etc.)"
+                      value={newRestroomRating.stocked}
+                      onChange={(value) => setNewRestroomRating({...newRestroomRating, stocked: value})}
+                    />
+                    
+                    <ToiletRatingSelector
+                      label="Availability (Not Busy/Closed)"
+                      value={newRestroomRating.availability}
+                      onChange={(value) => setNewRestroomRating({...newRestroomRating, availability: value})}
+                    />
+                    
+                    <textarea
+                      placeholder="Additional notes about this restroom..."
+                      value={newRestroomRating.comment}
+                      onChange={(e) => setNewRestroomRating({...newRestroomRating, comment: e.target.value})}
+                      className="form-input"
+                      rows="2"
+                      style={{ marginTop: '1rem' }}
+                    />
+                    
+                    {(newRestroomRating.overall > 0 || newRestroomRating.cleanliness > 0 || 
+                      newRestroomRating.stocked > 0 || newRestroomRating.availability > 0) && (
+                      <div className="rating-summary" style={{ marginTop: '1rem' }}>
+                        <div className="average-display">
+                          <span>Average Rating: </span>
+                          <strong>
+                            {((newRestroomRating.overall + newRestroomRating.cleanliness + 
+                               newRestroomRating.stocked + newRestroomRating.availability) / 4).toFixed(1)} 🚽
+                          </strong>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
                   <label className="form-checkbox">
                     <input type="checkbox" name="accessible" />
-                    <span>Wheelchair Accessible</span>
+                    <span>♿ Wheelchair Accessible</span>
                   </label>
+                  
                   <button
                     type="submit"
                     disabled={!addLocation}
                     className={`form-submit ${addLocation ? 'enabled' : 'disabled'}`}
                   >
-                    {addLocation ? 'Add Restroom' : 'Select location on map'}
+                    {addLocation ? 'Add & Rate Restroom' : 'Select location on map first'}
                   </button>
                 </form>
               </div>
