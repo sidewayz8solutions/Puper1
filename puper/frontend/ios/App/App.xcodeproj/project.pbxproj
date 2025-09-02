@@ -246,11 +246,7 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-				"$(SRCROOT)/newInputFile.xcfilelist",
-			);
 			inputPaths = (
-				"$(SRCROOT)/newInputFile",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (

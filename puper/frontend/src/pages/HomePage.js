@@ -1,109 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaWheelchair, FaShieldAlt, FaStar, FaRoad, FaGasPump, FaCar } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import heroVideo from '../assets/images/hero-video.mp4';
 import './Homepage.css';
 
-const HomePage = () => {
-  const navigate = useNavigate();
-  const [activeFeature, setActiveFeature] = useState(0);
-  
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width = 200;
-    const height = canvas.height = 200;
-    
-    let rotation = 0;
-    const dots = [];
-    const dotCount = 200;
-    
-    // Generate random points on sphere
-    for (let i = 0; i < dotCount; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      dots.push({
-        x: Math.sin(phi) * Math.cos(theta),
-        y: Math.sin(phi) * Math.sin(theta),
-        z: Math.cos(phi)
-      });
-    }
-    
-    const draw = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      ctx.fillRect(0, 0, width, height);
-      
-      // Sort dots by z-index for proper layering
-      const projected = dots.map(dot => {
-        const x = dot.x * Math.cos(rotation) - dot.z * Math.sin(rotation);
-        const z = dot.x * Math.sin(rotation) + dot.z * Math.cos(rotation);
-        
-        const scale = 200 / (200 + z * 100);
-        const x2d = x * scale * 60 + width / 2;
-        const y2d = dot.y * scale * 60 + height / 2;
-        const alpha = Math.max(0.1, (z + 1) / 2);
-        
-        return { x: x2d, y: y2d, scale, alpha, z };
-      }).sort((a, b) => a.z - b.z);
-      
-      // Draw connections
-      ctx.strokeStyle = isHovered ? 'rgba(13, 255, 231, 0.3)' : 'rgba(147, 51, 234, 0.2)';
-      ctx.lineWidth = 0.5;
-      
-      projected.forEach((dot, i) => {
-        projected.slice(i + 1).forEach(otherDot => {
-          const distance = Math.sqrt(
-            Math.pow(dot.x - otherDot.x, 2) + 
-            Math.pow(dot.y - otherDot.y, 2)
-          );
-          
-          if (distance < 30) {
-            ctx.beginPath();
-            ctx.moveTo(dot.x, dot.y);
-            ctx.lineTo(otherDot.x, otherDot.y);
-            ctx.stroke();
-          }
-        });
-      });
-      
-      // Draw dots
-      projected.forEach(dot => {
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.scale * 2, 0, Math.PI * 2);
-        ctx.fillStyle = isHovered 
-          ? `rgba(13, 255, 231, ${dot.alpha})`
-          : `rgba(147, 51, 234, ${dot.alpha})`;
-        ctx.fill();
-      });
-      
-      rotation += isHovered ? 0.015 : 0.005;
-      animationRef.current = requestAnimationFrame(draw);
-    };
-    
-    draw();
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [isHovered]);
-  
+const GlobeButton = () => {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <Link to="/map" className="globe-link">
-      <motion.div 
+      <motion.div
         className="interactive-globe-container"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onHoverStart={() => setIsHovered(true)}
         onHoverEnd={() => setIsHovered(false)}
       >
-        <canvas ref={canvasRef} className="globe-canvas" />
-        <div className="globe-glow" />
-        <motion.div 
+        <div className="globe-sphere">
+          <div className="globe-surface">
+            <div className="continent continent-1"></div>
+            <div className="continent continent-2"></div>
+            <div className="continent continent-3"></div>
+            <div className="continent continent-4"></div>
+            <div className="continent continent-5"></div>
+          </div>
+          <div className="globe-atmosphere"></div>
+        </div>
+        <motion.div
           className="globe-label"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: isHovered ? 1 : 0.7, y: isHovered ? 0 : 10 }}
@@ -141,20 +64,20 @@ const HomePage = () => {
             zIndex: 0
           }}
         >
-          <source src="/assets/images/hero-video.mp4" type="video/mp4" />
+          <source src={heroVideo} type="video/mp4" />
         </video>
         
         {/* Video overlay for better contrast */}
         <div className="video-overlay" />
         
-        {/* Interactive Globe - Only element in hero */}
-        <motion.div 
-          className="hero-content"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: videoLoaded ? 1 : 0, scale: videoLoaded ? 1 : 0.8 }}
+        {/* Interactive Globe - Top left corner */}
+        <motion.div
+          className="hero-globe-container"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: videoLoaded ? 1 : 0, x: videoLoaded ? 0 : -50 }}
           transition={{ duration: 1, delay: 0.5 }}
         >
-          <InteractiveGlobe />
+          <GlobeButton />
         </motion.div>
       </section>
       

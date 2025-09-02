@@ -48,6 +48,13 @@
   height: 100%;
 }
 
+.hero-globe-container {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  z-index: 3;
+}
+
 /* Interactive Globe */
 .globe-link {
   text-decoration: none;
@@ -56,8 +63,8 @@
 
 .interactive-globe-container {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 120px;
+  height: 120px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -65,34 +72,102 @@
   justify-content: center;
 }
 
-.globe-canvas {
-  width: 200px;
-  height: 200px;
+.globe-sphere {
+  position: relative;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: transparent;
+  background: linear-gradient(135deg,
+    #1e40af 0%,
+    #3b82f6 25%,
+    #60a5fa 50%,
+    #93c5fd 75%,
+    #dbeafe 100%);
+  box-shadow:
+    inset -10px -10px 20px rgba(0, 0, 0, 0.3),
+    inset 5px 5px 10px rgba(255, 255, 255, 0.1),
+    0 10px 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: rotate 20s linear infinite;
 }
 
-.globe-glow {
+.globe-surface {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 250px;
-  height: 250px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(147, 51, 234, 0.3) 0%, transparent 70%);
-  animation: pulse 3s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.continent {
+  position: absolute;
+  background: #22c55e;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+.continent-1 {
+  width: 20px;
+  height: 15px;
+  top: 15px;
+  left: 10px;
+  border-radius: 60% 40% 30% 70%;
+}
+
+.continent-2 {
+  width: 15px;
+  height: 12px;
+  top: 25px;
+  right: 8px;
+  border-radius: 40% 60% 70% 30%;
+}
+
+.continent-3 {
+  width: 18px;
+  height: 10px;
+  bottom: 20px;
+  left: 15px;
+  border-radius: 50% 50% 80% 20%;
+}
+
+.continent-4 {
+  width: 12px;
+  height: 8px;
+  bottom: 15px;
+  right: 12px;
+  border-radius: 70% 30% 50% 50%;
+}
+
+.continent-5 {
+  width: 8px;
+  height: 6px;
+  top: 35px;
+  left: 35px;
+  border-radius: 50%;
+}
+
+.globe-atmosphere {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    transparent 70%);
   pointer-events: none;
 }
 
-@keyframes pulse {
-  0%, 100% { 
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.5;
+@keyframes rotate {
+  from {
+    transform: rotateY(0deg);
   }
-  50% { 
-    transform: translate(-50%, -50%) scale(1.2);
-    opacity: 0.8;
+  to {
+    transform: rotateY(360deg);
   }
 }
 
