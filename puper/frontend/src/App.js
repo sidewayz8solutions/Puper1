@@ -23,8 +23,7 @@ function AppContent() {
 
   return (
     <div className="App">
-      {/* Psychedelic background animations */}
-      <div className="psychedelic-bg"></div>
+      {/* Clean iOS app - no overlays */}
 
       {!isMapPage && <Header />}
       <main className={`main-content ${isMapPage ? 'map-fullscreen' : ''}`}>
