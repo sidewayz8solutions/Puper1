@@ -10,7 +10,7 @@ import HomePage from './pages/HomePage';
 import MapPage from './pages/MapPage';
 import ProfilePage from './pages/ProfilePage';
 import LeaderboardPage from './pages/LeaderboardPage';
-import AboutPage from './pages/AboutPage';
+
 import ConnectionTest from './components/Debug/ConnectionTest';
 import GeospatialTest from './components/Debug/GeospatialTest';
 import './App.css';
@@ -32,7 +32,7 @@ function AppContent() {
           <Route path="/map" element={<MapPage />} />
           <Route path="/profile/:id?" element={<ProfilePage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
-          <Route path="/about" element={<AboutPage />} />
+
           <Route path="/test" element={<ConnectionTest />} />
           <Route path="/geospatial" element={<GeospatialTest />} />
         </Routes>

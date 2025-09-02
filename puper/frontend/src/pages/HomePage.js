@@ -1,13 +1,13 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import './HomePage.css';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { FaMapMarkerAlt, FaWheelchair, FaShieldAlt, FaStar, FaRoad, FaGasPump, FaCar } from 'react-icons/fa';
+import heroVideo from '../assets/images/hero-video.mp4';
+import './Homepage.css';
 
-// Interactive 3D Globe Component
-const InteractiveGlobe = () => {
-  const canvasRef = useRef(null);
-  const [isHovered, setIsHovered] = useState(false);
-  const animationRef = useRef(null);
+const HomePage = () => {
+  const navigate = useNavigate();
+  const [activeFeature, setActiveFeature] = useState(0);
   
   useEffect(() => {
     const canvas = canvasRef.current;
