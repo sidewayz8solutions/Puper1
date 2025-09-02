@@ -15,6 +15,27 @@
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */; };
+		AFA8337A2E66D7FB00B2008B /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833792E66D7FB00B2008B /* Algorithms */; };
+		AFA8337D2E66D82D00B2008B /* BitCollections in Frameworks */ = {isa = PBXBuildFile; productRef = AFA8337C2E66D82D00B2008B /* BitCollections */; };
+		AFA8337F2E66D82D00B2008B /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = AFA8337E2E66D82D00B2008B /* Collections */; };
+		AFA833812E66D82D00B2008B /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833802E66D82D00B2008B /* DequeModule */; };
+		AFA833832E66D82D00B2008B /* HashTreeCollections in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833822E66D82D00B2008B /* HashTreeCollections */; };
+		AFA833852E66D82D00B2008B /* HeapModule in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833842E66D82D00B2008B /* HeapModule */; };
+		AFA833882E66D84900B2008B /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833872E66D84900B2008B /* ArgumentParser */; };
+		AFA8338A2E66D84900B2008B /* generate-docc-reference in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833892E66D84900B2008B /* generate-docc-reference */; };
+		AFA8338C2E66D84900B2008B /* generate-manual in Frameworks */ = {isa = PBXBuildFile; productRef = AFA8338B2E66D84900B2008B /* generate-manual */; };
+		AFA8338F2E66D87300B2008B /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = AFA8338E2E66D87300B2008B /* AsyncAlgorithms */; };
+		AFA833922E66D9CE00B2008B /* X509 in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833912E66D9CE00B2008B /* X509 */; };
+		AFA833952E66DA0900B2008B /* NIO in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833942E66DA0900B2008B /* NIO */; };
+		AFA833972E66DA0900B2008B /* NIOConcurrencyHelpers in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833962E66DA0900B2008B /* NIOConcurrencyHelpers */; };
+		AFA833992E66DA0900B2008B /* NIOCore in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833982E66DA0900B2008B /* NIOCore */; };
+		AFA8339B2E66DA0900B2008B /* NIOEmbedded in Frameworks */ = {isa = PBXBuildFile; productRef = AFA8339A2E66DA0900B2008B /* NIOEmbedded */; };
+		AFA8339D2E66DA0900B2008B /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = AFA8339C2E66DA0900B2008B /* NIOFoundationCompat */; };
+		AFA833A02E66DA8300B2008B /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = AFA8339F2E66DA8300B2008B /* SwiftProtobuf */; };
+		AFA833A22E66DA8300B2008B /* SwiftProtobufPluginLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833A12E66DA8300B2008B /* SwiftProtobufPluginLibrary */; };
+		AFA833A42E66DA8300B2008B /* protoc in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833A32E66DA8300B2008B /* protoc */; };
+		AFA833A62E66DA8300B2008B /* protoc-gen-swift in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833A52E66DA8300B2008B /* protoc-gen-swift */; };
+		AFA833A92E66DB5200B2008B /* SystemPackage in Frameworks */ = {isa = PBXBuildFile; productRef = AFA833A82E66DB5200B2008B /* SystemPackage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,7 +58,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AFA833952E66DA0900B2008B /* NIO in Frameworks */,
+				AFA833832E66D82D00B2008B /* HashTreeCollections in Frameworks */,
+				AFA8338F2E66D87300B2008B /* AsyncAlgorithms in Frameworks */,
+				AFA8339D2E66DA0900B2008B /* NIOFoundationCompat in Frameworks */,
+				AFA833922E66D9CE00B2008B /* X509 in Frameworks */,
+				AFA833A42E66DA8300B2008B /* protoc in Frameworks */,
+				AFA8337A2E66D7FB00B2008B /* Algorithms in Frameworks */,
+				AFA8338A2E66D84900B2008B /* generate-docc-reference in Frameworks */,
+				AFA8338C2E66D84900B2008B /* generate-manual in Frameworks */,
 				A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */,
+				AFA833852E66D82D00B2008B /* HeapModule in Frameworks */,
+				AFA833992E66DA0900B2008B /* NIOCore in Frameworks */,
+				AFA833812E66D82D00B2008B /* DequeModule in Frameworks */,
+				AFA8339B2E66DA0900B2008B /* NIOEmbedded in Frameworks */,
+				AFA8337F2E66D82D00B2008B /* Collections in Frameworks */,
+				AFA833972E66DA0900B2008B /* NIOConcurrencyHelpers in Frameworks */,
+				AFA833882E66D84900B2008B /* ArgumentParser in Frameworks */,
+				AFA833A22E66DA8300B2008B /* SwiftProtobufPluginLibrary in Frameworks */,
+				AFA833A92E66DB5200B2008B /* SystemPackage in Frameworks */,
+				AFA8337D2E66D82D00B2008B /* BitCollections in Frameworks */,
+				AFA833A02E66DA8300B2008B /* SwiftProtobuf in Frameworks */,
+				AFA833A62E66DA8300B2008B /* protoc-gen-swift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +187,16 @@
 				Base,
 			);
 			mainGroup = 504EC2FB1FED79650016851F;
+			packageReferences = (
+				AFA833782E66D7FA00B2008B /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+				AFA8337B2E66D82D00B2008B /* XCRemoteSwiftPackageReference "swift-collections" */,
+				AFA833862E66D84900B2008B /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+				AFA8338D2E66D87300B2008B /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
+				AFA833902E66D9CE00B2008B /* XCRemoteSwiftPackageReference "swift-certificates" */,
+				AFA833932E66DA0900B2008B /* XCRemoteSwiftPackageReference "swift-nio" */,
+				AFA8339E2E66DA8300B2008B /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+				AFA833A72E66DB5200B2008B /* XCRemoteSwiftPackageReference "swift-system" */,
+			);
 			productRefGroup = 504EC3051FED79650016851F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -194,7 +246,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputFileListPaths = (
+				"$(SRCROOT)/newInputFile.xcfilelist",
+			);
 			inputPaths = (
+				"$(SRCROOT)/newInputFile",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -422,6 +478,181 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AFA833782E66D7FA00B2008B /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
+		AFA8337B2E66D82D00B2008B /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
+		AFA833862E66D84900B2008B /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.1;
+			};
+		};
+		AFA8338D2E66D87300B2008B /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-async-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
+		AFA833902E66D9CE00B2008B /* XCRemoteSwiftPackageReference "swift-certificates" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-certificates.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.13.0;
+			};
+		};
+		AFA833932E66DA0900B2008B /* XCRemoteSwiftPackageReference "swift-nio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-nio.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.86.0;
+			};
+		};
+		AFA8339E2E66DA8300B2008B /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-protobuf.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.31.0;
+			};
+		};
+		AFA833A72E66DB5200B2008B /* XCRemoteSwiftPackageReference "swift-system" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-system.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AFA833792E66D7FB00B2008B /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833782E66D7FA00B2008B /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
+		AFA8337C2E66D82D00B2008B /* BitCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8337B2E66D82D00B2008B /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = BitCollections;
+		};
+		AFA8337E2E66D82D00B2008B /* Collections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8337B2E66D82D00B2008B /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = Collections;
+		};
+		AFA833802E66D82D00B2008B /* DequeModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8337B2E66D82D00B2008B /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = DequeModule;
+		};
+		AFA833822E66D82D00B2008B /* HashTreeCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8337B2E66D82D00B2008B /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = HashTreeCollections;
+		};
+		AFA833842E66D82D00B2008B /* HeapModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8337B2E66D82D00B2008B /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = HeapModule;
+		};
+		AFA833872E66D84900B2008B /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833862E66D84900B2008B /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+		AFA833892E66D84900B2008B /* generate-docc-reference */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833862E66D84900B2008B /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = "generate-docc-reference";
+		};
+		AFA8338B2E66D84900B2008B /* generate-manual */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833862E66D84900B2008B /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = "generate-manual";
+		};
+		AFA8338E2E66D87300B2008B /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8338D2E66D87300B2008B /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
+		};
+		AFA833912E66D9CE00B2008B /* X509 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833902E66D9CE00B2008B /* XCRemoteSwiftPackageReference "swift-certificates" */;
+			productName = X509;
+		};
+		AFA833942E66DA0900B2008B /* NIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833932E66DA0900B2008B /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIO;
+		};
+		AFA833962E66DA0900B2008B /* NIOConcurrencyHelpers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833932E66DA0900B2008B /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOConcurrencyHelpers;
+		};
+		AFA833982E66DA0900B2008B /* NIOCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833932E66DA0900B2008B /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOCore;
+		};
+		AFA8339A2E66DA0900B2008B /* NIOEmbedded */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833932E66DA0900B2008B /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOEmbedded;
+		};
+		AFA8339C2E66DA0900B2008B /* NIOFoundationCompat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833932E66DA0900B2008B /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOFoundationCompat;
+		};
+		AFA8339F2E66DA8300B2008B /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8339E2E66DA8300B2008B /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+		AFA833A12E66DA8300B2008B /* SwiftProtobufPluginLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8339E2E66DA8300B2008B /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobufPluginLibrary;
+		};
+		AFA833A32E66DA8300B2008B /* protoc */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8339E2E66DA8300B2008B /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = protoc;
+		};
+		AFA833A52E66DA8300B2008B /* protoc-gen-swift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA8339E2E66DA8300B2008B /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = "protoc-gen-swift";
+		};
+		AFA833A82E66DB5200B2008B /* SystemPackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AFA833A72E66DB5200B2008B /* XCRemoteSwiftPackageReference "swift-system" */;
+			productName = SystemPackage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 504EC2FC1FED79650016851F /* Project object */;
 }
