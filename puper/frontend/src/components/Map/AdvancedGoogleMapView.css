@@ -131,27 +131,7 @@
   border-radius: 15px;
 }
 
-/* Holographic Border Effect */
-.advanced-map-container::after {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, 
-    #00ffff, 
-    #8a2be2, 
-    #00ff41, 
-    #ff1493, 
-    #00ffff
-  );
-  background-size: 400% 400%;
-  border-radius: 17px;
-  z-index: -1;
-  animation: holographic-border 4s ease-in-out infinite;
-  opacity: 0.6;
-}
+/* Holographic Border Effect - REMOVED */
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -228,14 +208,7 @@
   }
 }
 
-@keyframes holographic-border {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
+/* holographic-border animation removed */
 
 /* Map Marker Cluster Styles */
 .cluster-marker {
