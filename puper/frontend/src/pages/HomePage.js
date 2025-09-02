@@ -70,27 +70,35 @@ const HomePage = () => {
           </video>
         </div>
 
-        {/* Hero Content - Simplified, No Globe */}
-        <div className="hero-content-minimal">
-          <motion.div
-            className="hero-cta-container"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+        {/* Floating Globe in Top Left */}
+        <motion.div
+          className="floating-globe-container"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
+        >
+          <motion.button
+            className="floating-globe"
+            onClick={() => navigate('/map')}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{
+              rotate: [0, 360],
+              boxShadow: [
+                '0 0 20px rgba(74, 144, 226, 0.5)',
+                '0 0 40px rgba(255, 0, 255, 0.5)',
+                '0 0 20px rgba(74, 144, 226, 0.5)'
+              ]
+            }}
+            transition={{
+              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+              boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+            }}
           >
-            <h1 className="hero-title">PÜPER</h1>
-            <p className="hero-subtitle">Find Clean Restrooms Anywhere</p>
-            
-            <motion.button
-              className="cta-button"
-              onClick={() => navigate('/map')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Open Map
-            </motion.button>
-          </motion.div>
-        </div>
+            <FaMapMarkerAlt />
+            <div className="globe-pulse"></div>
+          </motion.button>
+        </motion.div>
       </section>
 
       {/* Features Section */}
