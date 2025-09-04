@@ -206,6 +206,35 @@
   filter: drop-shadow(0 0 10px rgba(13, 255, 231, 0.5));
 }
 
+/* Large Globe Label */
+.globe-label-large {
+  position: absolute;
+  bottom: -80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.globe-title {
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #0dffe7;
+  text-shadow: 0 0 30px rgba(13, 255, 231, 0.8);
+  margin-bottom: 4px;
+}
+
+.globe-subtitle {
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
 /* Features Section */
 .features-section {
   padding: 80px 20px;

@@ -695,8 +695,8 @@ const MapPage = () => {
     }
   };
 
-  // Handle search
-  const handleSearch = async (query) => {
+  // Handle search input change (no immediate search)
+  const handleSearchInputChange = (query) => {
     setSearchQuery(query);
 
     if (!query.trim()) {
@@ -704,7 +704,30 @@ const MapPage = () => {
       return;
     }
 
-    // Check if the query looks like an address (contains street indicators)
+    // Only do immediate filtering for name-based searches, not address searches
+    const addressIndicators = ['street', 'st', 'avenue', 'ave', 'road', 'rd', 'boulevard', 'blvd', 'drive', 'dr', 'lane', 'ln', 'way', 'place', 'pl'];
+    const isAddressQuery = addressIndicators.some(indicator =>
+      query.toLowerCase().includes(indicator) ||
+      /\d+/.test(query) // Contains numbers (likely street address)
+    );
+
+    if (!isAddressQuery) {
+      // Handle regular name-based search immediately
+      markersRef.current.forEach((marker, index) => {
+        const restroom = restrooms[index];
+        const isVisible = restroom.name.toLowerCase().includes(query.toLowerCase());
+        marker.setVisible(isVisible);
+      });
+    }
+  };
+
+  // Handle search execution (triggered by Enter key or search button)
+  const executeSearch = async (query = searchQuery) => {
+    if (!query.trim()) {
+      return;
+    }
+
+    // Check if the query looks like an address
     const addressIndicators = ['street', 'st', 'avenue', 'ave', 'road', 'rd', 'boulevard', 'blvd', 'drive', 'dr', 'lane', 'ln', 'way', 'place', 'pl'];
     const isAddressQuery = addressIndicators.some(indicator =>
       query.toLowerCase().includes(indicator) ||
@@ -715,12 +738,8 @@ const MapPage = () => {
       // Handle address search
       await handleAddressSearch(query);
     } else {
-      // Handle regular name-based search
-      markersRef.current.forEach((marker, index) => {
-        const restroom = restrooms[index];
-        const isVisible = restroom.name.toLowerCase().includes(query.toLowerCase());
-        marker.setVisible(isVisible);
-      });
+      // For non-address queries, the filtering is already done in handleSearchInputChange
+      console.log('Name-based search already filtered');
     }
   };
 
@@ -998,11 +1017,24 @@ const MapPage = () => {
               <FaSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Search restrooms..."
+                placeholder="Search restrooms or enter address..."
                 value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
+                onChange={(e) => handleSearchInputChange(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    executeSearch();
+                  }
+                }}
                 className="search-input"
               />
+              <button
+                onClick={() => executeSearch()}
+                className="search-button"
+                disabled={!searchQuery.trim()}
+                title="Search"
+              >
+                <FaSearch />
+              </button>
             </div>
           </div>
           <div className="connection-status">
