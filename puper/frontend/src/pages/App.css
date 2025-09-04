@@ -46,7 +46,7 @@ body {
 .App {
   min-height: 100vh;
   min-height: -webkit-fill-available;
-  background: var(--marble-background);
+  background: rgb(black);
   position: relative;
   display: flex;
   flex-direction: column;
