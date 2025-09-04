@@ -6,7 +6,12 @@ import './Footer.css';
 
 const Footer = () => {
   return (
-    <footer className="footer" style={{ backgroundImage: `url(${woodBg})` }}>
+    <footer className="footer" style={{
+      backgroundImage: `url(${woodBg})`,
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }}>
       <div className="footer-content">
         <div className="footer-section">
           <h3>Püper</h3>

@@ -1,0 +1,93 @@
+{
+  "object" : {
+    "artifacts" : [
+      {
+        "kind" : "xcframework",
+        "packageRef" : {
+          "identity" : "ios-maps-sdk",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/googlemaps/ios-maps-sdk",
+          "name" : "GoogleMaps"
+        },
+        "path" : "/Users/sidewayz8/dev/Puper1/PuperNative/.build/artifacts/ios-maps-sdk/GoogleMapsM4B/GoogleMapsM4B.xcframework",
+        "source" : {
+          "checksum" : "23665f11fdd498a31fb081d914179e19f2eebdd0366e492f077381748cac21be",
+          "type" : "remote",
+          "url" : "https://dl.google.com/geosdk/swiftpm/8.4.0/GoogleMapsM4B_3p.xcframework.zip"
+        },
+        "targetName" : "GoogleMapsM4B"
+      },
+      {
+        "kind" : "xcframework",
+        "packageRef" : {
+          "identity" : "ios-maps-sdk",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/googlemaps/ios-maps-sdk",
+          "name" : "GoogleMaps"
+        },
+        "path" : "/Users/sidewayz8/dev/Puper1/PuperNative/.build/artifacts/ios-maps-sdk/GoogleMaps/GoogleMaps.xcframework",
+        "source" : {
+          "checksum" : "65f78e9e4e75be666f26584836791fe5685a43b19d847fe5246d4aeb7146d113",
+          "type" : "remote",
+          "url" : "https://dl.google.com/geosdk/swiftpm/8.4.0/GoogleMaps_3p.xcframework.zip"
+        },
+        "targetName" : "GoogleMaps"
+      },
+      {
+        "kind" : "xcframework",
+        "packageRef" : {
+          "identity" : "ios-maps-sdk",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/googlemaps/ios-maps-sdk",
+          "name" : "GoogleMaps"
+        },
+        "path" : "/Users/sidewayz8/dev/Puper1/PuperNative/.build/artifacts/ios-maps-sdk/GoogleMapsCore/GoogleMapsCore.xcframework",
+        "source" : {
+          "checksum" : "c7879ccd3cb20d37816cfbb833adb4965d3fd32253f57b1cf2edc0542611ce70",
+          "type" : "remote",
+          "url" : "https://dl.google.com/geosdk/swiftpm/8.4.0/GoogleMapsCore_3p.xcframework.zip"
+        },
+        "targetName" : "GoogleMapsCore"
+      },
+      {
+        "kind" : "xcframework",
+        "packageRef" : {
+          "identity" : "ios-maps-sdk",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/googlemaps/ios-maps-sdk",
+          "name" : "GoogleMaps"
+        },
+        "path" : "/Users/sidewayz8/dev/Puper1/PuperNative/.build/artifacts/ios-maps-sdk/GoogleMapsBase/GoogleMapsBase.xcframework",
+        "source" : {
+          "checksum" : "d308fb16e60c6d25b221d485fc1695badceaf8c75069179c75c05614a47cc052",
+          "type" : "remote",
+          "url" : "https://dl.google.com/geosdk/swiftpm/8.4.0/GoogleMapsBase_3p.xcframework.zip"
+        },
+        "targetName" : "GoogleMapsBase"
+      }
+    ],
+    "dependencies" : [
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "ios-maps-sdk",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/googlemaps/ios-maps-sdk",
+          "name" : "GoogleMaps"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "bd392d7d844b49ec6795871a3c25edd01ab839f2",
+            "version" : "8.4.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "ios-maps-sdk"
+      }
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}

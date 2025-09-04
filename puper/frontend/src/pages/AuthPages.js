@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaCheck } from 'react-icons/fa';
+import { login, register } from '../services/auth';
 import './AuthPages.css';
 
 export const SignUpPage = () => {
@@ -74,11 +75,21 @@ export const SignUpPage = () => {
     }
     
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const result = await register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      });
+
+      console.log('Registration successful:', result);
+      navigate('/map'); // Navigate to map page after successful registration
+    } catch (error) {
+      console.error('Registration failed:', error);
+      setErrors({ general: error.message || 'Registration failed. Please try again.' });
+    } finally {
       setIsLoading(false);
-      navigate('/');
-    }, 2000);
+    }
   };
   
   const strength = passwordStrength(formData.password);
@@ -231,7 +242,26 @@ export const SignUpPage = () => {
               </div>
               {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
             </motion.div>
-            
+
+            {errors.general && (
+              <motion.div
+                className="error-message general-error"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  textAlign: 'center',
+                  marginBottom: '1rem',
+                  padding: '0.75rem',
+                  backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                  border: '1px solid rgba(231, 76, 60, 0.3)',
+                  borderRadius: '8px',
+                  color: '#e74c3c'
+                }}
+              >
+                {errors.general}
+              </motion.div>
+            )}
+
             <motion.button
               type="submit"
               className={`submit-btn ${isLoading ? 'loading' : ''}`}
@@ -310,18 +340,27 @@ export const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    
+
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const result = await login({
+        username: formData.email, // Using email as username
+        password: formData.password
+      });
+
+      console.log('Login successful:', result);
+      navigate('/map'); // Navigate to map page after successful login
+    } catch (error) {
+      console.error('Login failed:', error);
+      setErrors({ general: error.message || 'Login failed. Please try again.' });
+    } finally {
       setIsLoading(false);
-      navigate('/');
-    }, 2000);
+    }
   };
   
   return (
@@ -425,7 +464,26 @@ export const LoginPage = () => {
                 Forgot Password?
               </Link>
             </motion.div>
-            
+
+            {errors.general && (
+              <motion.div
+                className="error-message general-error"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  textAlign: 'center',
+                  marginBottom: '1rem',
+                  padding: '0.75rem',
+                  backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                  border: '1px solid rgba(231, 76, 60, 0.3)',
+                  borderRadius: '8px',
+                  color: '#e74c3c'
+                }}
+              >
+                {errors.general}
+              </motion.div>
+            )}
+
             <motion.button
               type="submit"
               className={`submit-btn ${isLoading ? 'loading' : ''}`}

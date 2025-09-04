@@ -1,0 +1,167 @@
+client:
+  name: basic
+  file-system: device-agnostic
+tools: {}
+targets:
+  "GoogleMapsBaseTarget-x86_64-apple-macosx15.0-debug.module": ["<GoogleMapsBaseTarget-x86_64-apple-macosx15.0-debug.module>"]
+  "GoogleMapsCoreTarget-x86_64-apple-macosx15.0-debug.module": ["<GoogleMapsCoreTarget-x86_64-apple-macosx15.0-debug.module>"]
+  "GoogleMapsM4BTarget-x86_64-apple-macosx15.0-debug.module": ["<GoogleMapsM4BTarget-x86_64-apple-macosx15.0-debug.module>"]
+  "GoogleMapsTarget-x86_64-apple-macosx15.0-debug.module": ["<GoogleMapsTarget-x86_64-apple-macosx15.0-debug.module>"]
+  "PackageStructure": ["<PackageStructure>"]
+  "Puper-x86_64-apple-macosx15.0-debug.exe": ["<Puper-x86_64-apple-macosx15.0-debug.exe>"]
+  "Puper-x86_64-apple-macosx15.0-debug.module": ["<Puper-x86_64-apple-macosx15.0-debug.module>"]
+  "main": ["<Puper-x86_64-apple-macosx15.0-debug.exe>","<Puper-x86_64-apple-macosx15.0-debug.module>"]
+  "test": ["<Puper-x86_64-apple-macosx15.0-debug.exe>","<Puper-x86_64-apple-macosx15.0-debug.module>"]
+default: "main"
+nodes:
+  "/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper":
+    is-mutated: true
+commands:
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsBaseTarget.build/GMSEmpty.m.o":
+    tool: clang
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Base/GMSEmpty.m"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsBaseTarget.build/GMSEmpty.m.o"]
+    description: "Compiling GoogleMapsBaseTarget GMSEmpty.m"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang","-fobjc-arc","-target","x86_64-apple-macosx10.13","-O0","-DSWIFT_PACKAGE=1","-DDEBUG=1","-fblocks","-index-store-path","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/index/store","-fmodules","-fmodule-name=GoogleMapsBaseTarget","-fmodules-cache-path=/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/ModuleCache","-I","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Base/Sources","-isysroot","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-fPIC","-g","-w","-MD","-MT","dependencies","-MF","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsBaseTarget.build/GMSEmpty.m.d","-c","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Base/GMSEmpty.m","-o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsBaseTarget.build/GMSEmpty.m.o"]
+    deps: "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsBaseTarget.build/GMSEmpty.m.d"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsCoreTarget.build/GMSEmpty.m.o":
+    tool: clang
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Core/GMSEmpty.m"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsCoreTarget.build/GMSEmpty.m.o"]
+    description: "Compiling GoogleMapsCoreTarget GMSEmpty.m"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang","-fobjc-arc","-target","x86_64-apple-macosx10.13","-O0","-DSWIFT_PACKAGE=1","-DDEBUG=1","-fblocks","-index-store-path","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/index/store","-fmodules","-fmodule-name=GoogleMapsCoreTarget","-fmodules-cache-path=/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/ModuleCache","-I","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Core/Sources","-isysroot","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-fPIC","-g","-w","-MD","-MT","dependencies","-MF","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsCoreTarget.build/GMSEmpty.m.d","-c","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Core/GMSEmpty.m","-o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsCoreTarget.build/GMSEmpty.m.o"]
+    deps: "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsCoreTarget.build/GMSEmpty.m.d"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsM4BTarget.build/GMSEmpty.m.o":
+    tool: clang
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/M4B/GMSEmpty.m"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsM4BTarget.build/GMSEmpty.m.o"]
+    description: "Compiling GoogleMapsM4BTarget GMSEmpty.m"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang","-fobjc-arc","-target","x86_64-apple-macosx10.13","-O0","-DSWIFT_PACKAGE=1","-DDEBUG=1","-fblocks","-index-store-path","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/index/store","-fmodules","-fmodule-name=GoogleMapsM4BTarget","-fmodules-cache-path=/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/ModuleCache","-I","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/M4B/Sources","-isysroot","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-fPIC","-g","-w","-MD","-MT","dependencies","-MF","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsM4BTarget.build/GMSEmpty.m.d","-c","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/M4B/GMSEmpty.m","-o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsM4BTarget.build/GMSEmpty.m.o"]
+    deps: "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsM4BTarget.build/GMSEmpty.m.d"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/GMSEmpty.m.o":
+    tool: clang
+    inputs: ["<GoogleMapsTarget-x86_64-apple-macosx15.0-debug.module-resources>","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Maps/GMSEmpty.m"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/GMSEmpty.m.o"]
+    description: "Compiling GoogleMapsTarget GMSEmpty.m"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang","-fobjc-arc","-target","x86_64-apple-macosx10.13","-O0","-DSWIFT_PACKAGE=1","-DDEBUG=1","-fblocks","-index-store-path","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/index/store","-fmodules","-fmodule-name=GoogleMapsTarget","-fmodules-cache-path=/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/ModuleCache","-I","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Maps/Sources","-include","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/DerivedSources/resource_bundle_accessor.h","-isysroot","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-fPIC","-g","-w","-MD","-MT","dependencies","-MF","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/GMSEmpty.m.d","-c","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Maps/GMSEmpty.m","-o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/GMSEmpty.m.o"]
+    deps: "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/GMSEmpty.m.d"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/resource_bundle_accessor.m.o":
+    tool: clang
+    inputs: ["<GoogleMapsTarget-x86_64-apple-macosx15.0-debug.module-resources>","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/DerivedSources/resource_bundle_accessor.m"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/resource_bundle_accessor.m.o"]
+    description: "Compiling GoogleMapsTarget resource_bundle_accessor.m"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang","-fobjc-arc","-target","x86_64-apple-macosx10.13","-O0","-DSWIFT_PACKAGE=1","-DDEBUG=1","-fblocks","-index-store-path","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/index/store","-fmodules","-fmodule-name=GoogleMapsTarget","-fmodules-cache-path=/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/ModuleCache","-I","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Maps/Sources","-include","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/DerivedSources/resource_bundle_accessor.h","-isysroot","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-fPIC","-g","-w","-MD","-MT","dependencies","-MF","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/resource_bundle_accessor.m.d","-c","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/DerivedSources/resource_bundle_accessor.m","-o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/resource_bundle_accessor.m.o"]
+    deps: "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/resource_bundle_accessor.m.d"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMaps_GoogleMapsTarget.bundle/GoogleMaps.bundle":
+    tool: copy-tool
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Maps/Resources/GoogleMapsResources/GoogleMaps.bundle/"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMaps_GoogleMapsTarget.bundle/GoogleMaps.bundle/"]
+    description: "Copying /Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Maps/Resources/GoogleMapsResources/GoogleMaps.bundle"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper-entitlement.plist":
+    tool: write-auxiliary-file
+    inputs: ["<entitlement-plist>","<com.apple.security.get-task-allow>"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper-entitlement.plist"]
+    description: "Write auxiliary file /Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper-entitlement.plist"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/ContentView.swift","/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/HomeView.swift","/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/MapView.swift","/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/main.swift","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/DerivedSources/resource_bundle_accessor.swift"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/sources"]
+    description: "Write auxiliary file /Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/sources"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.product/Objects.LinkFileList":
+    tool: write-auxiliary-file
+    inputs: ["<link-file-list>","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/GMSEmpty.m.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/resource_bundle_accessor.m.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/ContentView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/HomeView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/MapView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/main.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/resource_bundle_accessor.swift.o"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.product/Objects.LinkFileList"]
+    description: "Write auxiliary file /Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.product/Objects.LinkFileList"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper_Puper.bundle/hero-video.mp4":
+    tool: copy-tool
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/Resources/hero-video.mp4"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper_Puper.bundle/hero-video.mp4"]
+    description: "Copying /Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/Resources/hero-video.mp4"
+
+  "/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt":
+    tool: write-auxiliary-file
+    inputs: ["<swift-get-version>","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"]
+    always-out-of-date: "true"
+    description: "Write auxiliary file /Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+
+  "<GoogleMapsBaseTarget-x86_64-apple-macosx15.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsBaseTarget.build/GMSEmpty.m.o"]
+    outputs: ["<GoogleMapsBaseTarget-x86_64-apple-macosx15.0-debug.module>"]
+
+  "<GoogleMapsCoreTarget-x86_64-apple-macosx15.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsCoreTarget.build/GMSEmpty.m.o"]
+    outputs: ["<GoogleMapsCoreTarget-x86_64-apple-macosx15.0-debug.module>"]
+
+  "<GoogleMapsM4BTarget-x86_64-apple-macosx15.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsM4BTarget.build/GMSEmpty.m.o"]
+    outputs: ["<GoogleMapsM4BTarget-x86_64-apple-macosx15.0-debug.module>"]
+
+  "<GoogleMapsTarget-x86_64-apple-macosx15.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/GMSEmpty.m.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/resource_bundle_accessor.m.o"]
+    outputs: ["<GoogleMapsTarget-x86_64-apple-macosx15.0-debug.module>"]
+
+  "<Puper-x86_64-apple-macosx15.0-debug.exe>":
+    tool: phony
+    inputs: ["<Puper-x86_64-apple-macosx15.0-debug.exe-CodeSigning>"]
+    outputs: ["<Puper-x86_64-apple-macosx15.0-debug.exe>"]
+
+  "<Puper-x86_64-apple-macosx15.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/ContentView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/HomeView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/MapView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/main.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/resource_bundle_accessor.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Modules/Puper.swiftmodule"]
+    outputs: ["<Puper-x86_64-apple-macosx15.0-debug.module>"]
+
+  "C.Puper-x86_64-apple-macosx15.0-debug.exe":
+    tool: shell
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/GMSEmpty.m.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/resource_bundle_accessor.m.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/ContentView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/HomeView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/MapView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/main.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/resource_bundle_accessor.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.product/Objects.LinkFileList"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper"]
+    description: "Linking ./.build/x86_64-apple-macosx/debug/Puper"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-L","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug","-o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper","-module-name","Puper","-Xlinker","-no_warn_duplicate_libraries","-emit-executable","-Xlinker","-alias","-Xlinker","_Puper_main","-Xlinker","_main","-Xlinker","-rpath","-Xlinker","@loader_path","@/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.product/Objects.LinkFileList","-Xlinker","-rpath","-Xlinker","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.5/macosx","-target","x86_64-apple-macosx10.13","-lz","-lc++","-framework","Accelerate","-framework","CoreData","-framework","CoreGraphics","-framework","CoreImage","-framework","CoreLocation","-framework","CoreTelephony","-framework","CoreText","-framework","GLKit","-framework","ImageIO","-framework","Metal","-framework","OpenGLES","-framework","QuartzCore","-framework","SystemConfiguration","-framework","UIKit","-Xlinker","-add_ast_path","-Xlinker","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Modules/Puper.swiftmodule","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g"]
+
+  "C.Puper-x86_64-apple-macosx15.0-debug.exe-entitlements":
+    tool: shell
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper-entitlement.plist"]
+    outputs: ["<Puper-x86_64-apple-macosx15.0-debug.exe-CodeSigning>"]
+    description: "Applying debug entitlements to ./.build/x86_64-apple-macosx/debug/Puper"
+    args: ["codesign","--force","--sign","-","--entitlements","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper-entitlement.plist","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper"]
+
+  "C.Puper-x86_64-apple-macosx15.0-debug.module":
+    tool: shell
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/ContentView.swift","/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/HomeView.swift","/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/MapView.swift","/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/main.swift","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/DerivedSources/resource_bundle_accessor.swift","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt","<Puper-x86_64-apple-macosx15.0-debug.module-resources>","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/GMSEmpty.m.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/resource_bundle_accessor.m.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/sources"]
+    outputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/ContentView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/HomeView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/MapView.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/main.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/resource_bundle_accessor.swift.o","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Modules/Puper.swiftmodule"]
+    description: "Compiling Swift Module 'Puper' (5 sources)"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","Puper","-emit-dependencies","-emit-module","-emit-module-path","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Modules/Puper.swiftmodule","-output-file-map","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/output-file-map.json","-incremental","-c","@/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper.build/sources","-I","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Modules","-target","x86_64-apple-macosx10.13","-enable-batch-mode","-index-store-path","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/index/store","-Onone","-enable-testing","-j6","-DSWIFT_PACKAGE","-DDEBUG","-Xcc","-fmodule-map-file=/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMapsTarget.build/module.modulemap","-Xcc","-I","-Xcc","/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Maps/Sources","-module-cache-path","/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/ModuleCache","-parseable-output","-Xfrontend","-entry-point-function-name","-Xfrontend","Puper_main","-color-diagnostics","-swift-version","5","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-Xcc","-fPIC","-Xcc","-g","-package-name","pupernative"]
+
+  "GoogleMapsTarget-x86_64-apple-macosx15.0-debug.module-resources":
+    tool: phony
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/GoogleMaps_GoogleMapsTarget.bundle/GoogleMaps.bundle/"]
+    outputs: ["<GoogleMapsTarget-x86_64-apple-macosx15.0-debug.module-resources>"]
+
+  "PackageStructure":
+    tool: package-structure-tool
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/Sources/Puper/","/Users/sidewayz8/dev/Puper1/PuperNative/Package.swift","/Users/sidewayz8/dev/Puper1/PuperNative/Package.resolved"]
+    outputs: ["<PackageStructure>"]
+    description: "Planning build"
+    allow-missing-inputs: true
+
+  "Puper-x86_64-apple-macosx15.0-debug.module-resources":
+    tool: phony
+    inputs: ["/Users/sidewayz8/dev/Puper1/PuperNative/.build/x86_64-apple-macosx/debug/Puper_Puper.bundle/hero-video.mp4"]
+    outputs: ["<Puper-x86_64-apple-macosx15.0-debug.module-resources>"]
+

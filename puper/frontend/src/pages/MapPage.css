@@ -115,7 +115,11 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--wood-grain);
+  background-image: url('../assets/images/wood5.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 20px;
@@ -329,7 +333,11 @@
   position: absolute;
   bottom: 1rem;
   left: 1rem;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--wood-grain);
+  background-image: url('../assets/images/wood5.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 15px;
@@ -421,7 +429,11 @@
 .modal-content,
 .rating-modal-content,
 .add-restroom-modal-content {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--wood-grain);
+  background-image: url('../assets/images/wood5.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 20px;

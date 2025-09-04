@@ -1,0 +1,4 @@
+module GoogleMapsCoreTarget {
+    umbrella "/Users/sidewayz8/dev/Puper1/PuperNative/.build/checkouts/ios-maps-sdk/Core/Sources"
+    export *
+}
