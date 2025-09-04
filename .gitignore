@@ -335,3 +335,145 @@ cypress/screenshots/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# C/C++ files and build artifacts
+*.c
+*.h
+*.cpp
+*.hpp
+*.cc
+*.cxx
+*.c++
+*.h++
+*.hh
+*.hxx
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
+*.app
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.ilk
+*.map
+*.exp
+*.gch
+*.pch
+*.tmp
+*.cache
+*.log
+*.tlog
+*.lastbuildstate
+*.iobj
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp_proj
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# Make
+*.d
+*.dep
+.deps/
+
+# Autotools
+/autom4te.cache
+/aclocal.m4
+/compile
+/configure
+/depcomp
+/install-sh
+/missing
+/stamp-h1
+config.log
+config.status
+config.h
+config.h.in
+Makefile.in
+
+# Visual Studio
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Code::Blocks
+*.cbp
+*.layout
+*.depend
+
+# Dev-C++
+*.dev
+
+# QtCreator
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc
+*.moc.cpp
+*.qm
+*.prl
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+
+# GCC/Clang
+*.gcno
+*.gcda
+*.gcov
+
+# Intel C++ Compiler
+*.dyn
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# Valgrind
+*.memcheck
+*.helgrind
+*.drd
+*.massif
+*.cachegrind
+*.callgrind
+
+# Profiling
+gmon.out
+*.prof
