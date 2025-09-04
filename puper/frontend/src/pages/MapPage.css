@@ -429,7 +429,7 @@
   font-family: 'Bebas Neue', cursive;
   font-size: 1.1rem;
   font-weight: bold;
-  color: rgb(rgb(0, 255, 200)); 
+  color: #87CEEB; /* Light blue */
   min-width: 30px;
 }
 

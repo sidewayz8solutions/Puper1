@@ -55,6 +55,14 @@
   z-index: 3;
 }
 
+/* Large Globe Container - Top Left */
+.hero-globe-container-large {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  z-index: 10;
+}
+
 /* Interactive Globe */
 .globe-link {
   text-decoration: none;
