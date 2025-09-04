@@ -408,7 +408,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(251, 225, 225, 0.117);
   border: 1px solid var(--psychedelic-pink);
   border-radius: 8px;
   transition: all 0.3s ease;
@@ -429,7 +429,7 @@
   font-family: 'Bebas Neue', cursive;
   font-size: 1.1rem;
   font-weight: bold;
-  color: #87CEEB; /* Light blue */
+  color: #00BFFF !important; /* Bright light blue */
   min-width: 30px;
 }
 

@@ -435,16 +435,275 @@
   .hero-section {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
+    user-select: none;
   }
-  
+
   .feature-card {
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   .cta-button {
     -webkit-tap-highlight-color: transparent;
     -webkit-appearance: none;
+    appearance: none;
   }
+}
+
+/* ===== MODERN PROFESSIONAL GLOBE IMPLEMENTATION ===== */
+
+.modern-globe-container {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1000px;
+}
+
+.globe-wrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  transform-style: preserve-3d;
+  animation: globalRotate 30s linear infinite;
+}
+
+.earth-sphere {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+    #4a90e2 0%,
+    #2e5c8a 30%,
+    #1e3a5f 60%,
+    #0f1419 100%);
+  box-shadow:
+    inset -20px -20px 40px rgba(0, 0, 0, 0.6),
+    inset 10px 10px 20px rgba(255, 255, 255, 0.1),
+    0 0 40px rgba(74, 144, 226, 0.4);
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.continents-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  animation: continentRotate 40s linear infinite;
+}
+
+.continent {
+  position: absolute;
+  background: linear-gradient(135deg, #2d5a27, #4a7c59, #2d5a27);
+  border-radius: 50%;
+  opacity: 0.9;
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.north-america {
+  width: 25px;
+  height: 30px;
+  top: 25%;
+  left: 15%;
+  border-radius: 60% 40% 70% 30%;
+}
+
+.south-america {
+  width: 15px;
+  height: 35px;
+  top: 45%;
+  left: 25%;
+  border-radius: 30% 70% 60% 40%;
+}
+
+.europe {
+  width: 12px;
+  height: 15px;
+  top: 20%;
+  left: 45%;
+  border-radius: 50% 50% 80% 20%;
+}
+
+.africa {
+  width: 18px;
+  height: 40px;
+  top: 30%;
+  left: 48%;
+  border-radius: 40% 60% 50% 50%;
+}
+
+.asia {
+  width: 35px;
+  height: 25px;
+  top: 15%;
+  left: 55%;
+  border-radius: 70% 30% 60% 40%;
+}
+
+.australia {
+  width: 12px;
+  height: 10px;
+  top: 65%;
+  left: 70%;
+  border-radius: 60% 40% 50% 50%;
+}
+
+.antarctica {
+  width: 45px;
+  height: 8px;
+  bottom: 5%;
+  left: 25%;
+  border-radius: 50% 50% 80% 20%;
+}
+
+.ocean-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%,
+    rgba(74, 144, 226, 0.3) 0%,
+    rgba(30, 58, 138, 0.2) 50%,
+    transparent 70%);
+  animation: oceanWave 8s ease-in-out infinite;
+}
+
+.clouds-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  animation: cloudRotate 50s linear infinite;
+}
+
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50px;
+  opacity: 0.6;
+  animation: cloudFloat 15s ease-in-out infinite;
+}
+
+.cloud-1 {
+  width: 20px;
+  height: 8px;
+  top: 30%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.cloud-2 {
+  width: 15px;
+  height: 6px;
+  top: 50%;
+  left: 60%;
+  animation-delay: 3s;
+}
+
+.cloud-3 {
+  width: 18px;
+  height: 7px;
+  top: 70%;
+  left: 40%;
+  animation-delay: 6s;
+}
+
+.cloud-4 {
+  width: 12px;
+  height: 5px;
+  top: 25%;
+  left: 75%;
+  animation-delay: 9s;
+}
+
+.atmosphere-glow {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(135, 206, 235, 0.3) 0%,
+    rgba(74, 144, 226, 0.2) 40%,
+    transparent 70%);
+  pointer-events: none;
+}
+
+.space-glow {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(74, 144, 226, 0.4) 0%,
+    rgba(59, 130, 246, 0.2) 30%,
+    rgba(147, 197, 253, 0.1) 50%,
+    transparent 70%);
+  pointer-events: none;
+  animation: spaceGlow 4s ease-in-out infinite;
+}
+
+.orbit-ring {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  width: 180px;
+  height: 180px;
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  border-radius: 50%;
+  animation: orbitPulse 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Globe Animations */
+@keyframes globalRotate {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@keyframes continentRotate {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@keyframes cloudRotate {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(-360deg); }
+}
+
+@keyframes oceanWave {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.02); }
+}
+
+@keyframes cloudFloat {
+  0%, 100% { opacity: 0.4; transform: translateY(0px); }
+  50% { opacity: 0.7; transform: translateY(-2px); }
+}
+
+@keyframes spaceGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes orbitPulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.02); }
 }
 
 /* iPhone X and newer Safe Areas */
