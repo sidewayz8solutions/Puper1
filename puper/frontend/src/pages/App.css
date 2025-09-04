@@ -20,7 +20,6 @@
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iPhone */
 }
 
@@ -46,7 +45,7 @@ body {
 .App {
   min-height: 100vh;
   min-height: -webkit-fill-available;
-  background: rgb(black);
+  background: var(black);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -56,7 +55,7 @@ body {
 .container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 ;
+  padding: 0 1rem;
   width: 100%;
 }
 
@@ -64,15 +63,13 @@ body {
 
 /* Main Content */
 .main-content {
-  flex: 0;
+  flex: 1;
+  padding: 1rem;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
   position: relative;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 0;
+  z-index: 1;
 }
 
 .main-content.map-fullscreen {
