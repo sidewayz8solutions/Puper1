@@ -27,6 +27,7 @@ const MapPage = () => {
   const [locationError, setLocationError] = useState(null);
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showAddForm, setShowAddForm] = useState(searchParams.get('add') === 'true');
   const [addMode, setAddMode] = useState(searchParams.get('add') === 'true');
   const [addLocation, setAddLocation] = useState(null);
@@ -703,11 +704,107 @@ const MapPage = () => {
       return;
     }
 
-    markersRef.current.forEach((marker, index) => {
-      const restroom = restrooms[index];
-      const isVisible = restroom.name.toLowerCase().includes(query.toLowerCase());
-      marker.setVisible(isVisible);
-    });
+    // Check if the query looks like an address (contains street indicators)
+    const addressIndicators = ['street', 'st', 'avenue', 'ave', 'road', 'rd', 'boulevard', 'blvd', 'drive', 'dr', 'lane', 'ln', 'way', 'place', 'pl'];
+    const isAddressQuery = addressIndicators.some(indicator =>
+      query.toLowerCase().includes(indicator) ||
+      /\d+/.test(query) // Contains numbers (likely street address)
+    );
+
+    if (isAddressQuery) {
+      // Handle address search
+      await handleAddressSearch(query);
+    } else {
+      // Handle regular name-based search
+      markersRef.current.forEach((marker, index) => {
+        const restroom = restrooms[index];
+        const isVisible = restroom.name.toLowerCase().includes(query.toLowerCase());
+        marker.setVisible(isVisible);
+      });
+    }
+  };
+
+  // Handle address-based search
+  const handleAddressSearch = async (address) => {
+    try {
+      setLoading(true);
+      console.log('🔍 Searching establishments at address:', address);
+
+      // Import the address search function
+      const { searchAddressForRestrooms } = await import('../services/restrooms');
+
+      const result = await searchAddressForRestrooms(address);
+
+      console.log('✅ Found establishments:', result);
+
+      // Clear existing markers
+      markersRef.current.forEach(marker => marker.setMap(null));
+      markersRef.current = [];
+
+      // Update map center to the searched location
+      if (googleMapRef.current && result.searchLocation) {
+        googleMapRef.current.setCenter({
+          lat: result.searchLocation.lat,
+          lng: result.searchLocation.lng
+        });
+        googleMapRef.current.setZoom(15);
+      }
+
+      // Create markers for establishments
+      const establishmentMarkers = result.establishments.map(establishment => {
+        const marker = new window.google.maps.Marker({
+          position: { lat: establishment.lat, lng: establishment.lng },
+          map: googleMapRef.current,
+          title: establishment.name,
+          icon: {
+            url: establishment.hasRestrooms ?
+              'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="16" cy="16" r="14" fill="#4CAF50" stroke="#fff" stroke-width="2"/>
+                  <text x="16" y="20" text-anchor="middle" fill="white" font-size="16">🏪</text>
+                </svg>
+              `) :
+              'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="16" cy="16" r="14" fill="#FF9800" stroke="#fff" stroke-width="2"/>
+                  <text x="16" y="20" text-anchor="middle" fill="white" font-size="16">🏪</text>
+                </svg>
+              `),
+            scaledSize: new window.google.maps.Size(32, 32)
+          }
+        });
+
+        // Add click listener for establishment details
+        marker.addListener('click', () => {
+          setSelectedRestroom({
+            ...establishment,
+            type: 'establishment',
+            restroom_count: establishment.restrooms.length
+          });
+          setShowDetailsModal(true);
+        });
+
+        return marker;
+      });
+
+      markersRef.current = establishmentMarkers;
+      setRestrooms(result.establishments);
+
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        total: result.totalEstablishments,
+        withRestrooms: result.establishmentsWithRestrooms,
+        searchLocation: result.searchLocation.address
+      }));
+
+    } catch (error) {
+      console.error('❌ Address search failed:', error);
+      // Show error message to user
+      alert(`Failed to search address: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Handle adding a restroom
@@ -1371,6 +1468,200 @@ const MapPage = () => {
         )}
       </AnimatePresence>
 
+      {/* Establishment Details Modal */}
+      <AnimatePresence>
+        {showDetailsModal && selectedRestroom && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowDetailsModal(false)}
+          >
+            <motion.div
+              className="modal-content"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                maxWidth: '500px',
+                maxHeight: '80vh',
+                overflow: 'auto'
+              }}
+            >
+              <div style={{ padding: '2rem' }}>
+                {/* Header */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '1.5rem'
+                }}>
+                  <h2 style={{
+                    color: 'var(--psychedelic-lime)',
+                    fontFamily: 'Bebas Neue, cursive',
+                    fontSize: '1.8rem',
+                    letterSpacing: '2px',
+                    margin: 0
+                  }}>
+                    {selectedRestroom.type === 'establishment' ? '🏪' : '🚽'} {selectedRestroom.name}
+                  </h2>
+                  <button
+                    onClick={() => setShowDetailsModal(false)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--psychedelic-pink)',
+                      fontSize: '1.5rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+
+                {/* Address */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <p style={{
+                    color: 'var(--psychedelic-lime)',
+                    fontSize: '1rem',
+                    opacity: 0.8,
+                    margin: 0
+                  }}>
+                    📍 {selectedRestroom.address}
+                  </p>
+                </div>
+
+                {/* Rating */}
+                {selectedRestroom.rating > 0 && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ color: 'var(--psychedelic-lime)' }}>⭐</span>
+                      <span style={{ color: 'var(--psychedelic-lime)', fontWeight: 'bold' }}>
+                        {selectedRestroom.rating.toFixed(1)}
+                      </span>
+                      {selectedRestroom.user_ratings_total && (
+                        <span style={{ color: 'var(--psychedelic-lime)', opacity: 0.7 }}>
+                          ({selectedRestroom.user_ratings_total} reviews)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Establishment-specific info */}
+                {selectedRestroom.type === 'establishment' && (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <div style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: '12px',
+                      padding: '1rem',
+                      marginBottom: '1rem'
+                    }}>
+                      <h4 style={{
+                        color: 'var(--psychedelic-cyan)',
+                        margin: '0 0 0.5rem 0',
+                        fontSize: '1.1rem'
+                      }}>
+                        Restroom Information
+                      </h4>
+                      <p style={{
+                        color: 'var(--psychedelic-lime)',
+                        margin: 0,
+                        fontSize: '0.9rem'
+                      }}>
+                        {selectedRestroom.restroom_count > 0
+                          ? `✅ ${selectedRestroom.restroom_count} restroom(s) found`
+                          : '❌ No restroom information available'
+                        }
+                      </p>
+                    </div>
+
+                    {/* Business hours */}
+                    {selectedRestroom.opening_hours && (
+                      <div style={{
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        padding: '1rem'
+                      }}>
+                        <h4 style={{
+                          color: 'var(--psychedelic-cyan)',
+                          margin: '0 0 0.5rem 0',
+                          fontSize: '1.1rem'
+                        }}>
+                          Hours
+                        </h4>
+                        <p style={{
+                          color: 'var(--psychedelic-lime)',
+                          margin: 0,
+                          fontSize: '0.9rem'
+                        }}>
+                          {selectedRestroom.opening_hours.open_now ? '🟢 Open now' : '🔴 Closed'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <div style={{
+                  display: 'flex',
+                  gap: '1rem',
+                  justifyContent: 'center',
+                  marginTop: '2rem'
+                }}>
+                  <button
+                    onClick={() => {
+                      // Get directions
+                      const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedRestroom.lat},${selectedRestroom.lng}`;
+                      window.open(url, '_blank');
+                    }}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      background: 'linear-gradient(135deg, var(--psychedelic-lime), var(--psychedelic-cyan))',
+                      border: 'none',
+                      borderRadius: '12px',
+                      color: 'black',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    🗺️ Get Directions
+                  </button>
+
+                  {selectedRestroom.type === 'establishment' && selectedRestroom.restroom_count === 0 && (
+                    <button
+                      onClick={() => {
+                        setShowDetailsModal(false);
+                        // Add restroom at this establishment
+                        setAddLocation({
+                          lat: selectedRestroom.lat,
+                          lng: selectedRestroom.lng
+                        });
+                        setShowAddForm(true);
+                      }}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        background: 'transparent',
+                        border: '2px solid var(--psychedelic-pink)',
+                        borderRadius: '12px',
+                        color: 'var(--psychedelic-pink)',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      ➕ Add Restroom Here
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </motion.div>
   );
