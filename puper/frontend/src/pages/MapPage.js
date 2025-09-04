@@ -11,6 +11,7 @@ import {
 import { restroomService, supabase } from '../services/supabase';
 import { googlePlacesService, initGoogleMaps } from '../services/googleMaps';
 import AddressAutocomplete from '../components/AddressAutocomplete';
+import Globe3D from '../components/Globe3D';
 import './MapPage.css';
 
 const MapPage = () => {
@@ -948,43 +949,28 @@ const MapPage = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Floating Globe - Top Left */}
+      {/* 3D Globe - Top Left, Moved Down */}
       <div
-        className="hero-globe-container"
+        className="map-globe-container"
         style={{
           position: 'fixed',
-          top: '1rem',
+          top: '6rem',
           left: '1rem',
           zIndex: 2000,
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           gap: '0.5rem'
         }}
       >
-        <motion.button
-          className="interactive-globe"
+        <motion.div
           onClick={() => navigate('/')}
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #4a90e2 0%, #2e7d32 25%, #8bc34a 35%, #4a90e2 50%, #2e7d32 65%, #d4af37 75%, #4a90e2 100%)',
-            backgroundSize: '200% 200%',
-            border: '2px solid rgba(255, 255, 255, 0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            fontSize: '1.5rem',
-            color: 'white',
-            boxShadow: '0 0 20px rgba(74, 144, 226, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.1)',
-            animation: 'globeRotate 10s linear infinite'
-          }}
+          style={{ cursor: 'pointer' }}
         >
-          <FaGlobe />
-        </motion.button>
+          <Globe3D />
+        </motion.div>
         <span
           style={{
             color: 'white',
