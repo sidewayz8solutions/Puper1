@@ -2,58 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import heroVideo from '../assets/images/hero-video.mp4';
+import Globe3D from '../components/Globe3D';
 import './Homepage.css';
+import '../components/Globe3D.css';
 
 const GlobeButton = () => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <Link to="/map" className="globe-link">
-      <motion.div
-        className="modern-globe-container"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
-      >
-        <div className="globe-wrapper">
-          {/* Main Earth sphere */}
-          <div className="earth-sphere">
-            {/* Continents layer */}
-            <div className="continents-layer">
-              <div className="continent north-america"></div>
-              <div className="continent south-america"></div>
-              <div className="continent europe"></div>
-              <div className="continent africa"></div>
-              <div className="continent asia"></div>
-              <div className="continent australia"></div>
-              <div className="continent antarctica"></div>
-            </div>
-
-            {/* Ocean layer with wave animation */}
-            <div className="ocean-layer"></div>
-
-            {/* Clouds layer */}
-            <div className="clouds-layer">
-              <div className="cloud cloud-1"></div>
-              <div className="cloud cloud-2"></div>
-              <div className="cloud cloud-3"></div>
-              <div className="cloud cloud-4"></div>
-            </div>
-
-            {/* Atmosphere glow */}
-            <div className="atmosphere-glow"></div>
-          </div>
-
-          {/* Outer space glow */}
-          <div className="space-glow"></div>
-
-          {/* Subtle pulsing ring */}
-          <div className="orbit-ring"></div>
-        </div>
-      </motion.div>
-    </Link>
-  );
+  return <Globe3D />;
 };
 
 const HomePage = () => {

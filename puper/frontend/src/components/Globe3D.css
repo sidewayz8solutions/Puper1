@@ -1,0 +1,87 @@
+.globe-3d-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.globe-3d-mount {
+  position: relative;
+  background: radial-gradient(circle at 30% 30%, 
+    rgba(74, 144, 226, 0.1) 0%, 
+    rgba(30, 58, 138, 0.05) 50%, 
+    transparent 70%);
+}
+
+.globe-3d-mount canvas {
+  border-radius: 50%;
+}
+
+.globe-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(74, 144, 226, 0.3);
+  border-top: 3px solid #4a90e2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Fixed positioning for hero section */
+.fixed-globe-container {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  z-index: 1000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .globe-3d-container {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .globe-3d-mount {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .fixed-globe-container {
+    top: 1.5rem;
+    left: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .globe-3d-container {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .globe-3d-mount {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .fixed-globe-container {
+    top: 1rem;
+    left: 1rem;
+  }
+}

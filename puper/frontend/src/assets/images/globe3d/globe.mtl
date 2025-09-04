@@ -1,0 +1,32 @@
+newmtl globe_mat
+Pr 0.5),
+Ni 1.45
+Ka 0 0 0
+Pm 0
+d 1.0
+Ke 0.0
+Kd 0.5 0.5 0.5
+Tr 0
+illum 7
+Ks 1 1 1
+adobe_interior_color 1.0 1.0 1.0
+adobe_density 0.0
+Ns 16
+adobe_translucence 0.0
+newmtl stand_mat
+Ni 1.45
+Ka 0 0 0
+d 1.0
+Ke 0.0
+Kd 0 0 0
+adobe_map_normal globe_STB89FG/stand_mat_Normal.png
+Tr 0
+illum 7
+Ks 1 1 1
+adobe_translucence 0.0
+adobe_map_roughness globe_STB89FG/stand_mat_Roughness.png
+adobe_interior_color 1.0 1.0 1.0
+adobe_density 0.0
+map_Pm globe_STB89FG/stand_mat_Metallic.png
+Ns 16
+map_Kd globe_STB89FG/stand_mat_BaseColor.png
