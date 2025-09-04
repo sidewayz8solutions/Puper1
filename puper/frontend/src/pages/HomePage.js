@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import heroVideo from '../assets/images/hero-video.mp4';
 import Globe3D from '../components/Globe3D';
+import Footer from '../components/Layout/Footer';
 import './Homepage.css';
 import '../components/Globe3D.css';
 
@@ -177,6 +178,9 @@ const HomePage = () => {
           </div>
         </motion.div>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
