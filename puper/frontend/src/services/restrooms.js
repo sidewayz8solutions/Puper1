@@ -103,6 +103,76 @@ export const searchRestrooms = async (query, lat, lon, filters = {}) => {
   }
 };
 
+// Search for establishments by address
+export const searchEstablishmentsByAddress = async (address, searchQuery = '') => {
+  try {
+    await initializePlaces();
+
+    const result = await googlePlacesService.searchEstablishmentsByAddress(address, searchQuery);
+    return result;
+  } catch (error) {
+    console.error('Error searching establishments by address:', error);
+    throw error;
+  }
+};
+
+// Search for restrooms at a specific establishment
+export const searchRestroomsAtEstablishment = async (establishmentName, address) => {
+  try {
+    await initializePlaces();
+
+    const restrooms = await googlePlacesService.searchRestroomsAtEstablishment(establishmentName, address);
+    return restrooms;
+  } catch (error) {
+    console.error('Error searching restrooms at establishment:', error);
+    throw error;
+  }
+};
+
+// Combined address search - finds establishments and their restrooms
+export const searchAddressForRestrooms = async (address, establishmentQuery = '') => {
+  try {
+    await initializePlaces();
+
+    // First, find establishments at the address
+    const establishmentResult = await googlePlacesService.searchEstablishmentsByAddress(address, establishmentQuery);
+
+    // For each establishment, try to find restroom information
+    const establishmentsWithRestrooms = await Promise.all(
+      establishmentResult.establishments.map(async (establishment) => {
+        try {
+          const restrooms = await googlePlacesService.searchRestroomsAtEstablishment(
+            establishment.name,
+            establishment.address
+          );
+          return {
+            ...establishment,
+            restrooms: restrooms,
+            hasRestrooms: restrooms.length > 0
+          };
+        } catch (error) {
+          console.warn(`Failed to find restrooms for ${establishment.name}:`, error);
+          return {
+            ...establishment,
+            restrooms: [],
+            hasRestrooms: false
+          };
+        }
+      })
+    );
+
+    return {
+      searchLocation: establishmentResult.searchLocation,
+      establishments: establishmentsWithRestrooms,
+      totalEstablishments: establishmentsWithRestrooms.length,
+      establishmentsWithRestrooms: establishmentsWithRestrooms.filter(e => e.hasRestrooms).length
+    };
+  } catch (error) {
+    console.error('Error searching address for restrooms:', error);
+    throw error;
+  }
+};
+
 export const addReview = async (restroomId, reviewData) => {
   return await restroomService.addReview(restroomId, reviewData);
 };

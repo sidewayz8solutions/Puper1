@@ -129,6 +129,113 @@ export class GooglePlacesService {
     });
   }
 
+  // Search for establishments by address
+  async searchEstablishmentsByAddress(address, searchQuery = '') {
+    if (!this.service) {
+      throw new Error('Google Places service not initialized');
+    }
+
+    // First, geocode the address to get coordinates
+    const geocoder = new window.google.maps.Geocoder();
+
+    return new Promise((resolve, reject) => {
+      geocoder.geocode({ address: address }, (geocodeResults, geocodeStatus) => {
+        if (geocodeStatus !== 'OK' || !geocodeResults.length) {
+          reject(new Error(`Geocoding failed for address: ${address}`));
+          return;
+        }
+
+        const location = geocodeResults[0].geometry.location;
+        const lat = location.lat();
+        const lng = location.lng();
+
+        // Now search for establishments near this address
+        const request = {
+          location: location,
+          radius: 5000, // 5km radius around the address
+          query: searchQuery || 'restaurant store shop establishment',
+          type: ['establishment']
+        };
+
+        this.service.textSearch(request, (results, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+            const establishments = results.map(place => ({
+              id: place.place_id,
+              name: place.name,
+              address: place.formatted_address,
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng(),
+              rating: place.rating || 0,
+              user_ratings_total: place.user_ratings_total || 0,
+              price_level: place.price_level,
+              opening_hours: place.opening_hours,
+              photos: place.photos,
+              types: place.types,
+              business_status: place.business_status,
+              distance: this.calculateDistance(lat, lng, place.geometry.location.lat(), place.geometry.location.lng()),
+              searchLocation: {
+                lat: lat,
+                lng: lng,
+                address: geocodeResults[0].formatted_address
+              }
+            }));
+
+            resolve({
+              establishments,
+              searchLocation: {
+                lat: lat,
+                lng: lng,
+                address: geocodeResults[0].formatted_address
+              }
+            });
+          } else {
+            reject(new Error(`Establishment search failed: ${status}`));
+          }
+        });
+      });
+    });
+  }
+
+  // Search for restrooms at a specific establishment
+  async searchRestroomsAtEstablishment(establishmentName, address) {
+    if (!this.service) {
+      throw new Error('Google Places service not initialized');
+    }
+
+    return new Promise((resolve, reject) => {
+      const query = `${establishmentName} ${address} restroom toilet bathroom`;
+
+      const request = {
+        query: query,
+        type: ['establishment']
+      };
+
+      this.service.textSearch(request, (results, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          const restrooms = results.map(place => ({
+            id: place.place_id,
+            name: place.name,
+            address: place.formatted_address,
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+            rating: place.rating || 0,
+            user_ratings_total: place.user_ratings_total || 0,
+            price_level: place.price_level,
+            opening_hours: place.opening_hours,
+            photos: place.photos,
+            types: place.types,
+            business_status: place.business_status,
+            establishment_name: establishmentName
+          }));
+
+          resolve(restrooms);
+        } else {
+          reject(new Error(`Restroom search at establishment failed: ${status}`));
+        }
+      });
+    });
+  }
+
   // Get detailed information about a specific place with accessibility data
   async getPlaceDetails(placeId) {
     if (!this.service) {
