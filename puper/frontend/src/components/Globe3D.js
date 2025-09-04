@@ -27,19 +27,19 @@ const Globe3D = () => {
     // Camera setup
     const camera = new THREE.PerspectiveCamera(
       50,
-      1, // aspect ratio 1:1 for square container
+      1, // aspect ratio 1:1 for perfect circle
       0.1,
       1000
     );
     camera.position.set(0, 0, 3);
 
-    // Renderer setup
+    // Renderer setup - perfect square for circular container
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
       powerPreference: "high-performance"
     });
-    renderer.setSize(120, 120);
+    renderer.setSize(120, 120); // Perfect square
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
     renderer.shadowMap.enabled = true;

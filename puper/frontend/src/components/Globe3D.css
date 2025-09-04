@@ -5,18 +5,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 .globe-3d-mount {
   position: relative;
-  background: radial-gradient(circle at 30% 30%, 
-    rgba(74, 144, 226, 0.1) 0%, 
-    rgba(30, 58, 138, 0.05) 50%, 
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 30% 30%,
+    rgba(74, 144, 226, 0.1) 0%,
+    rgba(30, 58, 138, 0.05) 50%,
     transparent 70%);
 }
 
 .globe-3d-mount canvas {
   border-radius: 50%;
+  width: 120px !important;
+  height: 120px !important;
+  display: block;
 }
 
 .globe-loading {
@@ -57,12 +66,17 @@
     width: 100px;
     height: 100px;
   }
-  
+
   .globe-3d-mount {
     width: 100px;
     height: 100px;
   }
-  
+
+  .globe-3d-mount canvas {
+    width: 100px !important;
+    height: 100px !important;
+  }
+
   .fixed-globe-container {
     top: 1.5rem;
     left: 1.5rem;
@@ -74,12 +88,17 @@
     width: 80px;
     height: 80px;
   }
-  
+
   .globe-3d-mount {
     width: 80px;
     height: 80px;
   }
-  
+
+  .globe-3d-mount canvas {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
   .fixed-globe-container {
     top: 1rem;
     left: 1rem;
