@@ -188,8 +188,8 @@ const Globe3D = () => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div 
-          ref={mountRef} 
+        <div
+          ref={mountRef}
           className="globe-3d-mount"
           style={{
             width: '120px',
@@ -197,10 +197,11 @@ const Globe3D = () => {
             cursor: 'pointer',
             borderRadius: '50%',
             overflow: 'hidden',
-            boxShadow: isHovered 
-              ? '0 0 30px rgba(74, 144, 226, 0.6)' 
+            boxShadow: isHovered
+              ? '0 0 30px rgba(74, 144, 226, 0.6)'
               : '0 0 20px rgba(74, 144, 226, 0.3)',
-            transition: 'box-shadow 0.3s ease'
+            transition: 'box-shadow 0.3s ease',
+            pointerEvents: 'auto'
           }}
         />
         {!isLoaded && (

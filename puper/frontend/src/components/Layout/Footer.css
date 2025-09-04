@@ -24,7 +24,6 @@
   color: rgb(255, 248, 189);
   margin-bottom: 1rem;
   font-size: 1.25rem;
-  text-shadow: 0 0 10px rgb(255, 248, 189), 0 0 20px rgb(255, 248, 189), 0 0 30px rgb(255, 248, 189);
 }
 
 .footer-section h4 {
@@ -32,14 +31,12 @@
   color: rgb(255, 248, 189);
   margin-bottom: 0.75rem;
   font-size: 1.1rem;
-  text-shadow: 0 0 8px rgb(255, 248, 189), 0 0 16px rgb(255, 248, 189);
 }
 
 .footer-section p {
   color: rgb(255, 248, 189);
   line-height: 1.6;
   margin-bottom: 1rem;
-  text-shadow: 0 0 6px rgb(255, 248, 189), 0 0 12px rgb(255, 248, 189);
 }
 
 .footer-section ul {
@@ -71,13 +68,11 @@
   color: rgba(241, 255, 133, 0.8);
   font-size: 1.5rem;
   transition: var(--transition);
-  text-shadow: 0 0 8px rgba(241, 255, 133, 0.6), 0 0 16px rgba(241, 255, 133, 0.4);
 }
 
 .social-links a:hover {
   color: rgb(13, 255, 231, 0.92);
   transform: translateY(-2px);
-  text-shadow: 0 0 10px rgb(13, 255, 231), 0 0 20px rgb(13, 255, 231);
 }
 
 .footer-bottom {
@@ -86,7 +81,6 @@
   padding: 1rem 2rem;
   text-align: center;
   color: rgba(13, 255, 231, 0.92);
-  text-shadow: 0 0 8px rgba(13, 255, 231, 0.6), 0 0 16px rgba(13, 255, 231, 0.4);
 }
 
 .footer-bottom p {

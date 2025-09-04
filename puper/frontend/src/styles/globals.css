@@ -6,13 +6,15 @@
   box-sizing: border-box;
 }
 
-/* Ensure no white borders anywhere */
+/* Ensure no white borders anywhere - black background */
 html {
   background: #000 !important;
+  background-color: #000 !important;
 }
 
 body {
   background: #000 !important;
+  background-color: #000 !important;
 }
 
 #root {
@@ -22,6 +24,8 @@ body {
   height: 100vh !important;
   position: relative;
   overflow-x: hidden;
+  background: #000 !important;
+  background-color: #000 !important;
 }
 
 html, body {
