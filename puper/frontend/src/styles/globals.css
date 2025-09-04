@@ -17,18 +17,88 @@ body {
   background-color: #000 !important;
 }
 
-/* Remove any white borders from home page */
-.home-page {
+/* AGGRESSIVE WHITE BORDER REMOVAL */
+* {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Force black background on everything */
+*:before, *:after {
   background: #000 !important;
+  border: none !important;
+}
+
+/* Remove any possible white space */
+html, body, #root, .home-page, .hero-section {
+  background: #000 !important;
+  background-color: #000 !important;
   border: none !important;
   margin: 0 !important;
   padding: 0 !important;
-  width: 100vw !important;
-  position: relative !important;
 }
 
-.home-page * {
+html {
+  margin: 0 !important;
+  padding: 0 !important;
   border: none !important;
+  outline: none !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow-x: hidden !important;
+}
+
+#root {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: relative !important;
+  overflow-x: hidden !important;
+}
+
+.home-page {
+  background: #000 !important;
+  background-color: #000 !important;
+  border: none !important;
+  outline: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: relative !important;
+  overflow-x: hidden !important;
+}
+
+.hero-section {
+  background: #000 !important;
+  background-color: #000 !important;
+  border: none !important;
+  outline: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
 #root {

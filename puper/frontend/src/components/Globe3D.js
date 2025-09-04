@@ -171,10 +171,14 @@ const Globe3D = () => {
       }
       renderer.dispose();
     };
-  }, [isHovered]);
+  }, []); // Remove isHovered dependency to prevent re-rendering
 
-  const handleMouseEnter = () => setIsHovered(true);
-  const handleMouseLeave = () => setIsHovered(false);
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
 
   return (
     <Link to="/map" style={{ textDecoration: 'none' }}>

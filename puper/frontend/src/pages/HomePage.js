@@ -46,6 +46,14 @@ const HomePage = () => {
         transition={{ duration: 1.2, delay: 0.5 }}
       >
         <GlobeButton />
+        <motion.div
+          className="globe-label-home"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: videoLoaded ? 1 : 0, y: videoLoaded ? 0 : 20 }}
+          transition={{ duration: 1, delay: 1 }}
+        >
+          Map to Relief
+        </motion.div>
       </motion.div>
       </section>
       
