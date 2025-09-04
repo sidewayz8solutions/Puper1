@@ -10,29 +10,33 @@ const GlobeButton = () => {
   return (
     <Link to="/map" className="globe-link">
       <motion.div
-        className="interactive-globe-container"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
+        className="interactive-globe-container-large"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.98 }}
         onHoverStart={() => setIsHovered(true)}
         onHoverEnd={() => setIsHovered(false)}
       >
-        <div className="globe-sphere">
+        <div className="globe-sphere-large">
           <div className="globe-surface">
             <div className="continent continent-1"></div>
             <div className="continent continent-2"></div>
             <div className="continent continent-3"></div>
             <div className="continent continent-4"></div>
             <div className="continent continent-5"></div>
+            <div className="continent continent-6"></div>
+            <div className="continent continent-7"></div>
           </div>
-          <div className="globe-atmosphere"></div>
+          <div className="globe-atmosphere-large"></div>
+          <div className="globe-glow"></div>
         </div>
         <motion.div
-          className="globe-label"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isHovered ? 1 : 0.7, y: isHovered ? 0 : 10 }}
+          className="globe-label-large"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: isHovered ? 1 : 0.9, y: isHovered ? 0 : 15 }}
+          transition={{ duration: 0.3 }}
         >
-          <span className="globe-text">EXPLORE MAP</span>
-          <span className="globe-icon">🌍</span>
+          <span className="globe-title">🌍 Explore Restrooms</span>
+          <span className="globe-subtitle">Click to start your journey</span>
         </motion.div>
       </motion.div>
     </Link>
@@ -66,16 +70,13 @@ const HomePage = () => {
         >
           <source src={heroVideo} type="video/mp4" />
         </video>
-        
-        {/* Video overlay for better contrast */}
-        <div className="video-overlay" />
-        
-        {/* Interactive Globe - Top left corner */}
+
+        {/* Interactive Globe - Top Left, Large */}
         <motion.div
-          className="hero-globe-container"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: videoLoaded ? 1 : 0, x: videoLoaded ? 0 : -50 }}
-          transition={{ duration: 1, delay: 0.5 }}
+          className="hero-globe-container-large"
+          initial={{ opacity: 0, x: -100, y: -100 }}
+          animate={{ opacity: videoLoaded ? 1 : 0, x: videoLoaded ? 0 : -100, y: videoLoaded ? 0 : -100 }}
+          transition={{ duration: 1.2, delay: 0.5 }}
         >
           <GlobeButton />
         </motion.div>

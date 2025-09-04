@@ -135,13 +135,30 @@ export class GooglePlacesService {
       throw new Error('Google Places service not initialized');
     }
 
+    // Ensure Google Maps is loaded
+    if (!window.google || !window.google.maps) {
+      await initGoogleMaps();
+    }
+
     // First, geocode the address to get coordinates
     const geocoder = new window.google.maps.Geocoder();
 
     return new Promise((resolve, reject) => {
-      geocoder.geocode({ address: address }, (geocodeResults, geocodeStatus) => {
-        if (geocodeStatus !== 'OK' || !geocodeResults.length) {
-          reject(new Error(`Geocoding failed for address: ${address}`));
+      console.log('🔍 Geocoding address:', address);
+
+      geocoder.geocode({
+        address: address,
+        region: 'US' // Bias towards US results
+      }, (geocodeResults, geocodeStatus) => {
+        console.log('📍 Geocoding status:', geocodeStatus, 'Results:', geocodeResults);
+
+        if (geocodeStatus !== 'OK') {
+          reject(new Error(`Geocoding failed for address "${address}": ${geocodeStatus}`));
+          return;
+        }
+
+        if (!geocodeResults || geocodeResults.length === 0) {
+          reject(new Error(`No results found for address: ${address}`));
           return;
         }
 

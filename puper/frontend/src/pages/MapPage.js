@@ -800,8 +800,18 @@ const MapPage = () => {
 
     } catch (error) {
       console.error('❌ Address search failed:', error);
-      // Show error message to user
-      alert(`Failed to search address: ${error.message}`);
+
+      // Show more helpful error message to user
+      let errorMessage = 'Failed to search address';
+      if (error.message.includes('Geocoding failed')) {
+        errorMessage = `Could not find location "${address}". Please try a more specific address (e.g., "123 Main St, New York, NY")`;
+      } else if (error.message.includes('not initialized')) {
+        errorMessage = 'Maps service is loading. Please try again in a moment.';
+      } else {
+        errorMessage = `Search failed: ${error.message}`;
+      }
+
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
