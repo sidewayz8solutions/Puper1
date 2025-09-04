@@ -170,6 +170,38 @@
   pointer-events: none;
 }
 
+/* Large Globe Atmosphere */
+.globe-atmosphere-large {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 166px;
+  height: 166px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(135, 206, 235, 0.3) 30%,
+    rgba(59, 130, 246, 0.2) 50%,
+    transparent 70%);
+  pointer-events: none;
+}
+
+/* Globe Glow Effect */
+.globe-glow {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(59, 130, 246, 0.4) 0%,
+    rgba(59, 130, 246, 0.2) 50%,
+    transparent 70%);
+  pointer-events: none;
+  animation: pulse 3s ease-in-out infinite;
+}
+
 @keyframes rotate {
   from {
     transform: rotateY(0deg);

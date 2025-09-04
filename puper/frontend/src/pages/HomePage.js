@@ -29,15 +29,7 @@ const GlobeButton = () => {
           <div className="globe-atmosphere-large"></div>
           <div className="globe-glow"></div>
         </div>
-        <motion.div
-          className="globe-label-large"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: isHovered ? 1 : 0.9, y: isHovered ? 0 : 15 }}
-          transition={{ duration: 0.3 }}
-        >
-          <span className="globe-title">🌍 Explore Restrooms</span>
-          <span className="globe-subtitle">Click to start your journey</span>
-        </motion.div>
+
       </motion.div>
     </Link>
   );
@@ -71,15 +63,15 @@ const HomePage = () => {
           <source src={heroVideo} type="video/mp4" />
         </video>
 
-        {/* Interactive Globe - Top Left, Large */}
-        <motion.div
-          className="hero-globe-container-large"
-          initial={{ opacity: 0, x: -100, y: -100 }}
-          animate={{ opacity: videoLoaded ? 1 : 0, x: videoLoaded ? 0 : -100, y: videoLoaded ? 0 : -100 }}
-          transition={{ duration: 1.2, delay: 0.5 }}
-        >
-          <GlobeButton />
-        </motion.div>
+      {/* Fixed Globe - Top Left, Sticks to Screen */}
+      <motion.div
+        className="fixed-globe-container"
+        initial={{ opacity: 0, x: -100, y: -100 }}
+        animate={{ opacity: videoLoaded ? 1 : 0, x: videoLoaded ? 0 : -100, y: videoLoaded ? 0 : -100 }}
+        transition={{ duration: 1.2, delay: 0.5 }}
+      >
+        <GlobeButton />
+      </motion.div>
       </section>
       
       {/* Features Section */}
