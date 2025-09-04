@@ -2,8 +2,14 @@
 
 .home-page {
   min-height: 100vh;
+  width: 100vw;
   overflow-x: hidden;
-  background: #000000;
+  background: #000000 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative;
+  border: none !important;
+  outline: none !important;
 }
 
 /* Hero Section */

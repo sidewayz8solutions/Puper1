@@ -17,6 +17,20 @@ body {
   background-color: #000 !important;
 }
 
+/* Remove any white borders from home page */
+.home-page {
+  background: #000 !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  position: relative !important;
+}
+
+.home-page * {
+  border: none !important;
+}
+
 #root {
   margin: 0 !important;
   padding: 0 !important;

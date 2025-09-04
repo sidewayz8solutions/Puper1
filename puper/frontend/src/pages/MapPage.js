@@ -10,6 +10,7 @@ import {
 
 import { restroomService, supabase } from '../services/supabase';
 import { googlePlacesService, initGoogleMaps } from '../services/googleMaps';
+import AddressAutocomplete from '../components/AddressAutocomplete';
 import './MapPage.css';
 
 const MapPage = () => {
@@ -1015,16 +1016,19 @@ const MapPage = () => {
           <div className="search-content">
             <div className="search-input-wrapper">
               <FaSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search restrooms or enter address..."
+              <AddressAutocomplete
                 value={searchQuery}
                 onChange={(e) => handleSearchInputChange(e.target.value)}
+                onPlaceSelect={(addressData) => {
+                  // Automatically execute search when address is selected
+                  handleAddressSearch(addressData.address);
+                }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     executeSearch();
                   }
                 }}
+                placeholder="Search restrooms or enter address..."
                 className="search-input"
               />
               <button

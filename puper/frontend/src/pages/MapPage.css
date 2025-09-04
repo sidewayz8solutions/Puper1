@@ -147,11 +147,7 @@
 }
 
 .search-icon {
-  position: absolute;
-  left: 1rem;
-  color: #a0aec0;
-  font-size: 1.1rem;
-  z-index: 2;
+  display: none;
 }
 
 .search-input {
