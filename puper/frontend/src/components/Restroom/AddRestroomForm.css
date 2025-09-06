@@ -70,7 +70,7 @@
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: var(--psychedelic-purple);
+  border-color: rgb(--yellow);
   box-shadow: 0 0 0 3px rgba(111, 2, 214, 0.1);
 }
 
@@ -128,11 +128,11 @@
   gap: 1rem;
   justify-content: flex-end;
   padding-top: 2rem;
-  border-top: 1px solid var(--marble-gray);
+  border-top: 1px solid var(--yellow);
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, var(--psychedelic-purple), var(--psychedelic-magenta)) !important;
+  background: rgb(transparent) !important;
   color: white !important;
   border: none !important;
 }
@@ -173,7 +173,7 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: var(--primary-brown);
+  color: rgb(yellow));
   cursor: pointer;
   padding: 0.5rem;
   border-radius: var(--radius);
@@ -181,7 +181,7 @@
 }
 
 .close-btn:hover {
-  background: var(--marble-gray);
+  background: var(--yellow);
   color: var(--red);
 }
 
