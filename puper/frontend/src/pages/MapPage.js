@@ -946,7 +946,7 @@ const MapPage = () => {
   // Create toilet rating selector component
   const ToiletRatingSelector = ({ value, onChange, label }) => (
     <div className="toilet-rating-selector">
-      <label>{label}</label>
+      <label style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important' }}>{label}</label>
       <div className="toilet-icons">
         {[1, 2, 3, 4, 5].map((rating) => (
           <span
@@ -966,7 +966,7 @@ const MapPage = () => {
             🚽
           </span>
         ))}
-        <span style={{ marginLeft: '12px', color: '#FFFFFF', fontWeight: '500', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)' }}>
+        <span style={{ marginLeft: '12px', color: '#FFFFFF !important', fontWeight: 'bold !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important' }}>
           {value > 0 ? `${value} toilet${value !== 1 ? 's' : ''}` : 'Not rated'}
         </span>
       </div>
@@ -1306,7 +1306,7 @@ const MapPage = () => {
             >
               <div className="modal-header">
                 <FaPlus className="modal-icon" />
-                <span>Add & Rate New Restroom</span>
+                <span style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important' }}>Add & Rate New Restroom</span>
                 <button
                   className="close-btn"
                   onClick={() => {
@@ -1362,22 +1362,25 @@ const MapPage = () => {
                     placeholder="Restroom name (e.g., Starbucks on Main St)..."
                     required
                     className="form-input"
+                    style={{ color: '#FFFFFF !important', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.9) !important' }}
                   />
                   <textarea
                     name="description"
                     placeholder="Description (optional)..."
                     className="form-input"
                     rows="2"
+                    style={{ color: '#FFFFFF !important', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.9) !important' }}
                   />
                   
                   <div className="rating-section">
                     <h3 style={{
-                      color: '#FFFFFF',
+                      color: '#FFFFFF !important',
                       fontFamily: 'Bebas Neue, cursive',
                       letterSpacing: '1px',
                       marginBottom: '1rem',
                       textAlign: 'center',
-                      textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
+                      textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important',
+                      fontWeight: 'bold !important'
                     }}>
                       Rate This Restroom
                     </h3>
@@ -1412,7 +1415,7 @@ const MapPage = () => {
                       onChange={(e) => setNewRestroomRating({...newRestroomRating, comment: e.target.value})}
                       className="form-input"
                       rows="2"
-                      style={{ marginTop: '1rem' }}
+                      style={{ marginTop: '1rem', color: '#FFFFFF !important', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.9) !important' }}
                     />
                     
                     {(newRestroomRating.overall > 0 || newRestroomRating.cleanliness > 0 || 
@@ -1431,13 +1434,14 @@ const MapPage = () => {
                   
                   <label className="form-checkbox">
                     <input type="checkbox" name="accessible" />
-                    <span>♿ Wheelchair Accessible</span>
+                    <span style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important' }}>♿ Wheelchair Accessible</span>
                   </label>
                   
                   <button
                     type="submit"
                     disabled={!addLocation}
                     className={`form-submit ${addLocation ? 'enabled' : 'disabled'}`}
+                    style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important' }}
                   >
                     {addLocation ? 'Add & Rate Restroom' : 'Select location on map first'}
                   </button>
