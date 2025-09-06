@@ -517,7 +517,7 @@
   font-family: 'Bebas Neue', cursive;
   font-size: 1.2rem;
   letter-spacing: 2px;
-  color: #f3ff0b;
+  color: #f3ff0b00;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
@@ -533,7 +533,7 @@
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(255, 244, 31);
   transform: scale(1.1);
 }
 
@@ -543,7 +543,7 @@
 }
 
 .modal-instruction {
-  color: var(--psychedelic-lime);
+  color: rgb(255, 235, 88);
   margin-bottom: 1rem;
   font-family: 'Bebas Neue', cursive;
   letter-spacing: 1px;
