@@ -477,3 +477,9 @@ vgcore.*
 # Profiling
 gmon.out
 *.prof
+
+# React Native / Swift Package Manager
+PuperNative/.build/
+PuperNative/build/
+*.xcworkspace
+*.xcodeproj
