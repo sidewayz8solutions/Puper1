@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-  FaMapMarkerAlt, FaClock, FaToilet, FaHeart, FaNavigation,
-  FaFilter, FaRefresh, FaTrophy, FaMedal, FaCrown, FaStar
+  FaMapMarkerAlt, FaClock, FaToilet, FaHeart, FaLocationArrow,
+  FaFilter, FaSync, FaTrophy, FaMedal, FaCrown, FaStar
 } from 'react-icons/fa';
 import { getNearbyRestrooms } from '../services/restrooms';
 import './RestroomRankingPage.css';
@@ -234,7 +234,7 @@ const RestroomRankingPage = () => {
               onClick={handleNavigate}
               aria-label="Get directions"
             >
-              <FaNavigation />
+              <FaLocationArrow />
             </button>
             <button 
               className="action-button favorite-btn"
@@ -287,7 +287,7 @@ const RestroomRankingPage = () => {
             <FaMapMarkerAlt />
             <span>{currentArea}</span>
             <button onClick={getCurrentLocation} className="refresh-button">
-              <FaRefresh className={refreshing ? 'spinning' : ''} />
+              <FaSync className={refreshing ? 'spinning' : ''} />
             </button>
           </div>
 

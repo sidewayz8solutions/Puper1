@@ -27,7 +27,7 @@ const Header = () => {
             <FaPlus /> Add Restroom
           </Link>
           <Link to="/leaderboard" className="nav-item">
-            <FaTrophy /> Leaderboard
+            <FaTrophy /> Rankings
           </Link>
           
           {isAuthenticated ? (
