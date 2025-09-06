@@ -340,14 +340,74 @@ const MapPage = () => {
     setShowAddForm(true);
   };
 
-  // Load restrooms when map is ready
+  // Load restrooms when map is ready and handle URL parameters and handle URL parameters
   useEffect(() => {
-    if (map && mapLoaded && userLocation) {
-      loadRestrooms(userLocation);
-    } else if (map && mapLoaded) {
-      loadRestrooms(null);
+      ded) {
+      // Load restrooms based on user location if available
+      if (userLocation) {
+          loadRestrooms(userLocation);
+      } else{
+        loadRestrooms(null);
+      }
+      
+      // Check if we need to show a specific restroom from URL
+      const restroomId = searchParams.get('restroom');
+      if (restroomId) {
+        // Find the restroom in the loaded restrooms or fetch it
+        const findAndSelectRestroom = async () => {
+          try {
+            const restroomData = await restroomService.getById(restroomId);
+            if (restroomData) {
+              setSelectedRestroom(restroomData);
+              setShowDetailsModal(true);
+              
+              // Center map on the restroom
+              if (googleMapRef.current && restroomData.lat && (restroomData.lon || restroomData.lng)) {
+                googleMapRef.current.setCenter({
+                  lat: restroomData.lat,
+                  lng: restroomData.lon || restroomData.lng
+                });
+                googleMapRef.current.setZoom(17);
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching restroom details:', error);
+          }
+        };
+        
+        findAndSelectRestroom();
+      }
+      }
+      
+      // Check if we need to show a specific restroom from URL
+      const restroomId = searchParams.get('restroom');
+      if (restroomId) {
+        // Find the restroom in the loaded restrooms or fetch it
+        const findAndSelectRestroom = async () => {
+          try {
+            const restroomData = await restroomService.getById(restroomId);
+            if (restroomData) {
+              setSelectedRestroom(restroomData);
+              setShowDetailsModal(true);
+              
+              // Center map on the restroom
+              if (googleMapRef.current && restroomData.lat && (restroomData.lon || restroomData.lng)) {
+                googleMapRef.current.setCenter({
+                  lat: restroomData.lat,
+                  lng: restroomData.lon || restroomData.lng
+                });
+                googleMapRef.current.setZoom(17);
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching restroom details:', error);
+          }
+        };
+        
+        findAndSelectRestroom();
+      }
     }
-  }, [map, mapLoaded, userLocation]);
+  }, [map, mapLoaded, userLocation, searchParams]);
 
   // Open detailed rating modal
   const openRatingModal = (restroomId) => {
