@@ -966,7 +966,7 @@ const MapPage = () => {
             🚽
           </span>
         ))}
-        <span style={{ marginLeft: '12px', color: '#4a5568', fontWeight: '500' }}>
+        <span style={{ marginLeft: '12px', color: '#FFFFFF', fontWeight: '500', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)' }}>
           {value > 0 ? `${value} toilet${value !== 1 ? 's' : ''}` : 'Not rated'}
         </span>
       </div>
@@ -1206,18 +1206,19 @@ const MapPage = () => {
               <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚽</div>
                 <h3 style={{
-                  color: 'var(--psychedelic-lime)',
+                  color: '#FFFFFF',
                   fontFamily: 'Bebas Neue, cursive',
                   fontSize: '1.5rem',
                   letterSpacing: '2px',
-                  marginBottom: '0.5rem'
+                  marginBottom: '0.5rem',
+                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
                 }}>
                   Add Restroom Here?
                 </h3>
                 <p style={{
-                  color: 'var(--psychedelic-lime)',
+                  color: '#FFFFFF',
                   fontSize: '1rem',
-                  opacity: 0.8
+                  textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)'
                 }}>
                   Would you like to add a new restroom at this location?
                 </p>
@@ -1232,13 +1233,14 @@ const MapPage = () => {
                   onClick={handleCancelAddRestroom}
                   style={{
                     padding: '0.75rem 1.5rem',
-                    background: 'transparent',
-                    border: '2px solid var(--psychedelic-pink)',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '2px solid #FFFFFF',
                     borderRadius: '12px',
-                    color: 'var(--psychedelic-pink)',
+                    color: '#FFFFFF',
                     fontWeight: '600',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
+                    textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)'
                   }}
                 >
                   Cancel
@@ -1247,13 +1249,14 @@ const MapPage = () => {
                   onClick={handleConfirmAddRestroom}
                   style={{
                     padding: '0.75rem 1.5rem',
-                    background: 'linear-gradient(135deg, var(--psychedelic-lime), var(--psychedelic-cyan))',
+                    background: 'linear-gradient(135deg, #00FF88, #00DDFF)',
                     border: 'none',
                     borderRadius: '12px',
-                    color: 'black',
+                    color: '#000000',
                     fontWeight: '600',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(0, 255, 136, 0.3)'
                   }}
                 >
                   Yes, Add Restroom
@@ -1368,12 +1371,13 @@ const MapPage = () => {
                   />
                   
                   <div className="rating-section">
-                    <h3 style={{ 
-                      color: 'var(--psychedelic-lime)', 
+                    <h3 style={{
+                      color: '#FFFFFF',
                       fontFamily: 'Bebas Neue, cursive',
                       letterSpacing: '1px',
                       marginBottom: '1rem',
-                      textAlign: 'center'
+                      textAlign: 'center',
+                      textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
                     }}>
                       Rate This Restroom
                     </h3>

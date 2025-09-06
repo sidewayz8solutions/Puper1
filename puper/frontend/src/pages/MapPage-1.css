@@ -408,7 +408,8 @@
   font-family: 'Bebas Neue', cursive;
   font-size: 1.2rem;
   letter-spacing: 2px;
-  color: var(--psychedelic-lime);
+  color: #FFFFFF;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .close-btn {
@@ -542,8 +543,9 @@
   font-family: 'Bebas Neue', cursive;
   font-size: 1rem;
   letter-spacing: 1px;
-  color: var(--psychedelic-lime);
+  color: #FFFFFF;
   margin-bottom: 0.75rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .toilet-icons {
