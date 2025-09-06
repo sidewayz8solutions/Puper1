@@ -1306,7 +1306,7 @@ const MapPage = () => {
             >
               <div className="modal-header">
                 <FaPlus className="modal-icon" />
-                <span style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important' }}>Add & Rate New Restroom</span>
+                <span style={{ color: '#FFFF38FF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important', position: 'center', top: '2px' }}>Add & Rate New Restroom</span>
                 <button
                   className="close-btn"
                   onClick={() => {
@@ -1443,7 +1443,7 @@ const MapPage = () => {
                     className={`form-submit ${addLocation ? 'enabled' : 'disabled'}`}
                     style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important' }}
                   >
-                    {addLocation ? 'Add & Rate Restroom' : 'Select location on map first'}
+                    {addLocation ? 'Add & Rate Restroom' : 'Select location on map first'} color: '#FFF128FF!important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold
                   </button>
                 </form>
               </div>
