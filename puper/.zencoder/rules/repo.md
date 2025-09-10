@@ -6,22 +6,27 @@ alwaysApply: true
 # Püper Information
 
 ## Summary
+
 Püper is a community-driven platform that helps people find clean, accessible public restrooms along their routes. Users can discover, rate, and review restrooms while earning points and badges for their contributions. The application features an interactive map, community reviews, smart filters, route planning, gamification, and photo uploads.
 
 ## Structure
+
 - **frontend/**: React frontend application with components, pages, services, hooks, and context
 - **SUPABASE_GEOSPATIAL_SETUP.md**: Documentation for setting up PostGIS in Supabase
 - **SUPABASE_REALTIME_SETUP.md**: Documentation for Supabase realtime features
 - **FRONTEND_BACKEND_CONNECTION.md**: Documentation for connecting frontend to backend
 
 ## Language & Runtime
+
 **Language**: JavaScript (React)
 **Version**: React 18
 **Build System**: Custom scripts based on React Scripts
 **Package Manager**: npm
 
 ## Dependencies
+
 **Main Dependencies**:
+
 - React 18.2.0
 - React Router DOM 6.30.1
 - React Query 3.39.3
@@ -40,6 +45,7 @@ Püper is a community-driven platform that helps people find clean, accessible p
 - Autoprefixer 10.4.21
 
 ## Build & Installation
+
 ```bash
 # Install dependencies
 cd frontend
@@ -57,6 +63,7 @@ npm run build
 ```
 
 ## Testing
+
 **Framework**: Jest
 **Test Location**: `frontend/src/**/__tests__/**/*.{js,jsx,ts,tsx}` and `frontend/src/**/*.{spec,test}.{js,jsx,ts,tsx}`
 **Configuration**: Jest configuration in package.json
@@ -66,6 +73,7 @@ npm test
 ```
 
 ## Backend
+
 The project uses Supabase as a backend service with the following features:
 - **Database**: PostgreSQL with PostGIS extension for geospatial data
 - **Authentication**: Supabase Auth
