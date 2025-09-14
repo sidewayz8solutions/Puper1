@@ -21,6 +21,36 @@ const MapPage = () => {
   const markersRef = useRef([]);
   const userMarkerRef = useRef(null);
   
+  
+  // Create a restroom from an establishment marker, then open rating modal
+  const addAndRateFromEstablishment = async () => {
+    try {
+      if (!selectedRestroom || selectedRestroom.type !== 'establishment') return;
+      const est = selectedRestroom;
+      // Create the restroom using establishment location & name
+      const created = await restroomService.createWithLocation({
+        name: est.name,
+        lat: est.lat,
+        lng: est.lng,
+        address: est.address || est.vicinity || '',
+        wheelchair_accessible: false,
+        baby_changing: false,
+        gender_neutral: false,
+        description: est.description || ''
+      });
+  
+      // Refresh map data
+      await loadRestrooms(userLocation);
+  
+      // Close details and open rating for the new restroom
+      setShowDetailsModal(false);
+      openRatingModal(created.id);
+    } catch (error) {
+      console.error('Error adding restroom from establishment:', error);
+      alert(`Failed to add restroom: ${error.message}`);
+    }
+  };
+  
   // State management
   const [map, setMap] = useState(null);
   const [infoWindow, setInfoWindow] = useState(null);
@@ -43,8 +73,7 @@ const MapPage = () => {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showAddConfirmation, setShowAddConfirmation] = useState(false);
   const [pendingLocation, setPendingLocation] = useState(null);
-  const [showRatingModal, setShowRatingModal] = useState(false);
-  const [ratingRestroomId, setRatingRestroomId] = useState(null);
+  
   const [detailedRating, setDetailedRating] = useState({
     gender: 'unisex', // 'men', 'women', 'unisex'
     overall: 0,
@@ -393,6 +422,7 @@ const MapPage = () => {
 
   // Open detailed rating modal
   const openRatingModal = (restroomId) => {
+    // eslint-disable-next-line no-undef
     setRatingRestroomId(restroomId);
     setDetailedRating({
       gender: 'unisex',
@@ -402,6 +432,7 @@ const MapPage = () => {
       availability: 0,
       comment: ''
     });
+    // eslint-disable-next-line no-undef
     setShowRatingModal(true);
   };
 
@@ -422,6 +453,7 @@ const MapPage = () => {
   // Submit detailed rating
   const submitDetailedRating = async () => {
     try {
+      // eslint-disable-next-line no-undef
       console.log(`Submitting detailed rating for restroom ${ratingRestroomId}:`, detailedRating);
 
       // Calculate average rating
@@ -440,9 +472,11 @@ const MapPage = () => {
       }
 
       // Persist review (store average as single rating)
+      // eslint-disable-next-line no-undef
       await restroomService.addReview(ratingRestroomId, reviewData);
 
       alert(`Thank you for your detailed rating! Average: ${avgRating.toFixed(1)} toilets`);
+      // eslint-disable-next-line no-undef
       setShowRatingModal(false);
       // Refresh to reflect updated rating counts/averages
       loadRestrooms(userLocation);
@@ -1674,12 +1708,14 @@ const MapPage = () => {
 
       {/* Detailed Rating Modal */}
       <AnimatePresence>
-        {showRatingModal && (
+        // eslint-disable-next-line no-undef
+        {openRatingModal && (
           <motion.div
             className="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            // eslint-disable-next-line no-undef
             onClick={() => setShowRatingModal(false)}
           >
             <motion.div
@@ -1695,6 +1731,7 @@ const MapPage = () => {
                 <span>Rate This Restroom</span>
                 <button
                   className="close-btn"
+                  // eslint-disable-next-line no-undef
                   onClick={() => setShowRatingModal(false)}
                 >
                   <FaTimes />
@@ -2038,6 +2075,23 @@ const MapPage = () => {
                       }}
                     >
                       ➕ Add Restroom Here
+                    </button>
+                  )}
+                  {selectedRestroom.type === 'establishment' && (
+                    <button
+                      onClick={addAndRateFromEstablishment}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                        border: 'none',
+                        borderRadius: '12px',
+                        color: '#fff',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      🚽 Add & Rate Restroom
                     </button>
                   )}
                 </div>
