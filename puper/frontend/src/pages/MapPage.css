@@ -1049,7 +1049,7 @@
 .gender-selector {
   margin: 1.5rem 0;
   padding: 0.5rem 0;
-  border: 2px solid red; /* Debug border */
+  border: 2px solid rgba(0, 0, 0, 0.134); /* Debug border */
   min-height: 80px; /* Ensure minimum height */
 }
 
@@ -1059,7 +1059,7 @@
   gap: 0.5rem;
   justify-content: center;
   margin-top: 0.75rem;
-  border: 1px solid blue; /* Debug border */
+  border: 1px solid rgb(107, 211, 255); /* Debug border */
   min-height: 50px; /* Ensure minimum height */
 }
 
