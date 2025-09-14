@@ -1045,6 +1045,73 @@
   }
 }
 
+/* Gender selector styles */
+.gender-selector {
+  margin: 1.5rem 0;
+  padding: 0.5rem 0;
+}
+
+.gender-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.gender-option {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  border: 2px solid var(--psychedelic-purple);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  outline: none;
+  white-space: nowrap;
+}
+
+.gender-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.gender-option.active {
+  background: var(--psychedelic-lime) !important;
+  color: #000000 !important;
+  border-color: var(--psychedelic-purple) !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(111, 2, 214, 0.6);
+}
+
+.gender-emoji {
+  font-size: 1.2rem;
+}
+
+.gender-label {
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .gender-options {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .gender-option {
+    width: 100%;
+    max-width: 200px;
+    justify-content: center;
+  }
+}
+
 /* Critical overrides - must be at bottom */
 .add-restroom-modal-content .form-submit.enabled {
   background: #009860 !important;

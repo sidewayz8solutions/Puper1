@@ -41,6 +41,7 @@ const MapPage = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingRestroomId, setRatingRestroomId] = useState(null);
   const [detailedRating, setDetailedRating] = useState({
+    gender: 'unisex', // 'men', 'women', 'unisex'
     overall: 0,
     cleanliness: 0,
     stocked: 0,
@@ -48,6 +49,7 @@ const MapPage = () => {
     comment: ''
   });
   const [newRestroomRating, setNewRestroomRating] = useState({
+    gender: 'unisex', // 'men', 'women', 'unisex'
     overall: 0,
     cleanliness: 0,
     stocked: 0,
@@ -387,6 +389,7 @@ const MapPage = () => {
   const openRatingModal = (restroomId) => {
     setRatingRestroomId(restroomId);
     setDetailedRating({
+      gender: 'unisex',
       overall: 0,
       cleanliness: 0,
       stocked: 0,
@@ -422,7 +425,8 @@ const MapPage = () => {
       // Persist review (store average as single rating)
       await restroomService.addReview(ratingRestroomId, {
         rating: avgRating,
-        comment: detailedRating.comment
+        comment: detailedRating.comment,
+        gender: detailedRating.gender
       });
 
       alert(`Thank you for your detailed rating! Average: ${avgRating.toFixed(1)} toilets`);
@@ -974,6 +978,7 @@ const MapPage = () => {
         stocked_rating: newRestroomRating.stocked,
         availability_rating: newRestroomRating.availability,
         rating_comment: newRestroomRating.comment,
+        rating_gender: newRestroomRating.gender,
         review_count: avgRating > 0 ? 1 : 0
       });
 
@@ -988,7 +993,8 @@ const MapPage = () => {
         cleanliness: 0,
         stocked: 0,
         availability: 0,
-        comment: ''
+        comment: '',
+        gender: 'unisex'
       });
 
       if (window.tempMarker) {
@@ -1044,6 +1050,33 @@ const MapPage = () => {
         <span style={{ marginLeft: '12px', color: '#FFFFFF !important', fontWeight: 'bold !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important' }}>
           {value > 0 ? `${value} toilet${value !== 1 ? 's' : ''}` : 'Not rated'}
         </span>
+      </div>
+    </div>
+  );
+
+  // Create gender selector component
+  const GenderSelector = ({ value, onChange, label }) => (
+    <div className="gender-selector">
+      <label style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important', display: 'block', marginBottom: '1rem' }}>{label}</label>
+      <div className="gender-options">
+        {[
+          { value: 'men', label: 'Men\'s', emoji: '🚹' },
+          { value: 'women', label: 'Women\'s', emoji: '🚺' },
+          { value: 'unisex', label: 'Unisex/Family', emoji: '🚻' }
+        ].map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            className={`gender-option ${value === option.value ? 'active' : ''}`}
+            onClick={() => {
+              console.log('Gender clicked:', option.value, 'Current value:', value);
+              onChange(option.value);
+            }}
+          >
+            <span className="gender-emoji">{option.emoji}</span>
+            <span className="gender-label">{option.label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -1151,7 +1184,8 @@ const MapPage = () => {
                     cleanliness: 0,
                     stocked: 0,
                     availability: 0,
-                    comment: ''
+                    comment: '',
+                    gender: 'unisex'
                   });
                   if (window.tempMarker) {
                     window.tempMarker.setMap(null);
@@ -1359,7 +1393,8 @@ const MapPage = () => {
                 cleanliness: 0,
                 stocked: 0,
                 availability: 0,
-                comment: ''
+                comment: '',
+                gender: 'unisex'
               });
               if (window.tempMarker) {
                 window.tempMarker.setMap(null);
@@ -1393,7 +1428,8 @@ const MapPage = () => {
                       cleanliness: 0,
                       stocked: 0,
                       availability: 0,
-                      comment: ''
+                      comment: '',
+                      gender: 'unisex'
                     });
                     if (window.tempMarker) {
                       window.tempMarker.setMap(null);
@@ -1459,6 +1495,12 @@ const MapPage = () => {
                     }}>
                       Rate This Restroom
                     </h3>
+                    
+                    <GenderSelector
+                      label="Rating Category"
+                      value={newRestroomRating.gender}
+                      onChange={(value) => setNewRestroomRating({...newRestroomRating, gender: value})}
+                    />
                     
                     <ToiletRatingSelector
                       label="Overall Experience"
@@ -1561,6 +1603,12 @@ const MapPage = () => {
                 </button>
               </div>
               <div className="rating-modal-body">
+                <GenderSelector
+                  label="Rating Category"
+                  value={detailedRating.gender}
+                  onChange={(value) => setDetailedRating({...detailedRating, gender: value})}
+                />
+                
                 <ToiletRatingSelector
                   label="Overall Experience"
                   value={detailedRating.overall}
