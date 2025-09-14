@@ -93,6 +93,8 @@ const MapPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', description: '', wheelchair_accessible: false });
   const [reviewGenderFilter, setReviewGenderFilter] = useState('all'); // 'all' | 'men' | 'women' | 'unisex'
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingRestroomId, setRatingRestroomId] = useState(null);
   
   // Stats
   const [stats, setStats] = useState({
@@ -422,7 +424,6 @@ const MapPage = () => {
 
   // Open detailed rating modal
   const openRatingModal = (restroomId) => {
-    // eslint-disable-next-line no-undef
     setRatingRestroomId(restroomId);
     setDetailedRating({
       gender: 'unisex',
@@ -432,7 +433,6 @@ const MapPage = () => {
       availability: 0,
       comment: ''
     });
-    // eslint-disable-next-line no-undef
     setShowRatingModal(true);
   };
 
@@ -453,11 +453,10 @@ const MapPage = () => {
   // Submit detailed rating
   const submitDetailedRating = async () => {
     try {
-      // eslint-disable-next-line no-undef
       console.log(`Submitting detailed rating for restroom ${ratingRestroomId}:`, detailedRating);
 
       // Calculate average rating
-      const avgRating = (detailedRating.overall + detailedRating.cleanliness + 
+      const avgRating = (detailedRating.overall + detailedRating.cleanliness +
                         detailedRating.stocked + detailedRating.availability) / 4;
 
       // Prepare review data - gender field is optional for backward compatibility
@@ -472,11 +471,9 @@ const MapPage = () => {
       }
 
       // Persist review (store average as single rating)
-      // eslint-disable-next-line no-undef
       await restroomService.addReview(ratingRestroomId, reviewData);
 
       alert(`Thank you for your detailed rating! Average: ${avgRating.toFixed(1)} toilets`);
-      // eslint-disable-next-line no-undef
       setShowRatingModal(false);
       // Refresh to reflect updated rating counts/averages
       loadRestrooms(userLocation);
@@ -1708,14 +1705,12 @@ const MapPage = () => {
 
       {/* Detailed Rating Modal */}
       <AnimatePresence>
-        // eslint-disable-next-line no-undef
-        {openRatingModal && (
+        {showRatingModal && (
           <motion.div
             className="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            // eslint-disable-next-line no-undef
             onClick={() => setShowRatingModal(false)}
           >
             <motion.div
@@ -1731,7 +1726,6 @@ const MapPage = () => {
                 <span>Rate This Restroom</span>
                 <button
                   className="close-btn"
-                  // eslint-disable-next-line no-undef
                   onClick={() => setShowRatingModal(false)}
                 >
                   <FaTimes />
