@@ -493,6 +493,36 @@ const MapPage = () => {
         throw new Error(`Invalid rating calculated: ${avgRating}`);
       }
 
+      // Check if this is a Google Places restroom that needs to be created in Supabase first
+      let actualRestroomId = ratingRestroomId;
+      
+      if (ratingRestroomId.startsWith('google_')) {
+        console.log('This is a Google Places restroom, creating Supabase entry first...');
+        
+        // Find the restroom data from our current restrooms list
+        const googleRestroom = restrooms.find(r => r.id === ratingRestroomId);
+        if (!googleRestroom) {
+          throw new Error('Google Places restroom data not found');
+        }
+        
+        // Create a corresponding entry in Supabase
+        const supabaseRestroom = await restroomService.createWithLocation({
+          name: googleRestroom.name,
+          lat: googleRestroom.lat,
+          lng: googleRestroom.lng || googleRestroom.lon,
+          address: googleRestroom.address || googleRestroom.vicinity || '',
+          wheelchair_accessible: !!googleRestroom.wheelchair_accessible,
+          baby_changing: !!googleRestroom.baby_changing,
+          gender_neutral: !!googleRestroom.gender_neutral,
+          description: googleRestroom.description || `Imported from Google Places: ${googleRestroom.name}`,
+          // Store the original Google Place ID for reference
+          google_place_id: googleRestroom.id.replace('google_', '')
+        });
+        
+        console.log('Created Supabase restroom:', supabaseRestroom);
+        actualRestroomId = supabaseRestroom.id;
+      }
+
       // Prepare review data - gender field is optional for backward compatibility
       const reviewData = {
         rating: avgRating,
@@ -507,7 +537,7 @@ const MapPage = () => {
       console.log('Review data to submit:', reviewData);
 
       // Persist review (store average as single rating)
-      await restroomService.addReview(ratingRestroomId, reviewData);
+      await restroomService.addReview(actualRestroomId, reviewData);
 
       alert(`Thank you for your detailed rating! Average: ${avgRating.toFixed(1)} toilets`);
       setShowRatingModal(false);
