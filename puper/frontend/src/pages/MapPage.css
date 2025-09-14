@@ -1066,7 +1066,7 @@
 .gender-option {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #FFFFFF !important;
-  border: 2px solid #6f02d6 !important; /* Use actual color instead of variable */
+  border: 2px solid #02d2d6 !important; /* Use actual color instead of variable */
   border-radius: 8px;
   padding: 0.75rem 1rem;
   margin: 0.25rem;
@@ -1084,7 +1084,7 @@
   min-height: 40px; /* Ensure minimum height */
   position: relative;
   z-index: 1000;
-  background-color: red !important; /* Debug background */
+  background-color: rgba(2, 0, 0, 0.177) !important; /* Debug background */
 }
 
 .gender-option:hover {
