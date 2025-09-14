@@ -1381,7 +1381,7 @@ const MapPage = () => {
             >
               <div className="modal-header">
                 <FaPlus className="modal-icon" />
-                <span style={{ color: '#FFFF38FF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important', position: 'center', top: '2px' }}>Add & Rate New Restroom</span>
+                <span>Add & Rate New Restroom</span>
                 <button
                   className="close-btn"
                   onClick={() => {
