@@ -12,6 +12,14 @@
         ]
       }
     ],
-    "css-prefix-order": "off"
+    "css-prefix-order": "off",
+    "compat-api/html": [
+      "default",
+      {
+        "ignore": [
+          "meta[name=theme-color]"
+        ]
+      }
+    ]
   }
 }
