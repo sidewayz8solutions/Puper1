@@ -1806,8 +1806,14 @@ const MapPage = () => {
                   className="form-submit enabled"
                   onClick={submitDetailedRating}
                   disabled={detailedRating.overall === 0}
+                  style={{
+                    color: 'rgb(255, 255, 255)',
+                    textShadow: 'rgba(0, 0, 0, 0.8) 2px 2px 4px',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem'
+                  }}
                 >
-                  Submit Rating
+                  Add & Rate Restroom
                 </button>
               </div>
             </motion.div>
@@ -2079,7 +2085,7 @@ const MapPage = () => {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      🚽 Rate This Restroom
+                      🚽 Add & Rate Restroom
                     </button>
                   )}
                 </div>
