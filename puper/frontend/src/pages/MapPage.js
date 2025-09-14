@@ -1055,31 +1055,34 @@ const MapPage = () => {
   );
 
   // Create gender selector component
-  const GenderSelector = ({ value, onChange, label }) => (
-    <div className="gender-selector">
-      <label style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important', display: 'block', marginBottom: '1rem' }}>{label}</label>
-      <div className="gender-options">
-        {[
-          { value: 'men', label: 'Men\'s', emoji: '🚹' },
-          { value: 'women', label: 'Women\'s', emoji: '🚺' },
-          { value: 'unisex', label: 'Unisex/Family', emoji: '🚻' }
-        ].map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            className={`gender-option ${value === option.value ? 'active' : ''}`}
-            onClick={() => {
-              console.log('Gender clicked:', option.value, 'Current value:', value);
-              onChange(option.value);
-            }}
-          >
-            <span className="gender-emoji">{option.emoji}</span>
-            <span className="gender-label">{option.label}</span>
-          </button>
-        ))}
+  const GenderSelector = ({ value, onChange, label }) => {
+    console.log('GenderSelector rendered with value:', value);
+    return (
+      <div className="gender-selector">
+        <label style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important', display: 'block', marginBottom: '1rem' }}>{label}</label>
+        <div className="gender-options">
+          {[
+            { value: 'men', label: 'Men\'s', emoji: '🚹' },
+            { value: 'women', label: 'Women\'s', emoji: '🚺' },
+            { value: 'unisex', label: 'Unisex/Family', emoji: '🚻' }
+          ].map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={`gender-option ${value === option.value ? 'active' : ''}`}
+              onClick={() => {
+                console.log('Gender clicked:', option.value, 'Current value:', value);
+                onChange(option.value);
+              }}
+            >
+              <span className="gender-emoji">{option.emoji}</span>
+              <span className="gender-label">{option.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <motion.div
