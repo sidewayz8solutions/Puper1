@@ -22,29 +22,48 @@ const MapPage = () => {
   const userMarkerRef = useRef(null);
   
   
-  // Create a restroom from an establishment marker, then open rating modal
+  // Get or create a restroom from an establishment marker, then open rating modal
   const addAndRateFromEstablishment = async () => {
     try {
       if (!selectedRestroom || selectedRestroom.type !== 'establishment') return;
       const est = selectedRestroom;
-      // Create the restroom using establishment location & name
-      const created = await restroomService.createWithLocation({
-        name: est.name,
-        lat: est.lat,
-        lng: est.lng,
-        address: est.address || est.vicinity || '',
-        wheelchair_accessible: false,
-        baby_changing: false,
-        gender_neutral: false,
-        description: est.description || ''
-      });
+      // 1) Try to find an existing restroom nearby to avoid duplicates
+      let targetRestroom = null;
+      try {
+        // Query a modest radius, but only accept matches within ~50m
+        const nearby = await restroomService.getNearby(est.lat, est.lng, 100); // search window 100m
+        if (Array.isArray(nearby) && nearby.length > 0) {
+          const sorted = [...nearby].sort((a, b) => (a.distance ?? 999999) - (b.distance ?? 999999));
+          const within50 = sorted.filter(r => (r.distance ?? 999999) <= 50);
+          const nameMatch = (n) => (n || '').toLowerCase().includes((est.name || '').toLowerCase().slice(0, 8));
+          // Prefer a name match within 50m, otherwise nearest within 50m
+          const named = within50.find(r => nameMatch(r.name));
+          targetRestroom = named || within50[0] || null;
+        }
+      } catch (e) {
+        console.warn('Nearby lookup failed, will create new restroom:', e.message);
+      }
+
+      // 2) If none found within the tight radius, create the restroom using establishment location & name
+      if (!targetRestroom) {
+        targetRestroom = await restroomService.createWithLocation({
+          name: est.name,
+          lat: est.lat,
+          lng: est.lng,
+          address: est.address || est.vicinity || '',
+          wheelchair_accessible: false,
+          baby_changing: false,
+          gender_neutral: false,
+          description: est.description || ''
+        });
+      }
   
       // Refresh map data
       await loadRestrooms(userLocation);
   
       // Close details and open rating for the new restroom
       setShowDetailsModal(false);
-      openRatingModal(created.id);
+      openRatingModal(targetRestroom.id);
     } catch (error) {
       console.error('Error adding restroom from establishment:', error);
       alert(`Failed to add restroom: ${error.message}`);
@@ -2046,31 +2065,6 @@ const MapPage = () => {
                     🗺️ Get Directions
                   </button>
 
-                  {selectedRestroom.type === 'establishment' && selectedRestroom.restroom_count === 0 && (
-                    <button
-                      onClick={() => {
-                        setShowDetailsModal(false);
-                        // Add restroom at this establishment
-                        setAddLocation({
-                          lat: selectedRestroom.lat,
-                          lng: selectedRestroom.lng
-                        });
-                        setShowAddForm(true);
-                      }}
-                      style={{
-                        padding: '0.75rem 1.5rem',
-                        background: 'transparent',
-                        border: '2px solid var(--psychedelic-pink)',
-                        borderRadius: '12px',
-                        color: 'var(--psychedelic-pink)',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                      }}
-                    >
-                      ➕ Add Restroom Here
-                    </button>
-                  )}
                   {selectedRestroom.type === 'establishment' && (
                     <button
                       onClick={addAndRateFromEstablishment}
@@ -2085,7 +2079,7 @@ const MapPage = () => {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      🚽 Add & Rate Restroom
+                      🚽 Rate This Restroom
                     </button>
                   )}
                 </div>
