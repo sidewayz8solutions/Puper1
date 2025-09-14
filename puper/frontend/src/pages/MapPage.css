@@ -1093,7 +1093,7 @@
 }
 
 .gender-option.active {
-  background: rgba(white)!important;
+  background: var(rgb(251, 146, 146))!important;
   color: #000000 !important;
   border-color: rgba(rgb(109, 206, 255)) !important;
   transform: scale(1.05);
