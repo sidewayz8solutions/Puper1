@@ -1516,7 +1516,12 @@ const MapPage = () => {
                     type="submit"
                     disabled={!addLocation}
                     className={`form-submit ${addLocation ? 'enabled' : 'disabled'}`}
-                    style={{ color: addLocation ? '#000000' : '#999999', textShadow: 'none', fontWeight: 'bold' }}
+                    style={{ 
+                      color: addLocation ? '#FFFFFF' : '#999999', 
+                      textShadow: addLocation ? '2px 2px 4px rgba(0,0,0,0.8)' : 'none', 
+                      fontWeight: 'bold',
+                      fontSize: '1.1rem'
+                    }}
                   >
                     {addLocation ? 'Add & Rate Restroom' : 'Select location on map first'}
                   </button>
