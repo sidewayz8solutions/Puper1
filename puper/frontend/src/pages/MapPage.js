@@ -474,20 +474,37 @@ const MapPage = () => {
     try {
       console.log(`Submitting detailed rating for restroom ${ratingRestroomId}:`, detailedRating);
 
+      // Validate we have a restroom ID
+      if (!ratingRestroomId) {
+        throw new Error('No restroom selected for rating');
+      }
+
+      // Validate we have at least one rating > 0
+      if (detailedRating.overall === 0) {
+        throw new Error('Please provide at least an overall rating');
+      }
+
       // Calculate average rating
       const avgRating = (detailedRating.overall + detailedRating.cleanliness +
                         detailedRating.stocked + detailedRating.availability) / 4;
 
+      // Validate rating is reasonable
+      if (avgRating <= 0 || avgRating > 5) {
+        throw new Error(`Invalid rating calculated: ${avgRating}`);
+      }
+
       // Prepare review data - gender field is optional for backward compatibility
       const reviewData = {
         rating: avgRating,
-        comment: detailedRating.comment
+        comment: detailedRating.comment || ''
       };
 
       // Only include gender if it's supported (to avoid schema errors)
       if (detailedRating.gender) {
         reviewData.gender = detailedRating.gender;
       }
+
+      console.log('Review data to submit:', reviewData);
 
       // Persist review (store average as single rating)
       await restroomService.addReview(ratingRestroomId, reviewData);
@@ -498,7 +515,7 @@ const MapPage = () => {
       loadRestrooms(userLocation);
     } catch (error) {
       console.error('Error submitting detailed rating:', error);
-      alert('Failed to submit rating. Please try again.');
+      alert(`Failed to submit rating: ${error.message}`);
     }
   };
 
