@@ -1167,6 +1167,19 @@
 }
 
 /* Critical overrides - must be at bottom */
+.rating-modal-body .form-submit {
+  display: block;
+  margin: 1rem auto 0;
+}
+
+.rating-modal-body .form-submit.enabled,
+.rating-modal-body .form-submit:disabled {
+  color: #FFFFFF !important;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
+  font-weight: bold !important;
+  font-size: 1.1rem !important;
+}
+
 .add-restroom-modal-content .form-submit.enabled {
   background: #009860 !important;
   color: #FFFFFF !important;
