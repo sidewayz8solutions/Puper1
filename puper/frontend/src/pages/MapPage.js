@@ -2,13 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
-  FaPlus, FaTimes, FaSearch, FaFilter, FaUsers,
-  FaMapMarkerAlt, FaToilet, FaClock, FaWifi, FaBolt, FaSync,
-  FaChartLine, FaGlobe, FaExpand, FaCompass, FaCrosshairs,
-  FaCheckCircle, FaTimesCircle, FaStar
+  FaPlus, FaTimes, FaSearch, FaUsers,
+  FaMapMarkerAlt, FaToilet, FaWifi,
+  FaChartLine, FaCrosshairs
 } from 'react-icons/fa';
 
-import { restroomService, supabase } from '../services/supabase';
+import { restroomService } from '../services/supabase';
 import { googlePlacesService, initGoogleMaps } from '../services/googleMaps';
 import AddressAutocomplete from '../components/AddressAutocomplete';
 import Globe3D from '../components/Globe3D';
@@ -34,7 +33,7 @@ const MapPage = () => {
   const [addMode, setAddMode] = useState(searchParams.get('add') === 'true');
   const [addLocation, setAddLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showAddConfirmation, setShowAddConfirmation] = useState(false);
@@ -55,6 +54,8 @@ const MapPage = () => {
     availability: 0,
     comment: ''
   });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', description: '', wheelchair_accessible: false });
   
   // Stats
   const [stats, setStats] = useState({
@@ -152,6 +153,7 @@ const MapPage = () => {
     };
 
     initializeMap();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Get user location function
@@ -378,6 +380,7 @@ const MapPage = () => {
         findAndSelectRestroom();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, mapLoaded, userLocation, searchParams]);
 
   // Open detailed rating modal
@@ -393,6 +396,20 @@ const MapPage = () => {
     setShowRatingModal(true);
   };
 
+  // Open edit modal populated with restroom data
+  const openEditModal = (restroom) => {
+    if (!restroom) return;
+    setEditForm({
+      name: restroom.name || '',
+      description: restroom.description || '',
+      wheelchair_accessible: !!restroom.wheelchair_accessible
+    });
+    setSelectedRestroom(restroom);
+    setShowEditModal(true);
+  };
+
+  
+
   // Submit detailed rating
   const submitDetailedRating = async () => {
     try {
@@ -402,43 +419,68 @@ const MapPage = () => {
       const avgRating = (detailedRating.overall + detailedRating.cleanliness + 
                         detailedRating.stocked + detailedRating.availability) / 4;
 
-      // Here you would typically make an API call to save the rating
-      // For now, we'll just show a confirmation
-      const confirmed = window.confirm(
-        `Submit rating?\n\n` +
-        `Overall: ${detailedRating.overall} 🚽\n` +
-        `Cleanliness: ${detailedRating.cleanliness} 🚽\n` +
-        `Stocked: ${detailedRating.stocked} 🚽\n` +
-        `Availability: ${detailedRating.availability} 🚽\n` +
-        `Average: ${avgRating.toFixed(1)} 🚽\n` +
-        `${detailedRating.comment ? `Comment: ${detailedRating.comment}` : ''}`
-      );
+      // Persist review (store average as single rating)
+      await restroomService.addReview(ratingRestroomId, {
+        rating: avgRating,
+        comment: detailedRating.comment
+      });
 
-      if (confirmed) {
-        // TODO: Implement actual rating API call
-        alert(`Thank you for your detailed rating! Average: ${avgRating.toFixed(1)} toilets`);
-        setShowRatingModal(false);
-        
-        // Optionally refresh the restrooms data to show updated rating
-        loadRestrooms(userLocation);
-      }
+      alert(`Thank you for your detailed rating! Average: ${avgRating.toFixed(1)} toilets`);
+      setShowRatingModal(false);
+      // Refresh to reflect updated rating counts/averages
+      loadRestrooms(userLocation);
     } catch (error) {
       console.error('Error submitting detailed rating:', error);
       alert('Failed to submit rating. Please try again.');
     }
   };
 
-  // Add global rating function for info window clicks
+  // Add global rating/edit functions for info window clicks
   useEffect(() => {
     window.rateRestroom = (restroomId) => {
       openRatingModal(restroomId);
+    };
+    window.editRestroom = async (restroomId) => {
+      try {
+        const local = restrooms.find(r => String(r.id) === String(restroomId));
+        if (local) {
+          openEditModal(local);
+        } else {
+          const fresh = await restroomService.getById(restroomId);
+          openEditModal(fresh);
+        }
+      } catch (e) {
+        console.error('Error opening edit modal:', e);
+        alert('Unable to open edit form.');
+      }
     };
 
     // Cleanup function
     return () => {
       delete window.rateRestroom;
+      delete window.editRestroom;
     };
-  }, [userLocation]);
+  }, [userLocation, restrooms]);
+
+  // Submit edits to Supabase
+  const submitEdit = async (e) => {
+    e.preventDefault();
+    if (!selectedRestroom) return;
+    try {
+      const updated = await restroomService.update(selectedRestroom.id, {
+        name: editForm.name,
+        description: editForm.description,
+        wheelchair_accessible: !!editForm.wheelchair_accessible
+      });
+      setShowEditModal(false);
+      await loadRestrooms(userLocation);
+      setSelectedRestroom(updated);
+      alert('Restroom details updated.');
+    } catch (err) {
+      console.error('Failed to update restroom:', err);
+      alert(`Failed to update restroom: ${err.message}`);
+    }
+  };
 
   // Handle add restroom confirmation
   const handleConfirmAddRestroom = () => {
@@ -674,6 +716,26 @@ const MapPage = () => {
                 >
                   Rate This Restroom
                 </button>
+                <button
+                  onclick="window.editRestroom && window.editRestroom('${restroom.id}')"
+                  style="
+                    width: 100%;
+                    margin-top: 8px;
+                    padding: 10px;
+                    background: transparent;
+                    color: #764ba2;
+                    border: 2px solid #764ba2;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                  "
+                  onmouseover="this.style.transform='translateY(-1px)';"
+                  onmouseout="this.style.transform='translateY(0)';"
+                >
+                  Edit Details
+                </button>
                 
                 <div style="margin: 8px 0; padding: 8px; background: #edf2f7; border-radius: 8px;">
                   <span style="color: ${restroom.wheelchair_accessible ? '#27AE60' : '#E74C3C'}; font-weight: 500; font-size: 12px;">
@@ -804,26 +866,39 @@ const MapPage = () => {
 
       // Create markers for establishments
       const establishmentMarkers = result.establishments.map(establishment => {
-        const marker = new window.google.maps.Marker({
-          position: { lat: establishment.lat, lng: establishment.lng },
-          map: googleMapRef.current,
-          title: establishment.name,
-          icon: {
-            url: establishment.hasRestrooms ?
-              'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        // For establishments without restroom info (previously orange), use a brown toilet pin
+        const brownToiletIcon = {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="50" height="60" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="25" cy="57" rx="10" ry="3" fill="rgba(0,0,0,0.4)"/>
+              <path d="M25 3C15.1 3 7 11.1 7 21c0 18 18 36 18 36s18-18 18-36C43 11.1 34.9 3 25 3z"
+                    fill="#8B4513" stroke="#654321" stroke-width="2"/>
+              <circle cx="25" cy="21" r="13" fill="white" stroke="#654321" stroke-width="1.5"/>
+              <text x="25" y="28" text-anchor="middle" fill="#654321" font-size="20">🚽</text>
+            </svg>
+          `),
+          scaledSize: new window.google.maps.Size(40, 48),
+          anchor: new window.google.maps.Point(20, 46)
+        };
+
+        const icon = establishment.hasRestrooms
+          ? {
+              // Keep existing green indicator for places known to have restrooms
+              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                 <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="16" cy="16" r="14" fill="#4CAF50" stroke="#fff" stroke-width="2"/>
                   <text x="16" y="20" text-anchor="middle" fill="white" font-size="16">🏪</text>
                 </svg>
-              `) :
-              'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="16" cy="16" r="14" fill="#FF9800" stroke="#fff" stroke-width="2"/>
-                  <text x="16" y="20" text-anchor="middle" fill="white" font-size="16">🏪</text>
-                </svg>
               `),
-            scaledSize: new window.google.maps.Size(32, 32)
-          }
+              scaledSize: new window.google.maps.Size(32, 32)
+            }
+          : brownToiletIcon;
+
+        const marker = new window.google.maps.Marker({
+          position: { lat: establishment.lat, lng: establishment.lng },
+          map: googleMapRef.current,
+          title: establishment.name,
+          icon
         });
 
         // Add click listener for establishment details
@@ -1441,9 +1516,9 @@ const MapPage = () => {
                     type="submit"
                     disabled={!addLocation}
                     className={`form-submit ${addLocation ? 'enabled' : 'disabled'}`}
-                    style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important' }}
+                    style={{ color: addLocation ? '#000000' : '#999999', textShadow: 'none', fontWeight: 'bold' }}
                   >
-                    {addLocation ? 'Add & Rate Restroom' : 'Select location on map first'} color: '#FFF128FF!important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold
+                    {addLocation ? 'Add & Rate Restroom' : 'Select location on map first'}
                   </button>
                 </form>
               </div>
@@ -1533,6 +1608,73 @@ const MapPage = () => {
                 >
                   Submit Rating
                 </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Restroom Modal */}
+      <AnimatePresence>
+        {showEditModal && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowEditModal(false)}
+          >
+            <motion.div
+              className="modal-content"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ maxWidth: '480px' }}
+            >
+              <div className="modal-header">
+                <FaToilet className="modal-icon" />
+                <span>Edit Restroom</span>
+                <button className="close-btn" onClick={() => setShowEditModal(false)}>
+                  <FaTimes />
+                </button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={submitEdit} className="restroom-form">
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Restroom name"
+                    required
+                    className="form-input"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    style={{ color: '#FFFFFF !important', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.9) !important' }}
+                  />
+                  <textarea
+                    name="description"
+                    placeholder="Description (optional)..."
+                    className="form-input"
+                    rows="3"
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    style={{ color: '#FFFFFF !important', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.9) !important' }}
+                  />
+                  <label className="form-checkbox">
+                    <input
+                      type="checkbox"
+                      name="accessible"
+                      checked={!!editForm.wheelchair_accessible}
+                      onChange={(e) => setEditForm({ ...editForm, wheelchair_accessible: e.target.checked })}
+                    />
+                    <span style={{ color: '#FFFFFF !important', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9) !important', fontWeight: 'bold !important' }}>
+                      ♿ Wheelchair Accessible
+                    </span>
+                  </label>
+                  <button type="submit" className="form-submit enabled">
+                    Save Changes
+                  </button>
+                </form>
               </div>
             </motion.div>
           </motion.div>

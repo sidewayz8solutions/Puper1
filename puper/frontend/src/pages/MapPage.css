@@ -93,6 +93,7 @@
   background: rgba(0, 0, 0, 0.5);
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
+  -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
 }
 
@@ -120,6 +121,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 20px;
@@ -363,6 +365,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 15px;
@@ -444,11 +447,12 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 4000;
 }
 
 .modal-content,
@@ -459,6 +463,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 20px;
@@ -503,11 +508,11 @@
   justify-content: space-between;
   padding: 1.5rem;
   border-bottom: 2px solid var(--psychedelic-purple);
-  background: rgb(255, 235, 88);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .modal-icon {
-  color: rgb(rgb(255, 248, 45));
+  color: rgb(255, 248, 45);
   font-size: 1.5rem;
   margin-right: 0.5rem;
 }
@@ -517,8 +522,9 @@
   font-family: 'Bebas Neue', cursive;
   font-size: 1.2rem;
   letter-spacing: 2px;
-  color: #f3ff0b00;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  color: #FFFFFF !important; /* white text for dark header */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+  font-weight: bold !important;
 }
 
 .close-btn {
@@ -603,7 +609,7 @@
 .form-submit {
   background: var(--psychedelic-purple);
   border: 2px solid var(--psychedelic-pink);
-  color: #FFFFFF;
+  color: #FFFFFF !important;
   padding: 1rem;
   border-radius: 8px;
   font-family: 'Bebas Neue', cursive;
@@ -612,26 +618,29 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-wood);
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
 }
 
 .form-submit.enabled {
-  background: var(--psychedelic-lime);
-  color: #000000;
-  border-color: var(--psychedelic-purple);
-  text-shadow: none;
+  background: var(--psychedelic-lime) !important;
+  color: #000000 !important;
+  border-color: var(--psychedelic-purple) !important;
+  text-shadow: none !important;
+  font-weight: bold !important;
 }
 
 .form-submit.enabled:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-wood), 0 0 15px var(--psychedelic-lime);
+  color: #000000 !important;
 }
 
 .form-submit.disabled {
-  background: #666;
-  color: #999;
+  background: #666 !important;
+  color: #999 !important;
   cursor: not-allowed;
-  border-color: #555;
+  border-color: #555 !important;
+  text-shadow: none !important;
 }
 
 /* Toilet Rating Selector Styles */
@@ -668,6 +677,7 @@
 .toilet-icon {
   cursor: pointer;
   transition: all 0.2s ease;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -931,6 +941,7 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.9);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;

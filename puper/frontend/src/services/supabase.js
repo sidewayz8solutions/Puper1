@@ -31,6 +31,34 @@ export const restroomService = {
     }
   },
 
+  // Update restroom details
+  async update(id, changes) {
+    try {
+      const payload = { ...changes };
+      // Prevent accidental geometry changes unless explicitly provided
+      delete payload.geometry;
+      // Normalize lng -> lon if needed
+      if (payload.lng !== undefined) {
+        payload.lon = payload.lng;
+        delete payload.lng;
+      }
+      payload.updated_at = new Date().toISOString();
+
+      const { data, error } = await supabase
+        .from('restrooms')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error updating restroom:', error);
+      throw error;
+    }
+  },
+
   // Fallback method using basic lat/lon filtering
   async getNearbyFallback(lat, lon, radius = 5000) {
     try {
