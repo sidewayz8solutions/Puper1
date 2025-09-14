@@ -102,6 +102,8 @@ export const restroomService = {
   async create(restroomData) {
     try {
       const payload = { ...restroomData };
+      // Drop client-only fields that aren't part of DB schema
+      if ('rating_gender' in payload) delete payload.rating_gender;
       // Normalize lng -> lon for DB schema
       if (payload.lng !== undefined && payload.lon === undefined) {
         payload.lon = payload.lng;
@@ -166,7 +168,26 @@ export const restroomService = {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // If the error is about unknown column 'gender', retry without it
+        if (error.message && error.message.includes('gender')) {
+          console.warn('Gender column not found in reviews table, saving without gender field');
+          const { gender, ...reviewDataWithoutGender } = reviewData;
+          const { data: retryData, error: retryError } = await supabase
+            .from('reviews')
+            .insert([{
+              restroom_id: restroomId,
+              ...reviewDataWithoutGender,
+              created_at: new Date().toISOString()
+            }])
+            .select()
+            .single();
+          
+          if (retryError) throw retryError;
+          return retryData;
+        }
+        throw error;
+      }
       return data;
     } catch (error) {
       console.error('Error adding review:', error);
@@ -276,6 +297,8 @@ export const restroomService = {
     try {
       // Normalize lng -> lon if needed; DB trigger will set geometry
       const payload = { ...restroomData };
+      // Drop client-only fields that aren't part of DB schema
+      if ('rating_gender' in payload) delete payload.rating_gender;
       if (payload.lng !== undefined && payload.lon === undefined) {
         payload.lon = payload.lng;
         delete payload.lng;

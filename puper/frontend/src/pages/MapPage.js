@@ -27,6 +27,11 @@ const MapPage = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [restrooms, setRestrooms] = useState([]);
+  const [filters, setFilters] = useState({
+    wheelchair_accessible: false,
+    baby_changing: false,
+    gender_neutral: false
+  });
   const [selectedRestroom, setSelectedRestroom] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showAddForm, setShowAddForm] = useState(searchParams.get('add') === 'true');
@@ -58,6 +63,7 @@ const MapPage = () => {
   });
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', description: '', wheelchair_accessible: false });
+  const [reviewGenderFilter, setReviewGenderFilter] = useState('all'); // 'all' | 'men' | 'women' | 'unisex'
   
   // Stats
   const [stats, setStats] = useState({
@@ -422,12 +428,19 @@ const MapPage = () => {
       const avgRating = (detailedRating.overall + detailedRating.cleanliness + 
                         detailedRating.stocked + detailedRating.availability) / 4;
 
-      // Persist review (store average as single rating)
-      await restroomService.addReview(ratingRestroomId, {
+      // Prepare review data - gender field is optional for backward compatibility
+      const reviewData = {
         rating: avgRating,
-        comment: detailedRating.comment,
-        gender: detailedRating.gender
-      });
+        comment: detailedRating.comment
+      };
+
+      // Only include gender if it's supported (to avoid schema errors)
+      if (detailedRating.gender) {
+        reviewData.gender = detailedRating.gender;
+      }
+
+      // Persist review (store average as single rating)
+      await restroomService.addReview(ratingRestroomId, reviewData);
 
       alert(`Thank you for your detailed rating! Average: ${avgRating.toFixed(1)} toilets`);
       setShowRatingModal(false);
@@ -842,6 +855,50 @@ const MapPage = () => {
     }
   };
 
+  // Apply filters and (optional) name search to marker visibility
+  const applyMarkerFilters = () => {
+    // Only apply if markers and restrooms align (normal browse mode)
+    if (!restrooms || restrooms.length === 0) return;
+    if (!markersRef.current || markersRef.current.length === 0) return;
+    if (markersRef.current.length !== restrooms.length) return; // skip when viewing establishments
+
+    const addressIndicators = ['street', 'st', 'avenue', 'ave', 'road', 'rd', 'boulevard', 'blvd', 'drive', 'dr', 'lane', 'ln', 'way', 'place', 'pl'];
+    const isAddressQuery = (q) => addressIndicators.some(indicator =>
+      q.toLowerCase().includes(indicator) || /\d+/.test(q)
+    );
+
+    const hasAnyFilter = filters.wheelchair_accessible || filters.baby_changing || filters.gender_neutral;
+
+    markersRef.current.forEach((marker, index) => {
+      const r = restrooms[index];
+      if (!r) return;
+
+      // Base visibility
+      let visible = true;
+
+      // Feature filters
+      if (hasAnyFilter) {
+        if (filters.wheelchair_accessible && !r.wheelchair_accessible) visible = false;
+        if (filters.baby_changing && !r.baby_changing) visible = false;
+        if (filters.gender_neutral && !r.gender_neutral) visible = false;
+      }
+
+      // Name-based search, ignore if current query looks like an address (handled via address search flow)
+      const q = (searchQuery || '').trim();
+      if (visible && q && !isAddressQuery(q)) {
+        visible = (r.name || '').toLowerCase().includes(q.toLowerCase());
+      }
+
+      marker.setVisible(visible);
+    });
+  };
+
+  // Re-apply filters on changes
+  useEffect(() => {
+    applyMarkerFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, restrooms, searchQuery]);
+
   // Handle address-based search
   const handleAddressSearch = async (address) => {
     try {
@@ -978,7 +1035,6 @@ const MapPage = () => {
         stocked_rating: newRestroomRating.stocked,
         availability_rating: newRestroomRating.availability,
         rating_comment: newRestroomRating.comment,
-        rating_gender: newRestroomRating.gender,
         review_count: avgRating > 0 ? 1 : 0
       });
 
@@ -1172,6 +1228,45 @@ const MapPage = () => {
           <div className="connection-status">
             <FaWifi className={`status-icon ${stats.networkStatus.toLowerCase()}`} />
             <span className="status-text">Status: {stats.networkStatus}</span>
+          </div>
+          {/* Filters Toolbar */}
+          <div className="filters-panel">
+            <div className="filters-header">Filters</div>
+            <div className="filters-controls">
+              <label className="filter-checkbox">
+                <input
+                  type="checkbox"
+                  checked={filters.wheelchair_accessible}
+                  onChange={(e) => setFilters(prev => ({ ...prev, wheelchair_accessible: e.target.checked }))}
+                />
+                <span>Wheelchair Accessible</span>
+              </label>
+              <label className="filter-checkbox">
+                <input
+                  type="checkbox"
+                  checked={filters.baby_changing}
+                  onChange={(e) => setFilters(prev => ({ ...prev, baby_changing: e.target.checked }))}
+                />
+                <span>Baby Changing</span>
+              </label>
+              <label className="filter-checkbox">
+                <input
+                  type="checkbox"
+                  checked={filters.gender_neutral}
+                  onChange={(e) => setFilters(prev => ({ ...prev, gender_neutral: e.target.checked }))}
+                />
+                <span>Gender Neutral</span>
+              </label>
+              {(filters.wheelchair_accessible || filters.baby_changing || filters.gender_neutral) && (
+                <button
+                  type="button"
+                  className="filters-clear-btn"
+                  onClick={() => setFilters({ wheelchair_accessible: false, baby_changing: false, gender_neutral: false })}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
           <div className="control-buttons">
             <motion.button
@@ -1776,6 +1871,26 @@ const MapPage = () => {
                   }}>
                     {selectedRestroom.type === 'establishment' ? '🏪' : '🚽'} {selectedRestroom.name}
                   </h2>
+                  {/* Gender review filter */}
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <label style={{ color: 'var(--psychedelic-cyan)', fontSize: '0.9rem' }}>Reviews:</label>
+                    <select
+                      value={reviewGenderFilter}
+                      onChange={(e) => setReviewGenderFilter(e.target.value)}
+                      style={{
+                        background: 'rgba(0,0,0,0.3)',
+                        color: '#fff',
+                        border: '1px solid rgba(255,255,255,0.25)',
+                        borderRadius: 8,
+                        padding: '6px 8px'
+                      }}
+                    >
+                      <option value="all">All</option>
+                      <option value="men">Men</option>
+                      <option value="women">Women</option>
+                      <option value="unisex">Unisex</option>
+                    </select>
+                  </div>
                   <button
                     onClick={() => setShowDetailsModal(false)}
                     style={{
