@@ -1089,13 +1089,13 @@
 
 .gender-option:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgb(255, 253, 253);
+  box-shadow: 0 4px 8px rgba(255, 253, 253, 0.206);
 }
 
 .gender-option.active {
-  background: var(--psychedelic-lime) !important;
+  background: rgba(white)!important;
   color: #000000 !important;
-  border-color: var(--psychedelic-purple) !important;
+  border-color: rgba(rgb(109, 206, 255)) !important;
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(111, 2, 214, 0.6);
 }
