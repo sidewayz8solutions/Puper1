@@ -1047,7 +1047,7 @@
 
 /* Critical overrides - must be at bottom */
 .add-restroom-modal-content .form-submit.enabled {
-  background: #00ff88 !important;
+  background: #02ffcc !important;
   color: #FFFFFF !important;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
   font-weight: bold !important;
@@ -1056,7 +1056,7 @@
 }
 
 .add-restroom-modal-content .form-submit.enabled:hover {
-  background: #00ff88 !important;
+  background: #00e7f7 !important;
   color: #FFFFFF !important;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
 }
