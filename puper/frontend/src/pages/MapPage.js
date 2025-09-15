@@ -1000,88 +1000,72 @@ const MapPage = () => {
   const handleAddressSearch = async (address) => {
     try {
       setLoading(true);
-      console.log('🔍 Searching establishments at address:', address);
+      console.log('🔍 Searching for address:', address);
 
-      // Import the address search function
-      const { searchAddressForRestrooms } = await import('../services/restrooms');
-
-      const result = await searchAddressForRestrooms(address);
-
-      console.log('✅ Found establishments:', result);
-
-      // Clear existing markers
-      markersRef.current.forEach(marker => marker.setMap(null));
-      markersRef.current = [];
-
-      // Update map center to the searched location
-      if (googleMapRef.current && result.searchLocation) {
-        googleMapRef.current.setCenter({
-          lat: result.searchLocation.lat,
-          lng: result.searchLocation.lng
+      // First try to geocode the address to get coordinates
+      let searchLocation = null;
+      
+      try {
+        // Use Google Geocoding to get coordinates for the address
+        const geocoder = new window.google.maps.Geocoder();
+        const geocodeResult = await new Promise((resolve, reject) => {
+          geocoder.geocode({ address: address }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+              resolve(results[0]);
+            } else {
+              reject(new Error(`Geocoding failed: ${status}`));
+            }
+          });
         });
-        googleMapRef.current.setZoom(15);
-      }
 
-      // Create markers for establishments
-      const establishmentMarkers = result.establishments.map(establishment => {
-        // For establishments without restroom info (previously orange), use a brown toilet pin
-        const brownToiletIcon = {
-          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-            <svg width="50" height="60" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="25" cy="57" rx="10" ry="3" fill="rgba(0,0,0,0.4)"/>
-              <path d="M25 3C15.1 3 7 11.1 7 21c0 18 18 36 18 36s18-18 18-36C43 11.1 34.9 3 25 3z"
-                    fill="#8B4513" stroke="#654321" stroke-width="2"/>
-              <circle cx="25" cy="21" r="13" fill="white" stroke="#654321" stroke-width="1.5"/>
-              <text x="25" y="28" text-anchor="middle" fill="#654321" font-size="20">🚽</text>
-            </svg>
-          `),
-          scaledSize: new window.google.maps.Size(40, 48),
-          anchor: new window.google.maps.Point(20, 46)
+        searchLocation = {
+          lat: geocodeResult.geometry.location.lat(),
+          lng: geocodeResult.geometry.location.lng(),
+          address: geocodeResult.formatted_address
         };
 
-        const icon = establishment.hasRestrooms
-          ? {
-              // Keep existing green indicator for places known to have restrooms
-              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="16" cy="16" r="14" fill="#4CAF50" stroke="#fff" stroke-width="2"/>
-                  <text x="16" y="20" text-anchor="middle" fill="white" font-size="16">🏪</text>
-                </svg>
-              `),
-              scaledSize: new window.google.maps.Size(32, 32)
-            }
-          : brownToiletIcon;
+        console.log('✅ Geocoded address:', searchLocation);
 
-        const marker = new window.google.maps.Marker({
-          position: { lat: establishment.lat, lng: establishment.lng },
-          map: googleMapRef.current,
-          title: establishment.name,
-          icon
-        });
-
-        // Add click listener for establishment details
-        marker.addListener('click', () => {
-          setSelectedRestroom({
-            ...establishment,
-            type: 'establishment',
-            restroom_count: establishment.restrooms.length
+        // Update map center to the searched location
+        if (googleMapRef.current) {
+          googleMapRef.current.setCenter({
+            lat: searchLocation.lat,
+            lng: searchLocation.lng
           });
-          setShowDetailsModal(true);
-        });
+          googleMapRef.current.setZoom(15);
+          
+          // Update user location to the searched location so restrooms load properly
+          setUserLocation(searchLocation);
+        }
 
-        return marker;
-      });
+        // Load regular restrooms at this location
+        await loadRestrooms(searchLocation);
 
-      markersRef.current = establishmentMarkers;
-      setRestrooms(result.establishments);
+      } catch (geocodeError) {
+        console.warn('Geocoding failed, trying establishment search:', geocodeError);
+        
+        // Fallback to establishment search if geocoding fails
+        const { searchAddressForRestrooms } = await import('../services/restrooms');
+        const result = await searchAddressForRestrooms(address);
 
-      // Update stats
-      setStats(prev => ({
-        ...prev,
-        total: result.totalEstablishments,
-        withRestrooms: result.establishmentsWithRestrooms,
-        searchLocation: result.searchLocation.address
-      }));
+        console.log('✅ Found establishments:', result);
+
+        // Update map center to the searched location from establishment search
+        if (googleMapRef.current && result.searchLocation) {
+          searchLocation = result.searchLocation;
+          googleMapRef.current.setCenter({
+            lat: result.searchLocation.lat,
+            lng: result.searchLocation.lng
+          });
+          googleMapRef.current.setZoom(15);
+          
+          // Update user location for proper restroom loading
+          setUserLocation(result.searchLocation);
+        }
+
+        // Load regular restrooms at this location
+        await loadRestrooms(result.searchLocation);
+      }
 
     } catch (error) {
       console.error('❌ Address search failed:', error);
