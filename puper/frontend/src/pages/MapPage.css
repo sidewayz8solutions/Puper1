@@ -360,14 +360,17 @@
   position: absolute;
   bottom: 1rem;
   left: 1rem;
-  background: var(--wood-grain);
-  background-image: url('../assets/images/wood5.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  color: #2d3748;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  max-width: 250px;
+  z-index: 1000;
+}
 
 /* Filters */
 .filters-panel {
@@ -426,19 +429,19 @@
   gap: 0.5rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--psychedelic-lime);
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
 }
 
 .stats-icon {
-  color: var(--psychedelic-lime);
+  color: #667eea;
   font-size: 1rem;
 }
 
 .stats-header span {
-  font-family: 'Bebas Neue', cursive;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1rem;
-  letter-spacing: 1px;
-  color: var(--psychedelic-lime);
+  font-weight: 600;
+  color: #2d3748;
 }
 
 .stats-content {
@@ -452,36 +455,36 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
-  background: rgba(251, 225, 225, 0.117);
-  border: 1px solid var(--psychedelic-pink);
+  background: rgba(102, 126, 234, 0.05);
+  border: 1px solid rgba(102, 126, 234, 0.1);
   border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .stat-item:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: var(--psychedelic-lime);
+  background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(102, 126, 234, 0.2);
   transform: translateX(5px);
 }
 
 .stat-item svg {
-  color: var(--psychedelic-pink);
+  color: #667eea;
   font-size: 0.9rem;
 }
 
 .stat-number {
-  font-family: 'Bebas Neue', cursive;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.1rem;
-  font-weight: bold;
-  color: #00BFFF !important; /* Bright light blue */
+  font-weight: 700;
+  color: #667eea;
   min-width: 30px;
 }
 
 .stat-label {
-  font-family: 'Bebas Neue', cursive;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.8rem;
-  color: var(--cream);
-  letter-spacing: 1px;
+  color: #4a5568;
+  font-weight: 500;
 }
 
 /* Modal Styles */
@@ -503,16 +506,13 @@
 .modal-content,
 .rating-modal-content,
 .add-restroom-modal-content {
-  background: var(--wood-grain);
-  background-image: url('../assets/images/wood5.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 0 30px rgba(102, 126, 234, 0.2);
+  color: #2d3748;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   width: 90vw;
   max-width: 500px;
   max-height: 90vh;

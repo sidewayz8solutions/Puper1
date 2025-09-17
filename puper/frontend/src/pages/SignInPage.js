@@ -12,11 +12,12 @@ import {
   FaCheckCircle,
   FaExclamationCircle
 } from 'react-icons/fa';
-import authService from '../services/auth';
+import { useAuth } from '../context/AuthContext';
 import './SignInPage.css';
 
 const SignInPage = () => {
   const navigate = useNavigate();
+  const { login, register, isAuthenticated } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -33,10 +34,10 @@ const SignInPage = () => {
 
   useEffect(() => {
     // Check if user is already authenticated
-    if (authService.isAuthenticated()) {
+    if (isAuthenticated) {
       navigate('/');
     }
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -79,43 +80,34 @@ const SignInPage = () => {
 
     try {
       if (isSignUp) {
-        const { user, error } = await authService.signUp(
-          formData.email,
-          formData.password,
-          {
-            displayName: formData.displayName,
-            bio: formData.bio
-          }
-        );
+        const result = await register({
+          email: formData.email,
+          password: formData.password,
+          displayName: formData.displayName,
+          bio: formData.bio
+        });
 
-        if (error) {
-          setError(error);
-        } else {
-          setSuccess('Account created successfully! Please check your email to verify your account.');
+        if (result.success) {
+          setSuccess('Account created successfully!');
           setTimeout(() => {
-            setIsSignUp(false);
-            setFormData({
-              email: '',
-              password: '',
-              confirmPassword: '',
-              displayName: '',
-              bio: ''
-            });
-          }, 2000);
+            navigate('/');
+          }, 1000);
+        } else {
+          setError(result.error);
         }
       } else {
-        const { user, error } = await authService.signIn(
-          formData.email,
-          formData.password
-        );
+        const result = await login({
+          email: formData.email,
+          password: formData.password
+        });
 
-        if (error) {
-          setError(error);
-        } else {
+        if (result.success) {
           setSuccess('Signed in successfully!');
           setTimeout(() => {
             navigate('/');
           }, 1000);
+        } else {
+          setError(result.error);
         }
       }
     } catch (err) {
@@ -130,13 +122,10 @@ const SignInPage = () => {
     setError('');
     
     try {
-      const { error } = await authService.signInWithGoogle();
-      if (error) {
-        setError(error);
-      }
+      // Google sign in will redirect, so we don't need to handle the response here
+      window.location.href = '/auth/google';
     } catch (err) {
       setError('Failed to sign in with Google. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
@@ -147,21 +136,7 @@ const SignInPage = () => {
       return;
     }
 
-    setLoading(true);
-    setError('');
-
-    try {
-      const { error } = await authService.resetPassword(formData.email);
-      if (error) {
-        setError(error);
-      } else {
-        setSuccess('Password reset email sent! Check your inbox.');
-      }
-    } catch (err) {
-      setError('Failed to send reset email. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    setError('Password reset feature coming soon!');
   };
 
   return (
