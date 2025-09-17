@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaCheck } from 'react-icons/fa';
-import { login, register } from '../services/auth';
+import { useAuth } from '../context/AuthContext';
 import './AuthPages.css';
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -68,28 +69,26 @@ export const SignUpPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    
-    setIsLoading(true);
-    try {
-      const result = await register({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password
-      });
 
-      console.log('Registration successful:', result);
+    setIsLoading(true);
+    const result = await register({
+      email: formData.email,
+      password: formData.password,
+      displayName: formData.username,
+      bio: ''
+    });
+
+    if (result.success) {
       navigate('/map'); // Navigate to map page after successful registration
-    } catch (error) {
-      console.error('Registration failed:', error);
-      setErrors({ general: error.message || 'Registration failed. Please try again.' });
-    } finally {
-      setIsLoading(false);
+    } else {
+      setErrors({ general: result.error || 'Registration failed. Please try again.' });
     }
+    setIsLoading(false);
   };
   
   const strength = passwordStrength(formData.password);
@@ -303,6 +302,7 @@ export const SignUpPage = () => {
 // LoginPage.js
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -347,20 +347,17 @@ export const LoginPage = () => {
     }
 
     setIsLoading(true);
-    try {
-      const result = await login({
-        username: formData.email, // Using email as username
-        password: formData.password
-      });
+    const result = await login({
+      email: formData.email,
+      password: formData.password
+    });
 
-      console.log('Login successful:', result);
+    if (result.success) {
       navigate('/map'); // Navigate to map page after successful login
-    } catch (error) {
-      console.error('Login failed:', error);
-      setErrors({ general: error.message || 'Login failed. Please try again.' });
-    } finally {
-      setIsLoading(false);
+    } else {
+      setErrors({ general: result.error || 'Login failed. Please try again.' });
     }
+    setIsLoading(false);
   };
   
   return (
