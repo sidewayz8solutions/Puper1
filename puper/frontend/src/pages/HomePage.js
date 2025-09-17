@@ -116,7 +116,7 @@ const HomePage = () => {
             >
               <div className="feature-icon">🏆</div>
               <h3>Earn Rewards</h3>
-              <p>Contribute to the community and climb the leaderboard with points and badges.</p>
+              <p>Contribute to the community and help rank the best restrooms with your ratings.</p>
             </motion.div>
             
             <motion.div
@@ -166,7 +166,7 @@ const HomePage = () => {
                 Get Started
               </motion.button>
             </Link>
-            <Link to="/leaderboard">
+            <Link to="/ranking">
               <motion.button 
                 className="cta-button secondary"
                 whileHover={{ scale: 1.05 }}

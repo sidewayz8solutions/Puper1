@@ -31,7 +31,7 @@ function AppContent() {
           <Route path="/" element={<HomePage />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/profile/:id?" element={<ProfilePage />} />
-          <Route path="/leaderboard" element={<RestroomRankingPage />} />
+          <Route path="/ranking" element={<RestroomRankingPage />} />
 
           <Route path="/test" element={<ConnectionTest />} />
           <Route path="/geospatial" element={<GeospatialTest />} />
