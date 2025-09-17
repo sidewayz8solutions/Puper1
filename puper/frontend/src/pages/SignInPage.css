@@ -24,6 +24,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 2.5rem;

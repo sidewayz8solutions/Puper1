@@ -8,6 +8,7 @@
 
 .ranking-header {
   background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   color: #2d3748;
   padding: 2rem;
@@ -106,6 +107,7 @@
   display: flex;
   justify-content: space-between;
   background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 16px;
@@ -159,6 +161,7 @@
 
 .restroom-card {
   background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 16px;
