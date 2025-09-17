@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fa';
 import { restroomService } from '../services/supabase';
 import { googlePlacesService, initGoogleMaps } from '../services/googleMaps';
+import RestroomCard from '../components/Restroom/RestroomCard';
 import './RestroomRankingPage.css';
 
 const RestroomRankingPage = () => {
@@ -304,100 +305,11 @@ const RestroomRankingPage = () => {
     return toilets;
   };
 
-  const RestroomCard = ({ restroom, index }) => {
-    const handleNavigate = (e) => {
-      e.stopPropagation();
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${restroom.lat},${restroom.lon || restroom.lng}`;
-      window.open(url, '_blank');
-    };
-    
-    const handleFavorite = (e) => {
-      e.stopPropagation();
-      // TODO: Implement favorite functionality
-      alert('Favorite feature coming soon!');
-    };
-    
-    return (
-      <motion.div
-        className="restroom-card"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
-        whileHover={{ y: -5, scale: 1.02 }}
-        onClick={() => navigate(`/map?restroom=${restroom.id}`)}
-      >
-        <div className="rank-badge" style={{
-          background: `linear-gradient(135deg, ${getRankBadgeColor(restroom.rank)[0]}, ${getRankBadgeColor(restroom.rank)[1]})`
-        }}>
-          <span className="rank-number">#{restroom.rank}</span>
-        </div>
-
-        <div className="card-content">
-          <div className="card-left">
-            <img
-              src={restroom.image}
-              alt={restroom.name}
-              className="restroom-image"
-            />
-          </div>
-
-          <div className="card-middle">
-            <h3 className="restroom-name">{restroom.name}</h3>
-            <p className="restroom-address">{restroom.address}</p>
-            
-            <div className="rating-container">
-              <div className="toilet-rating">
-                {getToiletRating(restroom.rating)}
-              </div>
-              <span className="rating-text">{restroom.rating.toFixed(1)}</span>
-              <span className="review-count">({restroom.reviews})</span>
-            </div>
-
-            <div className="info-row">
-              <div 
-                className="info-badge"
-                onClick={handleNavigate}
-                aria-label="Get directions"
-                style={{ cursor: 'pointer' }}
-              >
-                <FaMapMarkerAlt />
-                <span>{restroom.distance} mi</span>
-              </div>
-              <div className="info-badge">
-                <FaClock />
-                <span>{restroom.waitTime}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-right">
-            <button 
-              className="action-button navigate-btn"
-              onClick={handleNavigate}
-              aria-label="Get directions"
-            >
-              <FaLocationArrow />
-            </button>
-            <button 
-              className="action-button favorite-btn"
-              onClick={handleFavorite}
-              aria-label="Add to favorites"
-            >
-              <FaHeart />
-            </button>
-          </div>
-        </div>
-
-        <div className="amenities-container">
-          {restroom.amenities.slice(0, 3).map((amenity, idx) => (
-            <span key={idx} className="amenity-badge">{amenity}</span>
-          ))}
-          {restroom.amenities.length > 3 && (
-            <span className="amenity-badge">+{restroom.amenities.length - 3}</span>
-          )}
-        </div>
-      </motion.div>
-    );
+  const handleRatingSubmitted = (ratingData) => {
+    // Refresh the restrooms list to show updated ratings
+    if (currentLocation) {
+      fetchRestrooms(currentLocation.latitude, currentLocation.longitude);
+    }
   };
 
   if (loading) {
@@ -459,7 +371,18 @@ const RestroomRankingPage = () => {
       <div className="content-container">
         <div className="restrooms-list">
           {restrooms.map((restroom, index) => (
-            <RestroomCard key={restroom.id} restroom={restroom} index={index} />
+            <motion.div
+              key={restroom.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <RestroomCard 
+                restroom={restroom} 
+                onRatingSubmitted={handleRatingSubmitted}
+                showRatingButton={true}
+              />
+            </motion.div>
           ))}
           
           {restrooms.length === 0 && (

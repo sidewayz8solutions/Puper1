@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { login, register, logout, getProfile, loginWithGoogle } from '../services/auth';
+import authService from '../services/auth';
 import { supabase } from '../services/supabase';
 import toast from 'react-hot-toast';
 
@@ -41,8 +41,13 @@ export const AuthProvider = ({ children }) => {
 
   const loadUser = async () => {
     try {
-      const userData = await getProfile();
-      setUser(userData);
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        const { profile } = await authService.getUserProfile(currentUser.id);
+        setUser(profile || currentUser);
+      } else {
+        setUser(null);
+      }
     } catch (error) {
       console.error('Error loading user:', error);
       setUser(null);
@@ -53,9 +58,11 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogin = async (credentials) => {
     try {
-      const { user, session } = await login(credentials);
+      const { user, error } = await authService.signIn(credentials.email, credentials.password);
+      if (error) throw new Error(error);
+      
       setUser(user);
-      setSession(session);
+      setSession({ user });
       toast.success('Welcome back!');
       return { success: true };
     } catch (error) {
@@ -66,9 +73,18 @@ export const AuthProvider = ({ children }) => {
 
   const handleRegister = async (userData) => {
     try {
-      const { user, session } = await register(userData);
+      const { user, error } = await authService.signUp(
+        userData.email, 
+        userData.password, 
+        {
+          displayName: userData.displayName,
+          bio: userData.bio
+        }
+      );
+      if (error) throw new Error(error);
+      
       setUser(user);
-      setSession(session);
+      setSession({ user });
       toast.success('Account created successfully!');
       return { success: true };
     } catch (error) {
@@ -77,11 +93,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setSession(null);
-    setUser(null);
-    toast.success('Logged out successfully');
+  const handleLogout = async () => {
+    try {
+      await authService.signOut();
+      setSession(null);
+      setUser(null);
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Error logging out');
+    }
   };
 
   const value = {
@@ -92,7 +113,7 @@ export const AuthProvider = ({ children }) => {
     register: handleRegister,
     logout: handleLogout,
     refreshUser: loadUser,
-    loginWithGoogle
+    loginWithGoogle: authService.signInWithGoogle
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

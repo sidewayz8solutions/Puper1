@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import authService from '../../services/auth';
 import './Header.css';
 
 const Header = () => {
@@ -41,11 +42,16 @@ const Header = () => {
     };
   }, [mobileNavOpen]);
 
-  const handleLogout = () => {
-    logout();
-    setMobileNavOpen(false);
-    setUserDropdownOpen(false);
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await authService.signOut();
+      logout();
+      setMobileNavOpen(false);
+      setUserDropdownOpen(false);
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const navLinks = [
@@ -101,7 +107,7 @@ const Header = () => {
           ) : (
             <button
               className="auth-button"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/signin')}
             >
               Sign In
             </button>
@@ -184,7 +190,7 @@ const Header = () => {
               className="auth-button"
               onClick={() => {
                 setMobileNavOpen(false);
-                navigate('/login');
+                navigate('/signin');
               }}
             >
               Sign In

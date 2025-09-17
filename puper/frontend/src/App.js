@@ -10,6 +10,8 @@ import HomePage from './pages/HomePage';
 import MapPage from './pages/MapPage';
 import ProfilePage from './pages/ProfilePage';
 import RestroomRankingPage from './pages/RestroomRankingPage';
+import SettingsPage from './pages/SettingsPage';
+import SignInPage from './pages/SignInPage';
 
 import ConnectionTest from './components/Debug/ConnectionTest';
 import GeospatialTest from './components/Debug/GeospatialTest';
@@ -32,6 +34,8 @@ function AppContent() {
           <Route path="/map" element={<MapPage />} />
           <Route path="/profile/:id?" element={<ProfilePage />} />
           <Route path="/ranking" element={<RestroomRankingPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/signin" element={<SignInPage />} />
 
           <Route path="/test" element={<ConnectionTest />} />
           <Route path="/geospatial" element={<GeospatialTest />} />
