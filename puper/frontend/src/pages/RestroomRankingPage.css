@@ -390,16 +390,130 @@
   max-width: 300px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .restroom-address {
-    max-width: 200px;
+/* Responsive adjustments for all devices */
+@media (max-width: 1024px) { /* Tablet */
+  .ranking-header {
+    padding: 1.5rem;
+  }
+  
+  .stats-container {
+    padding: 1rem;
+  }
+  
+  .stat-item {
+    padding: 0.4rem;
+  }
+  
+  .content-container {
+    padding: 0 1.5rem 1.5rem 1.5rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) { /* iPad and smaller tablets */
+  .restroom-address {
+    max-width: 200px;
+  }
+  
+  .ranking-header {
+    padding: 1.25rem;
+    border-radius: 0 0 15px 15px;
+  }
+  
+  .header-top h1 {
+    font-size: 1.75rem;
+  }
+  
+  .location-container {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .stats-container {
+    padding: 1rem;
+    margin-top: 0.75rem;
+  }
+  
+  .stat-number {
+    font-size: 1.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.8rem;
+  }
+  
+  .content-container {
+    padding: 0 1rem 1rem 1rem;
+  }
+  
+  .restroom-card {
+    padding: 1.25rem;
+  }
+  
+  .restroom-name {
+    font-size: 1.1rem;
+  }
+  
+  .restroom-address {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) { /* Mobile phones */
   .restroom-address {
     max-width: 150px;
+  }
+  
+  .ranking-header {
+    padding: 1rem;
+  }
+  
+  .header-top {
+    margin-bottom: 10px;
+  }
+  
+  .header-top h1 {
+    font-size: 1.5rem;
+  }
+  
+  .back-button, .filter-button {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .location-container {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .refresh-button {
+    padding: 6px;
+  }
+  
+  .stats-container {
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  
+  .stat-item {
+    padding: 0.25rem;
+  }
+  
+  .stat-number {
+    font-size: 1.1rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+  }
+  
+  .content-container {
+    padding: 0 0.75rem 0.75rem 0.75rem;
+  }
+  
+  .restroom-card {
+    padding: 1rem;
+    border-radius: 12px;
   }
   
   .card-left {
@@ -411,8 +525,97 @@
     height: 60px;
   }
   
+  .restroom-name {
+    font-size: 1rem;
+  }
+  
+  .restroom-address {
+    font-size: 0.8rem;
+    max-width: 120px;
+  }
+  
   .action-button {
     width: 32px;
     height: 32px;
+  }
+  
+  .toilet-full, .toilet-half, .toilet-empty {
+    font-size: 14px;
+  }
+  
+  .rating-text {
+    font-size: 0.9rem;
+  }
+  
+  .review-count {
+    font-size: 0.8rem;
+  }
+  
+  .info-badge {
+    padding: 3px 6px;
+    font-size: 0.7rem;
+  }
+  
+  .amenities-container {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+  
+  .amenity-badge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+  }
+}
+
+/* Large mobile devices (iPhone 14 Pro Max and similar) */
+@media (min-width: 481px) and (max-width: 550px) {
+  .restroom-address {
+    max-width: 180px;
+  }
+  
+  .restroom-card {
+    padding: 1.25rem;
+  }
+  
+  .restroom-name {
+    font-size: 1.1rem;
+  }
+}
+
+/* Landscape orientation for mobile devices */
+@media (max-width: 768px) and (orientation: landscape) {
+  .ranking-header {
+    padding: 0.75rem;
+  }
+  
+  .stats-container {
+    padding: 0.5rem;
+  }
+  
+  .content-container {
+    padding: 0 0.5rem 0.5rem 0.5rem;
+  }
+  
+  .restroom-card {
+    padding: 0.75rem;
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: env(safe-area-inset-top)) {
+  .ranking-header {
+    padding-top: calc(2rem + env(safe-area-inset-top, 0));
+  }
+  
+  @media (max-width: 768px) {
+    .ranking-header {
+      padding-top: calc(1rem + env(safe-area-inset-top, 0));
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .ranking-header {
+      padding-top: calc(0.75rem + env(safe-area-inset-top, 0));
+    }
   }
 }

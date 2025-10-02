@@ -79,8 +79,34 @@
   pointer-events: none;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* Responsive adjustments for all devices */
+@media (max-width: 1024px) { /* Tablet */
+  .globe-3d-container {
+    width: 110px;
+    height: 110px;
+  }
+
+  .globe-3d-mount {
+    width: 110px;
+    height: 110px;
+  }
+
+  .globe-3d-mount canvas {
+    width: 110px !important;
+    height: 110px !important;
+  }
+
+  .fixed-globe-container {
+    top: 3.5rem;
+    left: 1.75rem;
+  }
+  
+  .globe-label-home {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) { /* iPad and smaller tablets */
   .globe-3d-container {
     width: 100px;
     height: 100px;
@@ -100,9 +126,13 @@
     top: 3rem;
     left: 1.5rem;
   }
+  
+  .globe-label-home {
+    font-size: 0.85rem;
+  }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 480px) { /* Mobile phones */
   .globe-3d-container {
     width: 80px;
     height: 80px;
@@ -121,5 +151,78 @@
   .fixed-globe-container {
     top: 2.5rem;
     left: 1rem;
+  }
+  
+  .globe-label-home {
+    font-size: 0.8rem;
+  }
+}
+
+/* Large mobile devices (iPhone 14 Pro Max and similar) */
+@media (min-width: 481px) and (max-width: 550px) {
+  .globe-3d-container {
+    width: 90px;
+    height: 90px;
+  }
+
+  .globe-3d-mount {
+    width: 90px;
+    height: 90px;
+  }
+
+  .globe-3d-mount canvas {
+    width: 90px !important;
+    height: 90px !important;
+  }
+
+  .fixed-globe-container {
+    top: 3rem;
+    left: 1.25rem;
+  }
+}
+
+/* Landscape orientation for mobile devices */
+@media (max-width: 768px) and (orientation: landscape) {
+  .globe-3d-container {
+    width: 70px;
+    height: 70px;
+  }
+
+  .globe-3d-mount {
+    width: 70px;
+    height: 70px;
+  }
+
+  .globe-3d-mount canvas {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  .fixed-globe-container {
+    top: 2rem;
+    left: 0.75rem;
+  }
+  
+  .globe-label-home {
+    font-size: 0.75rem;
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: env(safe-area-inset-top)) {
+  .fixed-globe-container {
+    top: calc(4rem + env(safe-area-inset-top, 0));
+  }
+  
+  @media (max-width: 768px) {
+    .fixed-globe-container {
+      top: calc(3rem + env(safe-area-inset-top, 0));
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .fixed-globe-container {
+      top: calc(2.5rem + env(safe-area-inset-top, 0));
+    }
   }
 }

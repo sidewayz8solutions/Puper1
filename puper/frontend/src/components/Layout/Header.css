@@ -1,4 +1,4 @@
-/* Header Component - iPhone Optimized */
+/* Header Component - Enhanced for All Mobile Devices */
 .header {
   position: sticky;
   top: 0;
@@ -29,6 +29,7 @@
     0 0 20px rgba(255, 215, 0, 0.4);
   transition: all 0.3s ease;
   z-index: 1002;
+  white-space: nowrap;
 }
 
 /* Desktop Navigation */
@@ -129,6 +130,7 @@
   transition: all 0.3s ease;
   display: block;
   background: rgba(255, 255, 255, 0.05);
+  text-align: center;
 }
 
 .nav-link:hover,
@@ -159,6 +161,7 @@
   background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   margin-bottom: 1rem;
+  justify-content: center;
 }
 
 .user-avatar-mobile img {
@@ -170,6 +173,7 @@
 
 .user-info {
   color: white;
+  text-align: center;
 }
 
 .user-name {
@@ -298,11 +302,11 @@
   }
 }
 
-/* iPhone Specific Adjustments */
-@media (max-width: 428px) {
+/* Improved Mobile Responsiveness */
+@media (max-width: 767px) {
   .header {
     padding: 0.75rem 1rem;
-    padding-top: calc(0.75rem + env(safe-area-inset-top));
+    padding-top: calc(0.75rem + env(safe-area-inset-top, 0));
   }
 
   .logo {
@@ -310,29 +314,70 @@
   }
 
   .nav-mobile {
-    padding-top: calc(5rem + env(safe-area-inset-top));
-    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+    padding-top: calc(5rem + env(safe-area-inset-top, 0));
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0));
+    width: 90%;
+    max-width: none;
   }
 
   .nav-link {
     font-size: 1rem;
     padding: 0.9rem 1rem;
   }
+  
+  .user-menu-mobile {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+  
+  .user-avatar-mobile {
+    padding: 0.75rem;
+  }
+  
+  .nav-links-mobile {
+    gap: 1rem;
+  }
 }
 
-/* iPhone SE and smaller */
-@media (max-width: 375px) {
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+  .header {
+    padding: 0.5rem 0.75rem;
+    padding-top: calc(0.5rem + env(safe-area-inset-top, 0));
+  }
+
   .logo {
     font-size: 1.4rem;
   }
 
   .mobile-nav-toggle {
-    width: 28px;
-    height: 22px;
+    width: 26px;
+    height: 20px;
   }
 
   .nav-mobile {
-    width: 85%;
+    width: 95%;
+    padding: 4rem 1rem 1rem;
+    padding-top: calc(4rem + env(safe-area-inset-top, 0));
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+  }
+
+  .nav-link {
+    font-size: 0.95rem;
+    padding: 0.75rem 0.8rem;
+  }
+  
+  .user-info {
+    font-size: 0.9rem;
+  }
+  
+  .user-email {
+    font-size: 0.75rem;
+  }
+  
+  .auth-button {
+    padding: 0.6rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -355,12 +400,12 @@
 /* Safe Area Support */
 @supports (padding: env(safe-area-inset-top)) {
   .header {
-    padding-top: calc(0.75rem + env(safe-area-inset-top));
-    padding-left: calc(1rem + env(safe-area-inset-left));
-    padding-right: calc(1rem + env(safe-area-inset-right));
+    padding-top: calc(0.75rem + env(safe-area-inset-top, 0));
+    padding-left: calc(1rem + env(safe-area-inset-left, 0));
+    padding-right: calc(1rem + env(safe-area-inset-right, 0));
   }
 
   .nav-mobile {
-    padding-right: calc(2rem + env(safe-area-inset-right));
+    padding-right: calc(2rem + env(safe-area-inset-right, 0));
   }
 }

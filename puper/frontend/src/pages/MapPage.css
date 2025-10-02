@@ -783,8 +783,29 @@
   50% { opacity: 0.5; }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* Responsive Design for All Devices */
+@media (max-width: 1024px) { /* Tablet */
+  .search-panel {
+    min-width: 280px;
+    padding: 1.5rem;
+  }
+  
+  .stats-panel {
+    max-width: 220px;
+    padding: 1rem;
+  }
+  
+  .rating-modal-content {
+    width: 90vw;
+    max-width: 600px;
+  }
+  
+  .add-restroom-modal-content {
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 768px) { /* iPad and smaller tablets */
   /* Mobile Globe Styles */
   .map-page .hero-globe-container {
     top: 0.5rem;
@@ -845,9 +866,27 @@
   .toilet-icons {
     flex-wrap: wrap;
   }
+  
+  .add-restroom-modal-content {
+    max-width: 95vw;
+  }
+  
+  .filters-panel {
+    margin: 8px 10px 10px 10px;
+    padding: 8px;
+  }
+  
+  .filters-controls {
+    gap: 8px;
+  }
+  
+  .filter-checkbox {
+    padding: 5px 8px;
+    font-size: 0.85rem;
+  }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 480px) { /* Mobile phones */
   .search-panel {
     position: fixed;
     top: 0;
@@ -856,6 +895,21 @@
     border-radius: 0 0 15px 15px;
     border-top: none;
     min-width: auto;
+    padding: 0.75rem;
+  }
+  
+  .search-content {
+    gap: 0.75rem;
+  }
+  
+  .search-input {
+    padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .search-button {
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
 
   .stats-panel {
@@ -866,6 +920,7 @@
     border-radius: 15px 15px 0 0;
     border-bottom: none;
     max-width: none;
+    padding: 0.5rem;
   }
 
   .stats-content {
@@ -877,6 +932,15 @@
     flex-direction: column;
     text-align: center;
     min-width: 60px;
+    padding: 0.15rem;
+  }
+  
+  .stat-number {
+    font-size: 0.9rem;
+  }
+  
+  .stat-label {
+    font-size: 0.6rem;
   }
   
   .toilet-rating-selector {
@@ -885,6 +949,96 @@
   
   .toilet-icon {
     font-size: 24px;
+  }
+  
+  .control-buttons {
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  
+  .add-restroom-btn,
+  .refresh-btn {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .filters-panel {
+    margin: 6px 8px 8px 8px;
+    padding: 6px;
+  }
+  
+  .filters-header {
+    font-size: 0.8rem;
+  }
+  
+  .filter-checkbox {
+    padding: 4px 6px;
+    font-size: 0.8rem;
+  }
+  
+  .filters-clear-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Large mobile devices (iPhone 14 Pro Max and similar) */
+@media (min-width: 481px) and (max-width: 550px) {
+  .search-panel {
+    min-width: 300px;
+  }
+  
+  .stats-panel {
+    max-width: 250px;
+  }
+}
+
+/* Landscape orientation for mobile devices */
+@media (max-width: 768px) and (orientation: landscape) {
+  .search-panel {
+    top: 0.25rem;
+    right: 0.25rem;
+    padding: 0.75rem;
+  }
+  
+  .stats-panel {
+    bottom: 0.25rem;
+    left: 0.25rem;
+    padding: 0.5rem;
+  }
+  
+  .stat-item {
+    padding: 0.15rem;
+  }
+  
+  .control-buttons {
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: env(safe-area-inset-top)) {
+  .search-panel {
+    padding-top: calc(1rem + env(safe-area-inset-top, 0));
+    padding-right: calc(1rem + env(safe-area-inset-right, 0));
+  }
+  
+  .stats-panel {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
+    padding-left: calc(0.5rem + env(safe-area-inset-left, 0));
+  }
+  
+  @media (max-width: 480px) {
+    .search-panel {
+      padding-top: calc(0.75rem + env(safe-area-inset-top, 0));
+      padding-right: calc(0.75rem + env(safe-area-inset-right, 0));
+    }
+    
+    .stats-panel {
+      padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0));
+      padding-left: calc(0.25rem + env(safe-area-inset-left, 0));
+    }
   }
 }
 

@@ -716,10 +716,45 @@
   }
 }
 
-/* Responsive Design for iPhone */
-@media (max-width: 428px) { /* iPhone 14 Pro Max and smaller */
+/* Responsive Design for All Mobile Devices */
+@media (max-width: 1024px) { /* Tablet */
+  .section-title {
+    font-size: 40px;
+  }
+  
+  .features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+  }
+  
+  .feature-card {
+    padding: 25px;
+  }
+  
+  .cta-content h2 {
+    font-size: 36px;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .cta-button {
+    width: 100%;
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 768px) { /* iPad and smaller tablets */
   .section-title {
     font-size: 36px;
+    margin-bottom: 40px;
+  }
+  
+  .features-section {
+    padding: 60px 15px;
   }
   
   .features-grid {
@@ -728,45 +763,169 @@
   }
   
   .feature-card {
-    padding: 25px;
+    padding: 20px;
+  }
+  
+  .feature-card h3 {
+    font-size: 22px;
+  }
+  
+  .feature-card p {
+    font-size: 15px;
+  }
+  
+  .cta-section {
+    padding: 80px 15px;
   }
   
   .cta-content h2 {
     font-size: 32px;
   }
   
+  .cta-content p {
+    font-size: 16px;
+    margin-bottom: 30px;
+  }
+  
   .cta-buttons {
-    flex-direction: column;
-    align-items: center;
+    gap: 12px;
   }
   
   .cta-button {
-    width: 100%;
-    max-width: 300px;
+    padding: 14px 30px;
+    font-size: 16px;
+  }
+}
+
+/* iPhone and small mobile devices */
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 32px;
+    margin-bottom: 30px;
   }
   
-  .interactive-globe-container {
-    width: 150px;
-    height: 150px;
+  .features-section {
+    padding: 50px 10px;
   }
   
-  .globe-canvas {
-    width: 150px;
-    height: 150px;
+  .features-grid {
+    gap: 15px;
+  }
+  
+  .feature-card {
+    padding: 20px 15px;
+  }
+  
+  .feature-icon {
+    font-size: 40px;
+    margin-bottom: 15px;
+  }
+  
+  .feature-card h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .feature-card p {
+    font-size: 14px;
+  }
+  
+  .cta-section {
+    padding: 60px 10px;
+  }
+  
+  .cta-content h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+  }
+  
+  .cta-content p {
+    font-size: 15px;
+    margin-bottom: 25px;
+  }
+  
+  .cta-button {
+    padding: 12px 25px;
+    font-size: 15px;
+    max-width: 280px;
   }
 }
 
 /* iPhone SE and smaller */
 @media (max-width: 375px) {
+  .section-title {
+    font-size: 28px;
+  }
+  
   .features-section {
-    padding: 60px 15px;
+    padding: 40px 10px;
+  }
+  
+  .feature-card {
+    padding: 15px 10px;
   }
   
   .feature-card h3 {
-    font-size: 20px;
+    font-size: 18px;
   }
   
   .feature-card p {
+    font-size: 13px;
+  }
+  
+  .cta-content h2 {
+    font-size: 24px;
+  }
+  
+  .cta-button {
+    padding: 10px 20px;
     font-size: 14px;
+    max-width: 250px;
+  }
+}
+
+/* Large mobile devices (iPhone 14 Pro Max and similar) */
+@media (min-width: 429px) and (max-width: 500px) {
+  .features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  .feature-card {
+    padding: 25px;
+  }
+}
+
+/* Landscape orientation for mobile devices */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-section {
+    height: 80vh;
+  }
+  
+  .features-section {
+    padding: 40px 15px;
+  }
+  
+  .cta-section {
+    padding: 50px 15px;
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: env(safe-area-inset-top)) {
+  .hero-section {
+    padding-top: env(safe-area-inset-top, 0);
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+  
+  .features-section {
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+  
+  .cta-section {
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+    padding-bottom: calc(100px + env(safe-area-inset-bottom, 0));
   }
 }
