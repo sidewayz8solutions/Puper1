@@ -1,0 +1,40 @@
+{
+  "name": "pupermobile",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "build:android": "eas build --platform android",
+    "build:ios": "eas build --platform ios",
+    "build:all": "eas build --platform all",
+    "preview": "expo start --tunnel",
+    "doctor": "expo doctor",
+    "import-restrooms": "node scripts/import-public-restrooms.js",
+    "clean-db": "node scripts/import-public-restrooms.js",
+    "test-data": "node scripts/test-restroom-data.js"
+  },
+  "dependencies": {
+    "@babel/core": "^7.28.4",
+    "@react-native-community/geolocation": "^3.4.0",
+    "@supabase/supabase-js": "^2.58.0",
+    "expo": "54.0.20",
+    "expo-av": "^16.0.7",
+    "expo-constants": "~18.0.10",
+    "expo-image-picker": "^17.0.8",
+    "expo-location": "^19.0.7",
+    "expo-status-bar": "~3.0.8",
+    "expo-video": "^3.0.11",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-maps": "^1.20.1",
+    "react-native-vector-icons": "^10.3.0",
+    "react-native-web": "^0.21.0"
+  },
+  "private": true,
+  "packageManager": "npm@latest"
+}

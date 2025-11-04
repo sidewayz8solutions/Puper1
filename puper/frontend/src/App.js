@@ -12,6 +12,7 @@ import ProfilePage from './pages/ProfilePage';
 import RestroomRankingPage from './pages/RestroomRankingPage';
 import SettingsPage from './pages/SettingsPage';
 import SignInPage from './pages/SignInPage';
+import InstallPrompt from './components/PWA/InstallPrompt';
 
 import ConnectionTest from './components/Debug/ConnectionTest';
 import GeospatialTest from './components/Debug/GeospatialTest';
@@ -43,6 +44,7 @@ function AppContent() {
       </main>
       {!isMapPage && <Footer />}
       <Toaster position="bottom-right" />
+      <InstallPrompt />
     </div>
   );
 }

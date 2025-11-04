@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Püper",
+    "slug": "puper-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "description": "Your guide to relief - Find clean, accessible public restrooms wherever you are",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#6B4423"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sidewayz8.puper",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
+        "NSCameraUsageDescription": "Püper needs camera access to take photos of restrooms.",
+        "NSPhotoLibraryUsageDescription": "Püper needs photo library access to add photos to your reviews.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#6B4423"
+      },
+      "package": "com.sidewayz8.puper",
+      "versionCode": 1,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Püper to use your location to find nearby restrooms."
+        }
+      ]
+    ],
+    "extra": {
+      "supabaseUrl": "https://qunaiicjcelvdunluwqh.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bmFpaWNqY2VsdmR1bmx1d3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NjA4NjEsImV4cCI6MjA2OTMzNjg2MX0.rFXwY95lvcXZEds7f16KodwhfnGHQBp7GsV4WTFQHjI",
+      "eas": {
+        "projectId": "af6f90c0-22b0-4a09-8116-2388a353c764"
+      }
+    }
+  }
+}

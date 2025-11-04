@@ -1,0 +1,18 @@
+/* Bundle display name */
+"CFBundleDisplayName" = "Puper";
+
+/* Bundle name */
+"CFBundleName" = "App";
+
+/* Privacy - Camera Usage Description */
+"NSCameraUsageDescription" = "This app uses the camera to take photos of restrooms.";
+
+/* Privacy - Location Always and When In Use Usage Description */
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "This app uses location to find nearby restrooms.";
+
+/* Privacy - Location When In Use Usage Description */
+"NSLocationWhenInUseUsageDescription" = "This app uses location to find nearby restrooms.";
+
+/* Privacy - Microphone Usage Description */
+"NSMicrophoneUsageDescription" = "This app may use the microphone for voice features.";
+
