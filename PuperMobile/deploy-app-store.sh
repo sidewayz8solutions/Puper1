@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🚽 Püper - Apple App Store Deployment"
+echo "🚽 Püper - Find Your Roll — Apple App Store Deployment"
 echo "======================================"
 echo ""
 
@@ -52,7 +52,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "  2. Click 'My Apps' → '+' → 'New App'"
     echo "  3. Fill in:"
     echo "     - Platform: iOS"
-    echo "     - Name: Püper"
+    echo "     - Name: Püper - Find Your Roll"
     echo "     - Primary Language: English"
     echo "     - Bundle ID: com.sidewayz8.puper"
     echo "     - SKU: puper-001"

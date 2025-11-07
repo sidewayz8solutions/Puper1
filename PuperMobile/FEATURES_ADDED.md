@@ -3,13 +3,21 @@
 ## Completed Tasks
 
 ### 1. ✅ Written Reviews Added
+
 - **Changed**: "Comment" field to "Write Your Review"
 - **Enhanced**: Review text field is now more prominent with better placeholder text
 - **Location**: Rating modal in `App.js` (line ~1188)
+
+### Map marker rating badge visibility
+
+- Updated in `App.js` styles: `markerContainer` now uses `overflow: 'visible'` and `ratingBadge` is positioned at `top: 0, right: 0` with size `22x22`.
+- This ensures the full circular rating badge is visible on iOS where `react-native-maps` marker snapshots may clip content positioned outside the marker bounds.
+- Adjust the offsets in `styles.ratingBadge` if you want the badge slightly inset or larger.
 - **Field Name**: Changed from `comment` to `review_text` for clarity
 - **Placeholder**: "Share your experience... How was the cleanliness? What amenities were available? Any tips for other users?"
 
 ### 2. ✅ Photo Upload Feature (Up to 3 Photos)
+
 - **Added**: Photo upload functionality with `expo-image-picker`
 - **Features**:
   - Upload from camera or photo library
@@ -21,17 +29,20 @@
 - **Dependencies**: `expo-image-picker` (installed)
 
 ### 3. ✅ Photo Upload UI
+
 - **Added**: Photo preview grid
 - **Added**: "Add Photo" button with camera/library options
 - **Added**: Remove photo button (✕) on each preview
 - **Styles**: Added in `App.js` styles section (line ~1793-1851)
 
 ### 4. ✅ Permissions Added
+
 - **iOS**: Added `NSPhotoLibraryUsageDescription` to `app.json`
 - **Location**: `app.json` line 24
 - **Description**: "Püper needs photo library access to add photos to your reviews."
 
 ### 5. ✅ Code Updates
+
 - **Updated**: `handleAddRating` function to include photos in review data
 - **Updated**: Form reset to clear photos when modal closes
 - **Added**: Photo state management (`reviewPhotos`)

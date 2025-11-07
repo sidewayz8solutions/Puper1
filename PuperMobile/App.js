@@ -1,28 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { 
-  StyleSheet, 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  Platform, 
-  ActivityIndicator, 
-  ScrollView,
-  TextInput,
-  Modal,
-  Alert,
-  KeyboardAvoidingView,
-  Switch,
-  ImageBackground,
-  Dimensions,
-  Animated,
-  Image
-} from 'react-native';
-import { VideoView, useVideoPlayer } from 'expo-video';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import * as Location from 'expo-location';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
 import * as ImagePicker from 'expo-image-picker';
-import { restroomService, photoService } from './services/supabase';
+import * as Location from 'expo-location';
+import { StatusBar } from 'expo-status-bar';
+import {
+  useVideoPlayer,
+  VideoView,
+} from 'expo-video';
+import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import MapView, {
+  Marker,
+  PROVIDER_GOOGLE,
+} from 'react-native-maps';
+import mobileAds, { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+
+import {
+  photoService,
+  restroomService,
+} from './services/supabase';
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,6 +47,7 @@ export default function App() {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
   const [region, setRegion] = useState({
     latitude: 29.9511, // Default to New Orleans like web app
     longitude: -90.0715,
@@ -87,6 +101,7 @@ export default function App() {
     averageRating: '0.0',
     accessibleCount: 0
   });
+  const [adsInitialized, setAdsInitialized] = useState(false);
 
   // Load location and fetch nearby restrooms
   useEffect(() => {
@@ -114,6 +129,16 @@ export default function App() {
       await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
     })();
   }, []);
+
+  // Initialize ads SDK once
+  useEffect(() => {
+    mobileAds()
+      .initialize()
+      .then(() => setAdsInitialized(true))
+      .catch(err => console.warn('Ads initialization failed', err));
+  }, []);
+
+  const bannerAdUnitId = Platform.select({ ios: TestIds.BANNER, android: TestIds.BANNER, default: TestIds.BANNER });
 
   // Fetch nearby restrooms from Supabase
   const fetchNearbyRestrooms = async (lat, lon, radius = 5000) => {
@@ -251,6 +276,18 @@ export default function App() {
     } else {
       setErrorMsg('Location not available yet');
     }
+  };
+
+  // Handle map ready
+  const handleMapReady = () => {
+    console.log('Map is ready');
+    setMapReady(true);
+  };
+
+  // Handle map errors
+  const handleMapError = (error) => {
+    console.error('Map error:', error);
+    setErrorMsg('Map failed to load. Please try again.');
   };
 
   // Handle map press for adding restrooms
@@ -928,8 +965,22 @@ export default function App() {
         showsUserLocation={true}
         showsMyLocationButton={true}
         showsPointsOfInterest={true}
+        loadingEnabled={true}
+        loadingIndicatorColor="#6B4423"
+        loadingBackgroundColor="#F5F5DC"
+        onMapReady={handleMapReady}
+        onMapError={handleMapError}
         onPress={handleMapPress}
         onPoiClick={handlePoiClick}
+        // Additional iOS optimizations
+        showsCompass={true}
+        showsScale={Platform.OS === 'ios'}
+        maxZoomLevel={20}
+        minZoomLevel={3}
+        // Enable traffic and terrain for better user experience
+        showsTraffic={false}
+        showsBuildings={true}
+        showsIndoors={true}
       >
         {/* Restroom markers */}
         {filteredRestrooms.map((restroom) => {
@@ -998,7 +1049,15 @@ export default function App() {
         )}
       </MapView>
 
-      {/* Bottom Stats Bar */}
+      {/* Map Loading Overlay */}
+      {!mapReady && (
+        <View style={styles.mapLoadingOverlay}>
+          <ActivityIndicator size="large" color="#6B4423" />
+          <Text style={styles.mapLoadingText}>Loading Map...</Text>
+        </View>
+      )}
+
+      {/* Bottom Stats Bar + Banner Ad */}
       <View style={styles.bottomInfo}>
         {loading && (
           <ActivityIndicator size="small" color="#FFF" style={{ marginBottom: 10 }} />
@@ -1017,6 +1076,18 @@ export default function App() {
             {loading ? 'Searching...' : 'Refresh Nearby Restrooms'}
           </Text>
         </TouchableOpacity>
+        {/* Test Banner Ad (replace TestIds with real unit IDs in production) */}
+        <View style={styles.adWrapper}>
+          {adsInitialized ? (
+            <BannerAd
+              unitId={bannerAdUnitId}
+              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+              onAdFailedToLoad={(e) => console.warn('Banner failed to load', e?.message)}
+            />
+          ) : (
+            <Text style={styles.adLoadingText}>Loading ad…</Text>
+          )}
+        </View>
       </View>
 
       {/* Menu Modal */}
@@ -1627,6 +1698,23 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
+  mapLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(245, 245, 220, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  mapLoadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#6B4423',
+    fontWeight: '600',
+  },
   markerContainer: {
     backgroundColor: '#8B4513', // Brown color like web app
     borderRadius: 25,
@@ -1639,6 +1727,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 5,
     position: 'relative',
+    overflow: 'visible', // ensure badges aren’t clipped by marker snapshot
   },
   markerIcon: {
     fontSize: 24,
@@ -1646,15 +1735,17 @@ const styles = StyleSheet.create({
   },
   ratingBadge: {
     position: 'absolute',
-    top: -8,
-    right: -8,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    // Keep fully inside marker to avoid clipping on iOS/Maps snapshot
+    top: 0,
+    right: 0,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#FFF',
+    zIndex: 10,
   },
   ratingBadgeText: {
     fontSize: 10,
@@ -1686,6 +1777,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 10,
     textAlign: 'center',
+  },
+  adWrapper: {
+    marginTop: 10,
+    width: '100%',
+    alignItems: 'center',
+    minHeight: 50,
+  },
+  adLoadingText: {
+    color: '#F5F5DC',
+    fontSize: 12,
+    fontStyle: 'italic',
   },
   button: {
     backgroundColor: '#FFF',

@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Püper",
+    "name": "Püper - Find Your Roll",
     "slug": "puper-mobile",
-    "version": "1.0.0",
+  "version": "1.0.9",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+  "icon": "./assets/pup.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "description": "Your guide to relief - Find clean, accessible public restrooms wherever you are",
@@ -16,13 +16,21 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-      "buildNumber": "1",
+  "buildNumber": "21",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSCameraUsageDescription": "Püper needs camera access to take photos of restrooms.",
         "NSPhotoLibraryUsageDescription": "Püper needs photo library access to add photos to your reviews.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSUserTrackingUsageDescription": "This identifier will be used to deliver ads that help support the app.",
+        "GADApplicationIdentifier": "ca-app-pub-3940256099942544~1458002511",
+        "SKAdNetworkItems": [
+          { "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork" }
+        ]
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
@@ -39,6 +47,11 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyD5l5VGgUMgtp_MnI6Ztd1SwqQsGp9mZ0w"
+        }
+      },
       "edgeToEdgeEnabled": true
     },
     "web": {
@@ -50,7 +63,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow Püper to use your location to find nearby restrooms."
         }
-      ]
+      ],
+      "expo-video"
     ],
     "extra": {
       "supabaseUrl": "https://qunaiicjcelvdunluwqh.supabase.co",
@@ -59,5 +73,12 @@
         "projectId": "af6f90c0-22b0-4a09-8116-2388a353c764"
       }
     }
+  },
+  "react-native-google-mobile-ads": {
+    "ios_app_id": "ca-app-pub-3940256099942544~1458002511",
+    "user_tracking_usage_description": "This identifier will be used to deliver ads that help support the app.",
+    "sk_ad_network_items": [
+      "cstr6suwn9.skadnetwork"
+    ]
   }
 }

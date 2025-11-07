@@ -1,0 +1,2 @@
+app.config.js was intentionally removed to ensure react-native-google-mobile-ads build script reads app.json for ios_app_id.
+If you need dynamic config again later, reintroduce app.config.js using CommonJS (module.exports) so the script can require() it.

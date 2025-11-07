@@ -20,6 +20,11 @@
       }
     },
     "production": {
+      "distribution": "store",
+      "ios": {
+        "simulator": false,
+        "buildConfiguration": "Release"
+      },
       "android": {
         "buildType": "app-bundle"
       }
@@ -28,9 +33,8 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "YOUR_APP_STORE_CONNECT_APP_ID",
-        "appleTeamId": "YOUR_TEAM_ID"
+        "appleId": "benjamin@sidewayz8solutions.com",
+        "appleTeamId": "66C32GHYYA"
       },
       "android": {
         "serviceAccountKeyPath": "./google-play-service-account.json",
