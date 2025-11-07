@@ -7,6 +7,7 @@ console.log(JSON.stringify({
   build: c.ios?.buildNumber,
   GAD: c.ios?.infoPlist?.GADApplicationIdentifier,
   hasATT: !!c.ios?.infoPlist?.NSUserTrackingUsageDescription,
+  hasGoogleMapsKey: !!c.ios?.config?.googleMapsApiKey,
   adsRoot: adsTopLevel,
   hasIosAppId: !!adsTopLevel?.ios_app_id,
   plugins: c.plugins

@@ -31,6 +31,7 @@ import MapView, {
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
 import mobileAds, { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+import Constants from 'expo-constants';
 
 import {
   photoService,
@@ -138,7 +139,13 @@ export default function App() {
       .catch(err => console.warn('Ads initialization failed', err));
   }, []);
 
-  const bannerAdUnitId = Platform.select({ ios: TestIds.BANNER, android: TestIds.BANNER, default: TestIds.BANNER });
+  // Prefer real AdMob unit IDs from app config (extra.admob.bannerUnitIdIos) with test fallback
+  const realBannerIdIos = Constants?.expoConfig?.extra?.admob?.bannerUnitIdIos;
+  const bannerAdUnitId = Platform.select({
+    ios: realBannerIdIos || TestIds.BANNER,
+    android: TestIds.BANNER,
+    default: TestIds.BANNER,
+  });
 
   // Fetch nearby restrooms from Supabase
   const fetchNearbyRestrooms = async (lat, lon, radius = 5000) => {

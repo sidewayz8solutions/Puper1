@@ -2,9 +2,9 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-mobile",
-  "version": "1.0.9",
+  "version": "1.2.0",
     "orientation": "portrait",
-  "icon": "./assets/pup.jpg",
+    "icon": "./assets/pup.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "description": "Your guide to relief - Find clean, accessible public restrooms wherever you are",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-  "buildNumber": "21",
+      "buildNumber": "23",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
@@ -24,13 +24,16 @@
         "NSPhotoLibraryUsageDescription": "Püper needs photo library access to add photos to your reviews.",
         "ITSAppUsesNonExemptEncryption": false,
         "NSUserTrackingUsageDescription": "This identifier will be used to deliver ads that help support the app.",
-        "GADApplicationIdentifier": "ca-app-pub-3940256099942544~1458002511",
+        "GADApplicationIdentifier": "ca-app-pub-8579480495006676~6423147580",
         "SKAdNetworkItems": [
-          { "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork" }
+          {
+            "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
+          }
         ]
       },
       "config": {
-        "usesNonExemptEncryption": false
+        "usesNonExemptEncryption": false,
+        "googleMapsApiKey": "AIzaSyD5l5VGgUMgtp_MnI6Ztd1SwqQsGp9mZ0w"
       }
     },
     "android": {
@@ -71,11 +74,16 @@
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bmFpaWNqY2VsdmR1bmx1d3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NjA4NjEsImV4cCI6MjA2OTMzNjg2MX0.rFXwY95lvcXZEds7f16KodwhfnGHQBp7GsV4WTFQHjI",
       "eas": {
         "projectId": "af6f90c0-22b0-4a09-8116-2388a353c764"
+      },
+      "admob": {
+        "iosAppId": "ca-app-pub-8579480495006676~6423147580",
+        "bannerUnitIdIos": "ca-app-pub-8579480495006676/7646946952"
       }
-    }
+    },
+    "owner": "buttond"
   },
   "react-native-google-mobile-ads": {
-    "ios_app_id": "ca-app-pub-3940256099942544~1458002511",
+    "ios_app_id": "ca-app-pub-8579480495006676~6423147580",
     "user_tracking_usage_description": "This identifier will be used to deliver ads that help support the app.",
     "sk_ad_network_items": [
       "cstr6suwn9.skadnetwork"
