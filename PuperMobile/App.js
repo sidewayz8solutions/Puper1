@@ -1,6 +1,7 @@
 import React, {
   useEffect,
   useState,
+  useRef,
 } from 'react';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -30,7 +31,7 @@ import MapView, {
   Marker,
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
-import mobileAds, { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+import mobileAds, { BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 import Constants from 'expo-constants';
 
 import {
@@ -103,6 +104,10 @@ export default function App() {
     accessibleCount: 0
   });
   const [adsInitialized, setAdsInitialized] = useState(false);
+  // Interstitial ad state
+  const interstitialRef = useRef(null);
+  const [interstitialLoaded, setInterstitialLoaded] = useState(false);
+  const lastInterstitialTimeRef = useRef(0);
 
   // Load location and fetch nearby restrooms
   useEffect(() => {
@@ -139,13 +144,53 @@ export default function App() {
       .catch(err => console.warn('Ads initialization failed', err));
   }, []);
 
-  // Prefer real AdMob unit IDs from app config (extra.admob.bannerUnitIdIos) with test fallback
+  // Prefer real AdMob unit IDs from app config (extra.admob.bannerUnitIdIos / interstitialUnitIdIos) with test fallback
   const realBannerIdIos = Constants?.expoConfig?.extra?.admob?.bannerUnitIdIos;
+  const realInterstitialIdIos = Constants?.expoConfig?.extra?.admob?.interstitialUnitIdIos;
   const bannerAdUnitId = Platform.select({
     ios: realBannerIdIos || TestIds.BANNER,
     android: TestIds.BANNER,
     default: TestIds.BANNER,
   });
+  const interstitialUnitId = Platform.select({
+    ios: realInterstitialIdIos || TestIds.INTERSTITIAL,
+    android: TestIds.INTERSTITIAL,
+    default: TestIds.INTERSTITIAL,
+  });
+
+  // Prepare and load an interstitial ad
+  useEffect(() => {
+    const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
+      requestNonPersonalizedAdsOnly: false,
+    });
+    interstitialRef.current = ad;
+    const onLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setInterstitialLoaded(true));
+    const onClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
+      setInterstitialLoaded(false);
+      // Preload next ad
+      ad.load();
+    });
+    const onError = ad.addAdEventListener(AdEventType.ERROR, () => setInterstitialLoaded(false));
+    ad.load();
+    return () => {
+      onLoaded();
+      onClosed();
+      onError();
+    };
+  }, [interstitialUnitId]);
+
+  const maybeShowInterstitial = () => {
+    try {
+      const now = Date.now();
+      // Cooldown to avoid spamming: 90 seconds
+      if (interstitialLoaded && interstitialRef.current && (now - lastInterstitialTimeRef.current > 90 * 1000)) {
+        interstitialRef.current.show();
+        lastInterstitialTimeRef.current = now;
+      }
+    } catch (e) {
+      console.warn('Interstitial show failed', e?.message);
+    }
+  };
 
   // Fetch nearby restrooms from Supabase
   const fetchNearbyRestrooms = async (lat, lon, radius = 5000) => {
@@ -454,6 +499,8 @@ export default function App() {
       }
       
       Alert.alert('Success', 'Review added successfully!');
+  // Attempt to show an interstitial after adding a review (gentle frequency control handled in maybeShowInterstitial)
+  maybeShowInterstitial();
     } catch (error) {
       console.error('Error adding review:', error);
       Alert.alert('Error', `Failed to add review: ${error.message || 'Unknown error'}`);
@@ -575,6 +622,8 @@ export default function App() {
       }
       
       Alert.alert('Success', 'Rating added successfully!');
+  // Attempt to show an interstitial after adding a rating
+  maybeShowInterstitial();
     } catch (error) {
       console.error('Error adding rating:', error);
       console.error('Error details:', error.message);

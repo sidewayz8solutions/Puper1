@@ -77,7 +77,8 @@
       },
       "admob": {
         "iosAppId": "ca-app-pub-8579480495006676~6423147580",
-        "bannerUnitIdIos": "ca-app-pub-8579480495006676/7646946952"
+        "bannerUnitIdIos": "ca-app-pub-8579480495006676/7646946952",
+        "interstitialUnitIdIos": "ca-app-pub-8579480495006676/3785391861"
       }
     },
     "owner": "buttond"

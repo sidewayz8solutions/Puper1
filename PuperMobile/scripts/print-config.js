@@ -10,5 +10,7 @@ console.log(JSON.stringify({
   hasGoogleMapsKey: !!c.ios?.config?.googleMapsApiKey,
   adsRoot: adsTopLevel,
   hasIosAppId: !!adsTopLevel?.ios_app_id,
+  bannerUnitIdIos: c.extra?.admob?.bannerUnitIdIos,
+  interstitialUnitIdIos: c.extra?.admob?.interstitialUnitIdIos,
   plugins: c.plugins
 }, null, 2));
