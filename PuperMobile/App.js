@@ -116,8 +116,11 @@ export default function App() {
   const [interstitialLoaded, setInterstitialLoaded] = useState(false);
   const lastInterstitialTimeRef = useRef(0);
   const interstitialHistoryRef = useRef([]);
-  const INTERSTITIAL_WINDOW_MS = 90 * 1000; // 1 minute 30 seconds
-  const INTERSTITIAL_MAX_PER_WINDOW = 2;
+  // Updated ad frequency: initial double interstitial, then one every 30s.
+  const INTERSTITIAL_WINDOW_MS = 30 * 1000; // 30 second cadence window
+  const INTERSTITIAL_MAX_PER_WINDOW = 1; // one per window after initial sequence
+  const initialInterstitialCountRef = useRef(0);
+  const waitingForSecondInitialInterstitialRef = useRef(false);
 
   const recordAdImpression = useCallback(() => {
     const now = Date.now();
@@ -423,15 +426,17 @@ export default function App() {
         if (force && !canShowAnotherAd()) {
           return false;
         }
-        // Cooldown to avoid spamming: 1 minute 30 seconds
         if (
           interstitialLoaded &&
           interstitialRef.current &&
-          (force || now - lastInterstitialTimeRef.current > 90 * 1000)
+          (force || now - lastInterstitialTimeRef.current > INTERSTITIAL_WINDOW_MS)
         ) {
           interstitialRef.current.show();
           lastInterstitialTimeRef.current = now;
           recordAdImpression();
+          if (initialAdSequencePendingRef.current) {
+            initialInterstitialCountRef.current += 1;
+          }
           return true;
         }
       } catch (e) {
@@ -448,10 +453,16 @@ export default function App() {
       (timestamp) => Date.now() - timestamp < INTERSTITIAL_WINDOW_MS
     );
     if (initialAdSequencePendingRef.current) {
-      initialAdSequencePendingRef.current = false;
-      waitingForInterstitialRef.current = false;
-      if (currentScreen !== 'map') {
-        setCurrentScreen('map');
+      if (initialInterstitialCountRef.current < 2) {
+        // Queue second initial interstitial
+        waitingForSecondInitialInterstitialRef.current = true;
+      } else {
+        initialAdSequencePendingRef.current = false;
+        waitingForInterstitialRef.current = false;
+        waitingForSecondInitialInterstitialRef.current = false;
+        if (currentScreen !== 'map') {
+          setCurrentScreen('map');
+        }
       }
     }
   }, [currentScreen]);
@@ -475,6 +486,12 @@ export default function App() {
         waitingForInterstitialRef.current = false;
       }
     }
+    if (waitingForSecondInitialInterstitialRef.current) {
+      const shownSecond = maybeShowInterstitialRef.current({ force: true });
+      if (shownSecond) {
+        waitingForSecondInitialInterstitialRef.current = false;
+      }
+    }
   }, []);
 
   const handleInterstitialError = useCallback(() => {
@@ -491,6 +508,16 @@ export default function App() {
   useEffect(() => {
     initialAdSequencePendingRef.current = true;
     waitingForInterstitialRef.current = false;
+  }, []);
+
+  // Begin periodic interstitial attempts every 30s after initial sequence completes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!initialAdSequencePendingRef.current) {
+        maybeShowInterstitialRef.current({ force: true });
+      }
+    }, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const maybeShowInterstitialPublic = useCallback(
