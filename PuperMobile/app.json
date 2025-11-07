@@ -1,10 +1,10 @@
 {
   "expo": {
     "name": "Püper - Find Your Roll",
-    "slug": "puper-mobile",
-  "version": "1.2.1",
+    "slug": "puper-vcreojv8r7rd0d2ltwipn",
+  "version": "1.2.4",
     "orientation": "portrait",
-    "icon": "./assets/pup.jpg",
+  "icon": "./assets/pup.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "description": "Your guide to relief - Find clean, accessible public restrooms wherever you are",
@@ -26,14 +26,11 @@
         "NSUserTrackingUsageDescription": "This identifier will be used to deliver ads that help support the app.",
         "GADApplicationIdentifier": "ca-app-pub-8579480495006676~6423147580",
         "SKAdNetworkItems": [
-          {
-            "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
-          }
+          { "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork" }
         ]
       },
       "config": {
-        "usesNonExemptEncryption": false,
-        "googleMapsApiKey": "AIzaSyD5l5VGgUMgtp_MnI6Ztd1SwqQsGp9mZ0w"
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
@@ -72,16 +69,14 @@
     "extra": {
       "supabaseUrl": "https://qunaiicjcelvdunluwqh.supabase.co",
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bmFpaWNqY2VsdmR1bmx1d3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NjA4NjEsImV4cCI6MjA2OTMzNjg2MX0.rFXwY95lvcXZEds7f16KodwhfnGHQBp7GsV4WTFQHjI",
-      "eas": {
-        "projectId": "af6f90c0-22b0-4a09-8116-2388a353c764"
-      },
       "admob": {
-        "iosAppId": "ca-app-pub-8579480495006676~6423147580",
-        "bannerUnitIdIos": "ca-app-pub-8579480495006676/7646946952",
-        "interstitialUnitIdIos": "ca-app-pub-8579480495006676/3785391861"
+        "appIdIos": "ca-app-pub-8579480495006676~6423147580",
+        "appOpenUnitIdIos": "ca-app-pub-8579480495006676/9033300373"
+      },
+      "eas": {
+        "projectId": "ee7c255a-c7c7-4664-837e-c123d70e2105"
       }
-    },
-    "owner": "buttond"
+    }
   },
   "react-native-google-mobile-ads": {
     "ios_app_id": "ca-app-pub-8579480495006676~6423147580",

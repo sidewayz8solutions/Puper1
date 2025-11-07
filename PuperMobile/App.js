@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useEffect,
   useState,
   useRef,
@@ -14,6 +15,7 @@ import {
 import {
   ActivityIndicator,
   Alert,
+  AppState,
   Dimensions,
   Image,
   KeyboardAvoidingView,
@@ -31,7 +33,7 @@ import MapView, {
   Marker,
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
-import mobileAds, { BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
+import mobileAds, { AppOpenAd, BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 import Constants from 'expo-constants';
 
 import {
@@ -44,6 +46,11 @@ const { width, height } = Dimensions.get('window');
 export default function App() {
   // Main navigation state
   const [currentScreen, setCurrentScreen] = useState('home'); // 'home', 'map', or 'ranking'
+  const mapRef = useRef(null);
+  const [mapRenderKey, setMapRenderKey] = useState(0);
+  const lastMapActivityRef = useRef(Date.now());
+  const watchdogIntervalRef = useRef(null);
+  const resumeCheckTimeoutRef = useRef(null);
   
   // Location and map state
   const [location, setLocation] = useState(null);
@@ -108,6 +115,166 @@ export default function App() {
   const interstitialRef = useRef(null);
   const [interstitialLoaded, setInterstitialLoaded] = useState(false);
   const lastInterstitialTimeRef = useRef(0);
+  const interstitialHistoryRef = useRef([]);
+  const INTERSTITIAL_WINDOW_MS = 90 * 1000; // 1 minute 30 seconds
+  const INTERSTITIAL_MAX_PER_WINDOW = 2;
+
+  const recordAdImpression = useCallback(() => {
+    const now = Date.now();
+    interstitialHistoryRef.current = interstitialHistoryRef.current.filter(
+      (timestamp) => now - timestamp < INTERSTITIAL_WINDOW_MS
+    );
+    interstitialHistoryRef.current.push(now);
+  }, []);
+
+  const canShowAnotherAd = useCallback(() => {
+    const now = Date.now();
+    interstitialHistoryRef.current = interstitialHistoryRef.current.filter(
+      (timestamp) => now - timestamp < INTERSTITIAL_WINDOW_MS
+    );
+    return interstitialHistoryRef.current.length < INTERSTITIAL_MAX_PER_WINDOW;
+  }, []);
+
+  // App open ad management
+  const appOpenUnitIdIos = Constants?.expoConfig?.extra?.admob?.appOpenUnitIdIos;
+  const APP_OPEN_AD_UNIT_ID = Platform.select({
+    ios: __DEV__ ? TestIds.APP_OPEN : (appOpenUnitIdIos || 'ca-app-pub-8579480495006676/9033300373'),
+    android: TestIds.APP_OPEN,
+    default: TestIds.APP_OPEN,
+  });
+  const APP_OPEN_AD_MAX_AGE_MS = 4 * 60 * 60 * 1000;
+  const appOpenAdRef = useRef(null);
+  const appOpenAdLoadTimeRef = useRef(null);
+  const appOpenAdIsShowingRef = useRef(false);
+  const appOpenAdRetryTimeoutRef = useRef(null);
+  const appOpenLastShownRef = useRef(0);
+  const appOpenAllowedRef = useRef(true);
+  const showAppOpenAdIfAvailableRef = useRef(() => {});
+  const initialAdSequencePendingRef = useRef(true);
+  const waitingForInterstitialRef = useRef(false);
+  const maybeShowInterstitialRef = useRef(() => false);
+
+  const loadInterstitialForInitialSequence = useCallback(() => {
+    if (!interstitialRef.current) {
+      return;
+    }
+    try {
+      interstitialRef.current.load();
+    } catch (error) {
+      console.warn('Failed to load interstitial for initial sequence', error?.message ?? error);
+    }
+  }, []);
+
+  const loadAppOpenAd = useCallback(() => {
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+    if (!appOpenAllowedRef.current || !initialAdSequencePendingRef.current) {
+      return;
+    }
+    if (!APP_OPEN_AD_UNIT_ID || appOpenAdRef.current) {
+      return;
+    }
+    if (appOpenAdRetryTimeoutRef.current) {
+      clearTimeout(appOpenAdRetryTimeoutRef.current);
+      appOpenAdRetryTimeoutRef.current = null;
+    }
+
+    const ad = AppOpenAd.createForAdRequest(APP_OPEN_AD_UNIT_ID, {
+      requestNonPersonalizedAdsOnly: false,
+    });
+
+    ad.addAdEventListener(AdEventType.LOADED, () => {
+      appOpenAdLoadTimeRef.current = Date.now();
+      showAppOpenAdIfAvailableRef.current();
+    });
+
+    ad.addAdEventListener(AdEventType.OPENED, () => {
+      appOpenAdIsShowingRef.current = true;
+    });
+
+    ad.addAdEventListener(AdEventType.CLOSED, () => {
+      appOpenAdIsShowingRef.current = false;
+      appOpenAdRef.current = null;
+      appOpenAdLoadTimeRef.current = null;
+      recordAdImpression();
+      appOpenLastShownRef.current = Date.now();
+      appOpenAllowedRef.current = false;
+      const shown = maybeShowInterstitialRef.current({ force: true });
+      if (shown) {
+        waitingForInterstitialRef.current = false;
+      } else {
+        waitingForInterstitialRef.current = true;
+        loadInterstitialForInitialSequence();
+      }
+    });
+
+    ad.addAdEventListener(AdEventType.ERROR, () => {
+      appOpenAdIsShowingRef.current = false;
+      appOpenAdRef.current = null;
+      appOpenAdLoadTimeRef.current = null;
+      if (appOpenAllowedRef.current) {
+        appOpenAdRetryTimeoutRef.current = setTimeout(() => loadAppOpenAd(), 30000);
+      }
+      if (initialAdSequencePendingRef.current) {
+        initialAdSequencePendingRef.current = false;
+        waitingForInterstitialRef.current = false;
+        setCurrentScreen('map');
+      }
+    });
+
+    ad.load();
+    appOpenAdRef.current = ad;
+  }, [APP_OPEN_AD_UNIT_ID, loadInterstitialForInitialSequence]);
+
+  const showAppOpenAdIfAvailable = useCallback(() => {
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+
+    const ad = appOpenAdRef.current;
+    if (!ad) {
+      loadAppOpenAd();
+      return;
+    }
+
+    if (!appOpenAllowedRef.current) {
+      return;
+    }
+
+    if (!canShowAnotherAd()) {
+      appOpenAllowedRef.current = false;
+      return;
+    }
+
+    if (appOpenAdIsShowingRef.current) {
+      return;
+    }
+
+    const loadedAt = appOpenAdLoadTimeRef.current;
+    if (!loadedAt || Date.now() - loadedAt > APP_OPEN_AD_MAX_AGE_MS) {
+      appOpenAdRef.current = null;
+      appOpenAdLoadTimeRef.current = null;
+      loadAppOpenAd();
+      return;
+    }
+
+    try {
+      ad.show();
+      recordAdImpression();
+      appOpenLastShownRef.current = Date.now();
+    } catch (error) {
+      console.warn('App open ad show failed', error?.message ?? error);
+      appOpenAdIsShowingRef.current = false;
+      appOpenAdRef.current = null;
+      appOpenAdLoadTimeRef.current = null;
+      loadAppOpenAd();
+    }
+  }, [loadAppOpenAd, canShowAnotherAd, recordAdImpression]);
+
+  useEffect(() => {
+    showAppOpenAdIfAvailableRef.current = showAppOpenAdIfAvailable;
+  }, [showAppOpenAdIfAvailable]);
 
   // Load location and fetch nearby restrooms
   useEffect(() => {
@@ -138,11 +305,79 @@ export default function App() {
 
   // Initialize ads SDK once
   useEffect(() => {
+    let initializationTimeout;
     mobileAds()
       .initialize()
-      .then(() => setAdsInitialized(true))
+      .then(() => {
+        setAdsInitialized(true);
+        loadAppOpenAd();
+        initializationTimeout = setTimeout(() => {
+          showAppOpenAdIfAvailable();
+        }, 1500);
+      })
       .catch(err => console.warn('Ads initialization failed', err));
-  }, []);
+
+    return () => {
+      if (initializationTimeout) {
+        clearTimeout(initializationTimeout);
+      }
+    };
+  }, [loadAppOpenAd, showAppOpenAdIfAvailable]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') {
+      return undefined;
+    }
+
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        // Re-mount the MapView to avoid blank map issues after returning from ads/external apps
+        setMapRenderKey((k) => k + 1);
+        // Give React a tick to mount before attempting any map interaction
+        setTimeout(() => {
+          try {
+            if (mapRef.current && region) {
+              // Nudge the map to re-render its tiles
+              mapRef.current.animateToRegion(region, 0);
+            }
+          } catch (e) {
+            console.warn('Map animateToRegion after resume failed', e?.message ?? e);
+          }
+        }, 50);
+        // One-shot fallback: if map not ready or no activity within short window, force another remount
+        if (resumeCheckTimeoutRef.current) {
+          clearTimeout(resumeCheckTimeoutRef.current);
+        }
+        resumeCheckTimeoutRef.current = setTimeout(() => {
+          const sinceActivity = Date.now() - lastMapActivityRef.current;
+          if (currentScreen === 'map' && (!mapReady || sinceActivity > 15000)) {
+            console.warn('Watchdog: forcing secondary map remount after resume');
+            setMapRenderKey((k) => k + 1);
+            try {
+              if (mapRef.current && region) {
+                mapRef.current.animateToRegion(region, 0);
+              }
+            } catch (e) {
+              console.warn('Map animateToRegion in resume watchdog failed', e?.message ?? e);
+            }
+          }
+        }, 3000);
+        showAppOpenAdIfAvailable();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+      if (appOpenAdRetryTimeoutRef.current) {
+        clearTimeout(appOpenAdRetryTimeoutRef.current);
+        appOpenAdRetryTimeoutRef.current = null;
+      }
+      if (resumeCheckTimeoutRef.current) {
+        clearTimeout(resumeCheckTimeoutRef.current);
+        resumeCheckTimeoutRef.current = null;
+      }
+    };
+  }, [showAppOpenAdIfAvailable]);
 
   // Prefer real AdMob unit IDs from app config (extra.admob.bannerUnitIdIos / interstitialUnitIdIos) with test fallback
   const realBannerIdIos = Constants?.expoConfig?.extra?.admob?.bannerUnitIdIos;
@@ -164,33 +399,104 @@ export default function App() {
       requestNonPersonalizedAdsOnly: false,
     });
     interstitialRef.current = ad;
-    const onLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setInterstitialLoaded(true));
+    const onLoaded = ad.addAdEventListener(AdEventType.LOADED, handleInterstitialLoaded);
     const onClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
-      setInterstitialLoaded(false);
-      // Preload next ad
+      handleInterstitialClosed();
       ad.load();
     });
-    const onError = ad.addAdEventListener(AdEventType.ERROR, () => setInterstitialLoaded(false));
+    const onError = ad.addAdEventListener(AdEventType.ERROR, handleInterstitialError);
     ad.load();
     return () => {
       onLoaded();
       onClosed();
       onError();
     };
-  }, [interstitialUnitId]);
+  }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId]);
 
-  const maybeShowInterstitial = () => {
-    try {
-      const now = Date.now();
-      // Cooldown to avoid spamming: 90 seconds
-      if (interstitialLoaded && interstitialRef.current && (now - lastInterstitialTimeRef.current > 90 * 1000)) {
-        interstitialRef.current.show();
-        lastInterstitialTimeRef.current = now;
+  const maybeShowInterstitial = useCallback(
+    ({ force = false } = {}) => {
+      try {
+        const now = Date.now();
+        if (!force && !canShowAnotherAd()) {
+          return false;
+        }
+        if (force && !canShowAnotherAd()) {
+          return false;
+        }
+        // Cooldown to avoid spamming: 1 minute 30 seconds
+        if (
+          interstitialLoaded &&
+          interstitialRef.current &&
+          (force || now - lastInterstitialTimeRef.current > 90 * 1000)
+        ) {
+          interstitialRef.current.show();
+          lastInterstitialTimeRef.current = now;
+          recordAdImpression();
+          return true;
+        }
+      } catch (e) {
+        console.warn('Interstitial show failed', e?.message);
       }
-    } catch (e) {
-      console.warn('Interstitial show failed', e?.message);
+      return false;
+    },
+    [canShowAnotherAd, interstitialLoaded, recordAdImpression]
+  );
+
+  const handleInterstitialClosed = useCallback(() => {
+    setInterstitialLoaded(false);
+    interstitialHistoryRef.current = interstitialHistoryRef.current.filter(
+      (timestamp) => Date.now() - timestamp < INTERSTITIAL_WINDOW_MS
+    );
+    if (initialAdSequencePendingRef.current) {
+      initialAdSequencePendingRef.current = false;
+      waitingForInterstitialRef.current = false;
+      if (currentScreen !== 'map') {
+        setCurrentScreen('map');
+      }
     }
-  };
+  }, [currentScreen]);
+
+  useEffect(() => {
+    return () => {
+      waitingForInterstitialRef.current = false;
+      initialAdSequencePendingRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    maybeShowInterstitialRef.current = maybeShowInterstitial;
+  }, [maybeShowInterstitial]);
+
+  const handleInterstitialLoaded = useCallback(() => {
+    setInterstitialLoaded(true);
+    if (waitingForInterstitialRef.current) {
+      const shown = maybeShowInterstitialRef.current({ force: true });
+      if (shown) {
+        waitingForInterstitialRef.current = false;
+      }
+    }
+  }, []);
+
+  const handleInterstitialError = useCallback(() => {
+    setInterstitialLoaded(false);
+    if (waitingForInterstitialRef.current) {
+      waitingForInterstitialRef.current = false;
+      initialAdSequencePendingRef.current = false;
+      if (currentScreen !== 'map') {
+        setCurrentScreen('map');
+      }
+    }
+  }, [currentScreen]);
+
+  useEffect(() => {
+    initialAdSequencePendingRef.current = true;
+    waitingForInterstitialRef.current = false;
+  }, []);
+
+  const maybeShowInterstitialPublic = useCallback(
+    (options = {}) => maybeShowInterstitialRef.current(options),
+    []
+  );
 
   // Fetch nearby restrooms from Supabase
   const fetchNearbyRestrooms = async (lat, lon, radius = 5000) => {
@@ -334,7 +640,42 @@ export default function App() {
   const handleMapReady = () => {
     console.log('Map is ready');
     setMapReady(true);
+    lastMapActivityRef.current = Date.now();
   };
+  const handleRegionChangeComplete = () => {
+    lastMapActivityRef.current = Date.now();
+  };
+
+  // Map watchdog: periodically verify activity; if stale for >60s while on map screen, remount.
+  useEffect(() => {
+    if (watchdogIntervalRef.current) {
+      clearInterval(watchdogIntervalRef.current);
+    }
+    watchdogIntervalRef.current = setInterval(() => {
+      if (currentScreen !== 'map') return;
+      const sinceActivity = Date.now() - lastMapActivityRef.current;
+      if (sinceActivity > 60000) { // 60s without region change or ready event
+        console.warn('Watchdog: map appears stale (>60s inactivity); remounting MapView');
+        setMapReady(false);
+        setMapRenderKey((k) => k + 1);
+        setTimeout(() => {
+          try {
+            if (mapRef.current && region) {
+              mapRef.current.animateToRegion(region, 0);
+            }
+          } catch (e) {
+            console.warn('Map animateToRegion after stale remount failed', e?.message ?? e);
+          }
+        }, 75);
+      }
+    }, 10000); // check every 10s
+    return () => {
+      if (watchdogIntervalRef.current) {
+        clearInterval(watchdogIntervalRef.current);
+        watchdogIntervalRef.current = null;
+      }
+    };
+  }, [currentScreen, region]);
 
   // Handle map errors
   const handleMapError = (error) => {
@@ -500,7 +841,7 @@ export default function App() {
       
       Alert.alert('Success', 'Review added successfully!');
   // Attempt to show an interstitial after adding a review (gentle frequency control handled in maybeShowInterstitial)
-  maybeShowInterstitial();
+  maybeShowInterstitialPublic();
     } catch (error) {
       console.error('Error adding review:', error);
       Alert.alert('Error', `Failed to add review: ${error.message || 'Unknown error'}`);
@@ -623,7 +964,7 @@ export default function App() {
       
       Alert.alert('Success', 'Rating added successfully!');
   // Attempt to show an interstitial after adding a rating
-  maybeShowInterstitial();
+  maybeShowInterstitialPublic();
     } catch (error) {
       console.error('Error adding rating:', error);
       console.error('Error details:', error.message);
@@ -1015,6 +1356,8 @@ export default function App() {
 
       {/* Map */}
       <MapView
+        key={`map-${mapRenderKey}`}
+        ref={mapRef}
         style={styles.map}
         provider={PROVIDER_GOOGLE}
         region={region}
@@ -1028,6 +1371,7 @@ export default function App() {
         onMapError={handleMapError}
         onPress={handleMapPress}
         onPoiClick={handlePoiClick}
+        onRegionChangeComplete={handleRegionChangeComplete}
         // Additional iOS optimizations
         showsCompass={true}
         showsScale={Platform.OS === 'ios'}
