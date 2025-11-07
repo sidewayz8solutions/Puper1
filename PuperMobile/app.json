@@ -2,7 +2,7 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-  "version": "1.2.4",
+  "version": "1.2.5",
     "orientation": "portrait",
   "icon": "./assets/pup.jpg",
     "userInterfaceStyle": "light",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-  "buildNumber": "24",
+  "buildNumber": "25",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
@@ -30,7 +30,8 @@
         ]
       },
       "config": {
-        "usesNonExemptEncryption": false
+        "usesNonExemptEncryption": false,
+        "googleMapsApiKey": "AIzaSyD5l5VGgUMgtp_MnI6Ztd1SwqQsGp9mZ0w"
       }
     },
     "android": {
@@ -71,7 +72,9 @@
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bmFpaWNqY2VsdmR1bmx1d3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NjA4NjEsImV4cCI6MjA2OTMzNjg2MX0.rFXwY95lvcXZEds7f16KodwhfnGHQBp7GsV4WTFQHjI",
       "admob": {
         "appIdIos": "ca-app-pub-8579480495006676~6423147580",
-        "appOpenUnitIdIos": "ca-app-pub-8579480495006676/9033300373"
+        "appOpenUnitIdIos": "ca-app-pub-8579480495006676/9033300373",
+        "bannerUnitIdIos": "ca-app-pub-8579480495006676/7646946952",
+        "interstitialUnitIdIos": "ca-app-pub-8579480495006676/3785391861"
       },
       "eas": {
         "projectId": "ee7c255a-c7c7-4664-837e-c123d70e2105"
