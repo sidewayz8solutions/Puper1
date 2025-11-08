@@ -34,7 +34,6 @@ import MapView, {
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
 import mobileAds, { AppOpenAd, BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
-import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 import { useRemoveAds } from './services/iap/removeAds';
 import Constants from 'expo-constants';
 
@@ -112,9 +111,6 @@ export default function App() {
     averageRating: '0.0',
     accessibleCount: 0
   });
-  // App Tracking Transparency state
-  const [trackingChecked, setTrackingChecked] = useState(false);
-  const [trackingAuthorized, setTrackingAuthorized] = useState(false);
   const [adsInitialized, setAdsInitialized] = useState(false);
   const { removeAds, buyRemoveAds, restorePurchases, purchasing, restoring } = useRemoveAds();
   // Interstitial ad state
@@ -193,7 +189,7 @@ export default function App() {
     }
 
     const ad = AppOpenAd.createForAdRequest(APP_OPEN_AD_UNIT_ID, {
-      requestNonPersonalizedAdsOnly: !trackingAuthorized,
+      requestNonPersonalizedAdsOnly: false,
     });
 
     ad.addAdEventListener(AdEventType.LOADED, () => {
@@ -232,7 +228,7 @@ export default function App() {
 
     ad.load();
     appOpenAdRef.current = ad;
-  }, [APP_OPEN_AD_UNIT_ID, loadInterstitialForInitialSequence, trackingAuthorized]);
+  }, [APP_OPEN_AD_UNIT_ID, loadInterstitialForInitialSequence]);
 
   const showAppOpenAdIfAvailable = useCallback(() => {
     if (Platform.OS !== 'ios') {
@@ -308,26 +304,8 @@ export default function App() {
     })();
   }, []);
 
-  // Request tracking permission on iOS, then initialize ads
+  // Initialize ads SDK once
   useEffect(() => {
-    (async () => {
-      if (Platform.OS === 'ios') {
-        try {
-          const { status } = await requestTrackingPermissionsAsync();
-          if (status === 'granted') {
-            setTrackingAuthorized(true);
-          }
-        } catch (e) {
-          console.warn('Tracking permission request failed', e?.message ?? e);
-        }
-      }
-      setTrackingChecked(true);
-    })();
-  }, []);
-
-  // Initialize ads SDK once (after tracking prompt is handled)
-  useEffect(() => {
-    if (!trackingChecked) return; // wait for ATT flow
     if (removeAds) return; // Skip ads init if user purchased removal
     let initializationTimeout;
     mobileAds()
@@ -353,7 +331,7 @@ export default function App() {
     return () => {
       if (initializationTimeout) clearTimeout(initializationTimeout);
     };
-  }, [trackingChecked, loadAppOpenAd, showAppOpenAdIfAvailable, removeAds]);
+  }, [loadAppOpenAd, showAppOpenAdIfAvailable, removeAds]);
 
   useEffect(() => {
     if (Platform.OS !== 'ios') {
@@ -427,7 +405,7 @@ export default function App() {
   // Prepare and load an interstitial ad
   useEffect(() => {
     const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
-      requestNonPersonalizedAdsOnly: !trackingAuthorized,
+      requestNonPersonalizedAdsOnly: false,
     });
     interstitialRef.current = ad;
     const onLoaded = ad.addAdEventListener(AdEventType.LOADED, handleInterstitialLoaded);
@@ -442,7 +420,7 @@ export default function App() {
       onClosed();
       onError();
     };
-  }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId, trackingAuthorized]);
+  }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId]);
 
   const isUiBlockingAd = useCallback(() => {
     // UI gating disabled: allow interstitials to interrupt any screen
