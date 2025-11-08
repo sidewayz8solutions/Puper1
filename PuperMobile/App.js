@@ -35,8 +35,6 @@ import MapView, {
 } from 'react-native-maps';
 import mobileAds, { AppOpenAd, BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 import Constants from 'expo-constants';
-import * as InAppPurchases from 'expo-in-app-purchases';
-import * as SecureStore from 'expo-secure-store';
 
 import {
   photoService,
@@ -113,21 +111,20 @@ export default function App() {
     accessibleCount: 0
   });
   const [adsInitialized, setAdsInitialized] = useState(false);
-  const [adsRemoved, setAdsRemoved] = useState(false);
-  const removeAdsProductId = Constants?.expoConfig?.extra?.iap?.removeAdsProductIdIos || 'remove_ads';
-  const purchaseListenerDetachRef = useRef(null);
   // Interstitial ad state
   const interstitialRef = useRef(null);
   const [interstitialLoaded, setInterstitialLoaded] = useState(false);
   const lastInterstitialTimeRef = useRef(0);
   const interstitialHistoryRef = useRef([]);
-  // Updated ad frequency: initial double interstitial, then one every 30s.
-  const INTERSTITIAL_WINDOW_MS = 30 * 1000; // 30 second cadence window
-  const INTERSTITIAL_MAX_PER_WINDOW = 1; // one per window after initial sequence
-  const STARTUP_SECOND_AD_MIN_GAP_MS = 5 * 1000; // ensure a small usability gap between first and second
+  // Policy‑friendly ad frequency: no forced double on launch, user-first shows,
+  // and a conservative cadence (1 per 120s max) with UI gating.
+  const INTERSTITIAL_WINDOW_MS = 120 * 1000; // 2 minute cadence window
+  const INTERSTITIAL_MAX_PER_WINDOW = 1; // one per window
+  const STARTUP_SECOND_AD_MIN_GAP_MS = 5 * 1000; // retained but unused in compliant mode
   const initialInterstitialCountRef = useRef(0);
   const waitingForSecondInitialInterstitialRef = useRef(false);
   const pendingAdRef = useRef(false); // when UI is busy, remember to show when free
+  const launchTimeRef = useRef(Date.now());
 
   const recordAdImpression = useCallback(() => {
     const now = Date.now();
@@ -313,90 +310,26 @@ export default function App() {
     })();
   }, []);
 
-  // Initialize ads SDK & set up IAP listener/persistence once
+  // Initialize ads SDK once
   useEffect(() => {
     let initializationTimeout;
-    let disconnected = false;
-
-    // Ads initialization
     mobileAds()
       .initialize()
       .then(() => {
         setAdsInitialized(true);
-        if (!adsRemoved) {
-          loadAppOpenAd();
-          initializationTimeout = setTimeout(() => {
-            showAppOpenAdIfAvailable();
-          }, 1500);
-        }
+        loadAppOpenAd();
+        initializationTimeout = setTimeout(() => {
+          showAppOpenAdIfAvailable();
+        }, 1500);
       })
       .catch(err => console.warn('Ads initialization failed', err));
-
-    // Load persisted remove-ads flag
-    (async () => {
-      try {
-        const stored = await SecureStore.getItemAsync('adsRemoved');
-        if (stored === 'true') {
-          setAdsRemoved(true);
-        }
-      } catch (e) {
-        console.warn('SecureStore read failed', e?.message);
-      }
-    })();
-
-    // Set purchase listener and connect
-    purchaseListenerDetachRef.current = InAppPurchases.setPurchaseListener(async ({ responseCode, results, errorCode }) => {
-      if (responseCode === InAppPurchases.IAPResponseCode.OK) {
-        for (const purchase of results) {
-          try {
-            if (!purchase.acknowledged && purchase.productId === removeAdsProductId) {
-              await InAppPurchases.finishTransactionAsync(purchase, true);
-              await SecureStore.setItemAsync('adsRemoved', 'true');
-              setAdsRemoved(true);
-              Alert.alert('Purchase Successful', 'Ads have been removed.');
-            } else if (!purchase.acknowledged) {
-              // Acknowledge other purchases defensively
-              await InAppPurchases.finishTransactionAsync(purchase, false);
-            }
-          } catch (e) {
-            console.warn('Finalize purchase failed', e?.message);
-          }
-        }
-      } else if (responseCode === InAppPurchases.IAPResponseCode.USER_CANCELED) {
-        console.log('User canceled purchase');
-      } else if (responseCode === InAppPurchases.IAPResponseCode.ERROR) {
-        console.warn('Purchase error', errorCode);
-        Alert.alert('Purchase Error', 'Unable to complete purchase.');
-      }
-    });
-
-    (async () => {
-      try {
-        const conn = await InAppPurchases.connectAsync();
-        if (!conn.connected) {
-          console.warn('IAP not connected');
-        } else {
-          await InAppPurchases.getProductsAsync([removeAdsProductId]);
-        }
-      } catch (e) {
-        console.warn('IAP init failed', e?.message);
-      }
-    })();
 
     return () => {
       if (initializationTimeout) {
         clearTimeout(initializationTimeout);
       }
-      if (!disconnected) {
-        InAppPurchases.disconnectAsync().catch(() => {});
-        disconnected = true;
-      }
-      if (purchaseListenerDetachRef.current) {
-        purchaseListenerDetachRef.current();
-        purchaseListenerDetachRef.current = null;
-      }
     };
-  }, [loadAppOpenAd, showAppOpenAdIfAvailable, removeAdsProductId, adsRemoved]);
+  }, [loadAppOpenAd, showAppOpenAdIfAvailable]);
 
   useEffect(() => {
     if (Platform.OS !== 'ios') {
@@ -462,18 +395,13 @@ export default function App() {
     default: TestIds.BANNER,
   });
   const interstitialUnitId = Platform.select({
-    ios: adsRemoved ? TestIds.INTERSTITIAL : (realInterstitialIdIos || TestIds.INTERSTITIAL), // use test id when removed to avoid real requests
+    ios: realInterstitialIdIos || TestIds.INTERSTITIAL,
     android: TestIds.INTERSTITIAL,
     default: TestIds.INTERSTITIAL,
   });
 
   // Prepare and load an interstitial ad
   useEffect(() => {
-    if (adsRemoved) {
-      interstitialRef.current = null;
-      setInterstitialLoaded(false);
-      return;
-    }
     const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
       requestNonPersonalizedAdsOnly: false,
     });
@@ -490,7 +418,7 @@ export default function App() {
       onClosed();
       onError();
     };
-  }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId, adsRemoved]);
+  }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId]);
 
   const isUiBlockingAd = useCallback(() => {
     // Don’t show interstitials when critical modals are open or we’re still loading
@@ -543,19 +471,7 @@ export default function App() {
     interstitialHistoryRef.current = interstitialHistoryRef.current.filter(
       (timestamp) => Date.now() - timestamp < INTERSTITIAL_WINDOW_MS
     );
-    if (initialAdSequencePendingRef.current) {
-      if (initialInterstitialCountRef.current < 2) {
-        // Queue second initial interstitial; will be shown after a small gap and when UI is not busy
-        waitingForSecondInitialInterstitialRef.current = true;
-      } else {
-        initialAdSequencePendingRef.current = false;
-        waitingForInterstitialRef.current = false;
-        waitingForSecondInitialInterstitialRef.current = false;
-        if (currentScreen !== 'map') {
-          setCurrentScreen('map');
-        }
-      }
-    }
+    // In compliant mode we do not run an initial double‑ad sequence; nothing to do here
   }, [currentScreen]);
 
   useEffect(() => {
@@ -577,28 +493,7 @@ export default function App() {
         waitingForInterstitialRef.current = false;
       }
     }
-    if (waitingForSecondInitialInterstitialRef.current) {
-      const elapsed = Date.now() - lastInterstitialTimeRef.current;
-      if (elapsed >= STARTUP_SECOND_AD_MIN_GAP_MS) {
-        const shownSecond = maybeShowInterstitialRef.current({ force: true });
-        if (shownSecond) {
-          waitingForSecondInitialInterstitialRef.current = false;
-        }
-      } else {
-        const delay = STARTUP_SECOND_AD_MIN_GAP_MS - elapsed;
-        setTimeout(() => {
-          // Re-check UI blockers before forcing
-          if (!isUiBlockingAd()) {
-            const shownSecond = maybeShowInterstitialRef.current({ force: true });
-            if (shownSecond) {
-              waitingForSecondInitialInterstitialRef.current = false;
-            }
-          } else {
-            pendingAdRef.current = true;
-          }
-        }, Math.max(0, delay));
-      }
-    }
+    // No second startup ad in compliant mode
   }, []);
 
   const handleInterstitialError = useCallback(() => {
@@ -613,24 +508,23 @@ export default function App() {
   }, [currentScreen]);
 
   useEffect(() => {
-    initialAdSequencePendingRef.current = true;
+    // Compliant mode: no initial forced interstitial sequence
+    initialAdSequencePendingRef.current = false;
     waitingForInterstitialRef.current = false;
   }, []);
 
-  // Begin periodic interstitial attempts every 30s after initial sequence completes
+  // Periodic interstitial attempts at a conservative cadence (every 120s),
+  // only when UI is free and after a short post‑launch grace period.
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!initialAdSequencePendingRef.current) {
-        if (!isUiBlockingAd()) {
-          const shown = maybeShowInterstitialRef.current({ force: true });
-          if (!shown) {
-            // If rate limited by frequency window, it will be tried again on the next tick
-          }
-        } else {
-          pendingAdRef.current = true;
-        }
+      const elapsedSinceLaunch = Date.now() - launchTimeRef.current;
+      if (elapsedSinceLaunch < 45 * 1000) return; // 45s grace after launch
+      if (!isUiBlockingAd()) {
+        maybeShowInterstitialRef.current({ force: true });
+      } else {
+        pendingAdRef.current = true;
       }
-    }, 30000);
+    }, 120000);
     return () => clearInterval(interval);
   }, [isUiBlockingAd]);
 
@@ -648,25 +542,6 @@ export default function App() {
     (options = {}) => maybeShowInterstitialRef.current(options),
     []
   );
-
-  const handleRemoveAdsPurchase = async () => {
-    if (adsRemoved) {
-      Alert.alert('Already Removed', 'Ads are already disabled.');
-      return;
-    }
-    try {
-      const conn = await InAppPurchases.connectAsync();
-      if (!conn.connected) {
-        Alert.alert('Store Unavailable', 'Cannot connect to store. Try later.');
-        return;
-      }
-      await InAppPurchases.getProductsAsync([removeAdsProductId]);
-      await InAppPurchases.purchaseItemAsync(removeAdsProductId);
-    } catch (e) {
-      console.warn('Purchase initiation failed', e?.message);
-      Alert.alert('Error', 'Failed to start purchase.');
-    }
-  };
 
   // Fetch nearby restrooms from Supabase
   const fetchNearbyRestrooms = async (lat, lon, radius = 5000) => {
@@ -1646,21 +1521,16 @@ export default function App() {
             {loading ? 'Searching...' : 'Refresh Nearby Restrooms'}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, { marginTop: 10, backgroundColor: adsRemoved ? '#27AE60' : '#E74C3C' }]}
-          onPress={handleRemoveAdsPurchase}
-        >
-          <Text style={[styles.buttonText, { color: '#FFF' }]}>{adsRemoved ? '✅ Ads Removed' : '🛒 Remove Ads'}</Text>
-        </TouchableOpacity>
+        {/* Test Banner Ad (replace TestIds with real unit IDs in production) */}
         <View style={styles.adWrapper}>
-          {adsInitialized && !adsRemoved ? (
+          {adsInitialized ? (
             <BannerAd
               unitId={bannerAdUnitId}
               size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
               onAdFailedToLoad={(e) => console.warn('Banner failed to load', e?.message)}
             />
           ) : (
-            <Text style={styles.adLoadingText}>{adsRemoved ? 'Ads disabled' : 'Loading ad…'}</Text>
+            <Text style={styles.adLoadingText}>Loading ad…</Text>
           )}
         </View>
       </View>
