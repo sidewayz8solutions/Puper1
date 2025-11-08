@@ -16,14 +16,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-  "buildNumber": "33",
+  "buildNumber": "34",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSCameraUsageDescription": "Püper needs camera access to take photos of restrooms.",
         "NSPhotoLibraryUsageDescription": "Püper needs photo library access to add photos to your reviews.",
         "ITSAppUsesNonExemptEncryption": false,
-        "NSUserTrackingUsageDescription": "This identifier will be used to deliver ads that help support the app.",
+        "NSUserTrackingUsageDescription": "We use this to show you relevant ads that support the app.",
         "GADApplicationIdentifier": "ca-app-pub-8579480495006676~6423147580",
         "SKAdNetworkItems": [
           { "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork" }
