@@ -34,6 +34,7 @@ import MapView, {
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
 import mobileAds, { AppOpenAd, BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
+import { useRemoveAds } from './services/iap/removeAds';
 import Constants from 'expo-constants';
 
 import {
@@ -111,6 +112,7 @@ export default function App() {
     accessibleCount: 0
   });
   const [adsInitialized, setAdsInitialized] = useState(false);
+  const { removeAds, buyRemoveAds, restorePurchases, purchasing, restoring } = useRemoveAds();
   // Interstitial ad state
   const interstitialRef = useRef(null);
   const [interstitialLoaded, setInterstitialLoaded] = useState(false);
@@ -304,16 +306,17 @@ export default function App() {
 
   // Initialize ads SDK once
   useEffect(() => {
+    if (removeAds) return; // Skip ads init if user purchased removal
     let initializationTimeout;
     mobileAds()
       .initialize()
       .then(() => {
+        if (removeAds) return; // double-check after async
         setAdsInitialized(true);
         loadAppOpenAd();
         initializationTimeout = setTimeout(() => {
           showAppOpenAdIfAvailable();
           if (Platform.OS !== 'ios') {
-            // Show an interstitial on app open for Android
             waitingForInterstitialRef.current = true;
             if (maybeShowInterstitialRef.current) {
               const shown = maybeShowInterstitialRef.current({ force: true });
@@ -325,13 +328,10 @@ export default function App() {
         }, 1500);
       })
       .catch(err => console.warn('Ads initialization failed', err));
-
     return () => {
-      if (initializationTimeout) {
-        clearTimeout(initializationTimeout);
-      }
+      if (initializationTimeout) clearTimeout(initializationTimeout);
     };
-  }, [loadAppOpenAd, showAppOpenAdIfAvailable]);
+  }, [loadAppOpenAd, showAppOpenAdIfAvailable, removeAds]);
 
   useEffect(() => {
     if (Platform.OS !== 'ios') {
@@ -503,13 +503,16 @@ export default function App() {
     waitingForInterstitialRef.current = false;
   }, []);
 
-  // Periodic attempt exactly every 30s; respects usable gap via maybeShowInterstitial logic
+  // Periodic attempt exactly every 30s; respects usable gap and disable when ads removed
   useEffect(() => {
+    if (removeAds) return;
     const interval = setInterval(() => {
-      maybeShowInterstitialRef.current({ force: false });
+      if (!removeAds) {
+        maybeShowInterstitialRef.current({ force: false });
+      }
     }, INTERSTITIAL_WINDOW_MS);
     return () => clearInterval(interval);
-  }, []);
+  }, [removeAds]);
 
   const maybeShowInterstitialPublic = useCallback(
     (options = {}) => maybeShowInterstitialRef.current(options),
@@ -1496,7 +1499,9 @@ export default function App() {
         </TouchableOpacity>
         {/* Test Banner Ad (replace TestIds with real unit IDs in production) */}
         <View style={styles.adWrapper}>
-          {adsInitialized ? (
+          {removeAds ? (
+            <Text style={styles.adFreeText}>Ad-Free ✅</Text>
+          ) : adsInitialized ? (
             <BannerAd
               unitId={bannerAdUnitId}
               size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
@@ -1524,6 +1529,17 @@ export default function App() {
               </TouchableOpacity>
             </View>
             
+            {!removeAds && (
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => {
+                  setShowMenu(false);
+                  buyRemoveAds();
+                }}
+              >
+                <Text style={styles.menuItemText}>{purchasing ? 'Processing…' : '🚫 Remove Ads ($4.99)'}</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity 
               style={styles.menuItem}
               onPress={() => {
@@ -1572,6 +1588,15 @@ export default function App() {
               }}
             >
               <Text style={styles.menuItemText}>ℹ️ About</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={async () => {
+                setShowMenu(false);
+                await restorePurchases();
+              }}
+            >
+              <Text style={styles.menuItemText}>{restoring ? 'Restoring…' : '🔄 Restore Purchases'}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -2206,6 +2231,11 @@ const styles = StyleSheet.create({
     color: '#F5F5DC',
     fontSize: 12,
     fontStyle: 'italic',
+  },
+  adFreeText: {
+    color: '#0dffe7',
+    fontSize: 12,
+    fontWeight: '600',
   },
   button: {
     backgroundColor: '#FFF',
