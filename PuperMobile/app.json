@@ -2,7 +2,7 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-  "version": "1.3.2",
+  "version": "1.3.4",
     "orientation": "portrait",
   "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -23,7 +23,7 @@
         "NSCameraUsageDescription": "Püper needs camera access to take photos of restrooms.",
         "NSPhotoLibraryUsageDescription": "Püper needs photo library access to add photos to your reviews.",
         "ITSAppUsesNonExemptEncryption": false,
-        "NSUserTrackingUsageDescription": "We use this to show you relevant ads that support the app.",
+        "NSUserTrackingUsageDescription": "This identifier will be used to deliver ads that help support the app.",
         "GADApplicationIdentifier": "ca-app-pub-8579480495006676~6423147580",
         "SKAdNetworkItems": [
           { "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork" }
