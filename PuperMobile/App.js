@@ -35,6 +35,8 @@ import MapView, {
 } from 'react-native-maps';
 import mobileAds, { AppOpenAd, BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 import Constants from 'expo-constants';
+import * as InAppPurchases from 'expo-in-app-purchases';
+import * as SecureStore from 'expo-secure-store';
 
 import {
   photoService,
@@ -111,6 +113,9 @@ export default function App() {
     accessibleCount: 0
   });
   const [adsInitialized, setAdsInitialized] = useState(false);
+  const [adsRemoved, setAdsRemoved] = useState(false);
+  const removeAdsProductId = Constants?.expoConfig?.extra?.iap?.removeAdsProductIdIos || 'remove_ads';
+  const purchaseListenerDetachRef = useRef(null);
   // Interstitial ad state
   const interstitialRef = useRef(null);
   const [interstitialLoaded, setInterstitialLoaded] = useState(false);
@@ -308,26 +313,90 @@ export default function App() {
     })();
   }, []);
 
-  // Initialize ads SDK once
+  // Initialize ads SDK & set up IAP listener/persistence once
   useEffect(() => {
     let initializationTimeout;
+    let disconnected = false;
+
+    // Ads initialization
     mobileAds()
       .initialize()
       .then(() => {
         setAdsInitialized(true);
-        loadAppOpenAd();
-        initializationTimeout = setTimeout(() => {
-          showAppOpenAdIfAvailable();
-        }, 1500);
+        if (!adsRemoved) {
+          loadAppOpenAd();
+          initializationTimeout = setTimeout(() => {
+            showAppOpenAdIfAvailable();
+          }, 1500);
+        }
       })
       .catch(err => console.warn('Ads initialization failed', err));
+
+    // Load persisted remove-ads flag
+    (async () => {
+      try {
+        const stored = await SecureStore.getItemAsync('adsRemoved');
+        if (stored === 'true') {
+          setAdsRemoved(true);
+        }
+      } catch (e) {
+        console.warn('SecureStore read failed', e?.message);
+      }
+    })();
+
+    // Set purchase listener and connect
+    purchaseListenerDetachRef.current = InAppPurchases.setPurchaseListener(async ({ responseCode, results, errorCode }) => {
+      if (responseCode === InAppPurchases.IAPResponseCode.OK) {
+        for (const purchase of results) {
+          try {
+            if (!purchase.acknowledged && purchase.productId === removeAdsProductId) {
+              await InAppPurchases.finishTransactionAsync(purchase, true);
+              await SecureStore.setItemAsync('adsRemoved', 'true');
+              setAdsRemoved(true);
+              Alert.alert('Purchase Successful', 'Ads have been removed.');
+            } else if (!purchase.acknowledged) {
+              // Acknowledge other purchases defensively
+              await InAppPurchases.finishTransactionAsync(purchase, false);
+            }
+          } catch (e) {
+            console.warn('Finalize purchase failed', e?.message);
+          }
+        }
+      } else if (responseCode === InAppPurchases.IAPResponseCode.USER_CANCELED) {
+        console.log('User canceled purchase');
+      } else if (responseCode === InAppPurchases.IAPResponseCode.ERROR) {
+        console.warn('Purchase error', errorCode);
+        Alert.alert('Purchase Error', 'Unable to complete purchase.');
+      }
+    });
+
+    (async () => {
+      try {
+        const conn = await InAppPurchases.connectAsync();
+        if (!conn.connected) {
+          console.warn('IAP not connected');
+        } else {
+          await InAppPurchases.getProductsAsync([removeAdsProductId]);
+        }
+      } catch (e) {
+        console.warn('IAP init failed', e?.message);
+      }
+    })();
 
     return () => {
       if (initializationTimeout) {
         clearTimeout(initializationTimeout);
       }
+      if (!disconnected) {
+        InAppPurchases.disconnectAsync().catch(() => {});
+        disconnected = true;
+      }
+      if (purchaseListenerDetachRef.current) {
+        purchaseListenerDetachRef.current();
+        purchaseListenerDetachRef.current = null;
+      }
     };
-  }, [loadAppOpenAd, showAppOpenAdIfAvailable]);
+  }, [loadAppOpenAd, showAppOpenAdIfAvailable, removeAdsProductId, adsRemoved]);
 
   useEffect(() => {
     if (Platform.OS !== 'ios') {
@@ -393,13 +462,18 @@ export default function App() {
     default: TestIds.BANNER,
   });
   const interstitialUnitId = Platform.select({
-    ios: realInterstitialIdIos || TestIds.INTERSTITIAL,
+    ios: adsRemoved ? TestIds.INTERSTITIAL : (realInterstitialIdIos || TestIds.INTERSTITIAL), // use test id when removed to avoid real requests
     android: TestIds.INTERSTITIAL,
     default: TestIds.INTERSTITIAL,
   });
 
   // Prepare and load an interstitial ad
   useEffect(() => {
+    if (adsRemoved) {
+      interstitialRef.current = null;
+      setInterstitialLoaded(false);
+      return;
+    }
     const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
       requestNonPersonalizedAdsOnly: false,
     });
@@ -416,7 +490,7 @@ export default function App() {
       onClosed();
       onError();
     };
-  }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId]);
+  }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId, adsRemoved]);
 
   const isUiBlockingAd = useCallback(() => {
     // Don’t show interstitials when critical modals are open or we’re still loading
@@ -574,6 +648,25 @@ export default function App() {
     (options = {}) => maybeShowInterstitialRef.current(options),
     []
   );
+
+  const handleRemoveAdsPurchase = async () => {
+    if (adsRemoved) {
+      Alert.alert('Already Removed', 'Ads are already disabled.');
+      return;
+    }
+    try {
+      const conn = await InAppPurchases.connectAsync();
+      if (!conn.connected) {
+        Alert.alert('Store Unavailable', 'Cannot connect to store. Try later.');
+        return;
+      }
+      await InAppPurchases.getProductsAsync([removeAdsProductId]);
+      await InAppPurchases.purchaseItemAsync(removeAdsProductId);
+    } catch (e) {
+      console.warn('Purchase initiation failed', e?.message);
+      Alert.alert('Error', 'Failed to start purchase.');
+    }
+  };
 
   // Fetch nearby restrooms from Supabase
   const fetchNearbyRestrooms = async (lat, lon, radius = 5000) => {
@@ -1553,16 +1646,21 @@ export default function App() {
             {loading ? 'Searching...' : 'Refresh Nearby Restrooms'}
           </Text>
         </TouchableOpacity>
-        {/* Test Banner Ad (replace TestIds with real unit IDs in production) */}
+        <TouchableOpacity
+          style={[styles.button, { marginTop: 10, backgroundColor: adsRemoved ? '#27AE60' : '#E74C3C' }]}
+          onPress={handleRemoveAdsPurchase}
+        >
+          <Text style={[styles.buttonText, { color: '#FFF' }]}>{adsRemoved ? '✅ Ads Removed' : '🛒 Remove Ads'}</Text>
+        </TouchableOpacity>
         <View style={styles.adWrapper}>
-          {adsInitialized ? (
+          {adsInitialized && !adsRemoved ? (
             <BannerAd
               unitId={bannerAdUnitId}
               size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
               onAdFailedToLoad={(e) => console.warn('Banner failed to load', e?.message)}
             />
           ) : (
-            <Text style={styles.adLoadingText}>Loading ad…</Text>
+            <Text style={styles.adLoadingText}>{adsRemoved ? 'Ads disabled' : 'Loading ad…'}</Text>
           )}
         </View>
       </View>

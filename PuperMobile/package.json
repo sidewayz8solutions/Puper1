@@ -26,7 +26,9 @@
     "expo-av": "^16.0.7",
     "expo-constants": "~18.0.10",
     "expo-image-picker": "^17.0.8",
-    "expo-location": "^19.0.7",
+  "expo-location": "^19.0.7",
+  "expo-in-app-purchases": "~15.0.0",
+  "expo-secure-store": "~13.0.0",
     "expo-status-bar": "~3.0.8",
     "expo-video": "~3.0.14",
     "react": "19.1.0",
@@ -38,5 +40,5 @@
     "react-native-google-mobile-ads": "^12.6.0"
   },
   "private": true,
-  "packageManager": "npm@latest"
+  "packageManager": "npm@10.9.0"
 }
