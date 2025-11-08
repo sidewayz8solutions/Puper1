@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import * as RNIap from 'react-native-iap';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import productConfig from '../../in-app-purchases/remove-ads.json';
@@ -15,6 +16,7 @@ const RemoveAdsContext = createContext({
   error: null,
   buyRemoveAds: async () => {},
   restorePurchases: async () => {},
+  clearLocalEntitlement: async () => {},
 });
 
 export const RemoveAdsProvider = ({ children }) => {
@@ -46,6 +48,9 @@ export const RemoveAdsProvider = ({ children }) => {
         await AsyncStorage.setItem(STORAGE_KEY, '1');
         return true;
       }
+      // Not owned according to store: ensure local cache is cleared
+      setRemoveAds(false);
+      try { await AsyncStorage.removeItem(STORAGE_KEY); } catch {}
       return false;
     } catch (e) {
       // Swallow errors; user might be offline
@@ -82,8 +87,11 @@ export const RemoveAdsProvider = ({ children }) => {
           setPurchasing(false);
         });
 
-        // Verify entitlement
-        await checkEntitlementFromStore();
+        // Optionally verify entitlement on launch (default off for testing)
+        const autoRestore = Constants?.expoConfig?.extra?.iap?.autoRestoreOnLaunch ?? false;
+        if (autoRestore) {
+          await checkEntitlementFromStore();
+        }
       } catch (e) {
         setError(e?.message || String(e));
       } finally {
@@ -129,6 +137,14 @@ export const RemoveAdsProvider = ({ children }) => {
     }
   }, [checkEntitlementFromStore]);
 
+  const clearLocalEntitlement = useCallback(async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+    } catch {}
+    setRemoveAds(false);
+    return true;
+  }, []);
+
   const value = useMemo(() => ({
     ready,
     removeAds,
@@ -137,7 +153,8 @@ export const RemoveAdsProvider = ({ children }) => {
     error,
     buyRemoveAds,
     restorePurchases,
-  }), [ready, removeAds, purchasing, restoring, error, buyRemoveAds, restorePurchases]);
+    clearLocalEntitlement,
+  }), [ready, removeAds, purchasing, restoring, error, buyRemoveAds, restorePurchases, clearLocalEntitlement]);
 
   return (
     <RemoveAdsContext.Provider value={value}>
