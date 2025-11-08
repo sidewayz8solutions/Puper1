@@ -119,8 +119,10 @@ export default function App() {
   // Updated ad frequency: initial double interstitial, then one every 30s.
   const INTERSTITIAL_WINDOW_MS = 30 * 1000; // 30 second cadence window
   const INTERSTITIAL_MAX_PER_WINDOW = 1; // one per window after initial sequence
+  const STARTUP_SECOND_AD_MIN_GAP_MS = 5 * 1000; // ensure a small usability gap between first and second
   const initialInterstitialCountRef = useRef(0);
   const waitingForSecondInitialInterstitialRef = useRef(false);
+  const pendingAdRef = useRef(false); // when UI is busy, remember to show when free
 
   const recordAdImpression = useCallback(() => {
     const now = Date.now();
@@ -416,10 +418,25 @@ export default function App() {
     };
   }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId]);
 
+  const isUiBlockingAd = useCallback(() => {
+    // Don’t show interstitials when critical modals are open or we’re still loading
+    return (
+      showRatingModal ||
+      showAddForm ||
+      showMenu ||
+      loading ||
+      appOpenAdIsShowingRef.current === true
+    );
+  }, [loading, showAddForm, showMenu, showRatingModal]);
+
   const maybeShowInterstitial = useCallback(
     ({ force = false } = {}) => {
       try {
         const now = Date.now();
+        if (isUiBlockingAd()) {
+          pendingAdRef.current = true;
+          return false;
+        }
         if (!force && !canShowAnotherAd()) {
           return false;
         }
@@ -444,7 +461,7 @@ export default function App() {
       }
       return false;
     },
-    [canShowAnotherAd, interstitialLoaded, recordAdImpression]
+    [canShowAnotherAd, interstitialLoaded, recordAdImpression, isUiBlockingAd]
   );
 
   const handleInterstitialClosed = useCallback(() => {
@@ -454,7 +471,7 @@ export default function App() {
     );
     if (initialAdSequencePendingRef.current) {
       if (initialInterstitialCountRef.current < 2) {
-        // Queue second initial interstitial
+        // Queue second initial interstitial; will be shown after a small gap and when UI is not busy
         waitingForSecondInitialInterstitialRef.current = true;
       } else {
         initialAdSequencePendingRef.current = false;
@@ -487,9 +504,25 @@ export default function App() {
       }
     }
     if (waitingForSecondInitialInterstitialRef.current) {
-      const shownSecond = maybeShowInterstitialRef.current({ force: true });
-      if (shownSecond) {
-        waitingForSecondInitialInterstitialRef.current = false;
+      const elapsed = Date.now() - lastInterstitialTimeRef.current;
+      if (elapsed >= STARTUP_SECOND_AD_MIN_GAP_MS) {
+        const shownSecond = maybeShowInterstitialRef.current({ force: true });
+        if (shownSecond) {
+          waitingForSecondInitialInterstitialRef.current = false;
+        }
+      } else {
+        const delay = STARTUP_SECOND_AD_MIN_GAP_MS - elapsed;
+        setTimeout(() => {
+          // Re-check UI blockers before forcing
+          if (!isUiBlockingAd()) {
+            const shownSecond = maybeShowInterstitialRef.current({ force: true });
+            if (shownSecond) {
+              waitingForSecondInitialInterstitialRef.current = false;
+            }
+          } else {
+            pendingAdRef.current = true;
+          }
+        }, Math.max(0, delay));
       }
     }
   }, []);
@@ -514,11 +547,28 @@ export default function App() {
   useEffect(() => {
     const interval = setInterval(() => {
       if (!initialAdSequencePendingRef.current) {
-        maybeShowInterstitialRef.current({ force: true });
+        if (!isUiBlockingAd()) {
+          const shown = maybeShowInterstitialRef.current({ force: true });
+          if (!shown) {
+            // If rate limited by frequency window, it will be tried again on the next tick
+          }
+        } else {
+          pendingAdRef.current = true;
+        }
       }
     }, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isUiBlockingAd]);
+
+  // When UI becomes unblocked, attempt any pending interstitial once
+  useEffect(() => {
+    if (!isUiBlockingAd() && pendingAdRef.current) {
+      const shown = maybeShowInterstitialRef.current({ force: true });
+      if (shown) {
+        pendingAdRef.current = false;
+      }
+    }
+  }, [isUiBlockingAd, showAddForm, showMenu, showRatingModal, loading]);
 
   const maybeShowInterstitialPublic = useCallback(
     (options = {}) => maybeShowInterstitialRef.current(options),
