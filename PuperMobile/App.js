@@ -118,7 +118,7 @@ export default function App() {
   const interstitialHistoryRef = useRef([]);
   // Policy‑friendly ad frequency: no forced double on launch, user-first shows,
   // and a conservative cadence (1 per 120s max) with UI gating.
-  const INTERSTITIAL_WINDOW_MS = 120 * 1000; // 2 minute cadence window
+  const INTERSTITIAL_WINDOW_MS = 30 * 1000; // 30s cadence window
   const INTERSTITIAL_MAX_PER_WINDOW = 1; // one per window
   const STARTUP_SECOND_AD_MIN_GAP_MS = 5 * 1000; // retained but unused in compliant mode
   const initialInterstitialCountRef = useRef(0);
@@ -160,6 +160,8 @@ export default function App() {
   const initialAdSequencePendingRef = useRef(true);
   const waitingForInterstitialRef = useRef(false);
   const maybeShowInterstitialRef = useRef(() => false);
+  // Track when the last fullscreen ad (interstitial or app-open) fully closed to enforce usable gap
+  const lastAdClosedAtRef = useRef(0);
 
   const loadInterstitialForInitialSequence = useCallback(() => {
     if (!interstitialRef.current) {
@@ -173,9 +175,6 @@ export default function App() {
   }, []);
 
   const loadAppOpenAd = useCallback(() => {
-    if (Platform.OS !== 'ios') {
-      return;
-    }
     if (!appOpenAllowedRef.current || !initialAdSequencePendingRef.current) {
       return;
     }
@@ -204,16 +203,11 @@ export default function App() {
       appOpenAdIsShowingRef.current = false;
       appOpenAdRef.current = null;
       appOpenAdLoadTimeRef.current = null;
-      recordAdImpression();
-      appOpenLastShownRef.current = Date.now();
+      // Start 30s usability timer only after ad fully closes
+      lastAdClosedAtRef.current = Date.now();
+      appOpenLastShownRef.current = lastAdClosedAtRef.current;
       appOpenAllowedRef.current = false;
-      const shown = maybeShowInterstitialRef.current({ force: true });
-      if (shown) {
-        waitingForInterstitialRef.current = false;
-      } else {
-        waitingForInterstitialRef.current = true;
-        loadInterstitialForInitialSequence();
-      }
+      // Do NOT chain an interstitial immediately; next scheduled interval will handle it
     });
 
     ad.addAdEventListener(AdEventType.ERROR, () => {
@@ -268,8 +262,6 @@ export default function App() {
 
     try {
       ad.show();
-      recordAdImpression();
-      appOpenLastShownRef.current = Date.now();
     } catch (error) {
       console.warn('App open ad show failed', error?.message ?? error);
       appOpenAdIsShowingRef.current = false;
@@ -320,6 +312,16 @@ export default function App() {
         loadAppOpenAd();
         initializationTimeout = setTimeout(() => {
           showAppOpenAdIfAvailable();
+          if (Platform.OS !== 'ios') {
+            // Show an interstitial on app open for Android
+            waitingForInterstitialRef.current = true;
+            if (maybeShowInterstitialRef.current) {
+              const shown = maybeShowInterstitialRef.current({ force: true });
+              if (shown) {
+                waitingForInterstitialRef.current = false;
+              }
+            }
+          }
         }, 1500);
       })
       .catch(err => console.warn('Ads initialization failed', err));
@@ -421,37 +423,24 @@ export default function App() {
   }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId]);
 
   const isUiBlockingAd = useCallback(() => {
-    // Don’t show interstitials when critical modals are open or we’re still loading
-    return (
-      showRatingModal ||
-      showAddForm ||
-      showMenu ||
-      loading ||
-      appOpenAdIsShowingRef.current === true
-    );
-  }, [loading, showAddForm, showMenu, showRatingModal]);
+    // UI gating disabled: allow interstitials to interrupt any screen
+    return false;
+  }, []);
 
   const maybeShowInterstitial = useCallback(
     ({ force = false } = {}) => {
       try {
         const now = Date.now();
-        if (isUiBlockingAd()) {
-          pendingAdRef.current = true;
+        // Enforce at least 30s since last fullscreen ad closed
+        const gapOk = now - (lastAdClosedAtRef.current || 0) >= INTERSTITIAL_WINDOW_MS;
+        if (!force && !gapOk) {
           return false;
         }
-        if (!force && !canShowAnotherAd()) {
+        if (force && !gapOk) {
           return false;
         }
-        if (force && !canShowAnotherAd()) {
-          return false;
-        }
-        if (
-          interstitialLoaded &&
-          interstitialRef.current &&
-          (force || now - lastInterstitialTimeRef.current > INTERSTITIAL_WINDOW_MS)
-        ) {
+        if (interstitialLoaded && interstitialRef.current) {
           interstitialRef.current.show();
-          lastInterstitialTimeRef.current = now;
           recordAdImpression();
           if (initialAdSequencePendingRef.current) {
             initialInterstitialCountRef.current += 1;
@@ -463,7 +452,7 @@ export default function App() {
       }
       return false;
     },
-    [canShowAnotherAd, interstitialLoaded, recordAdImpression, isUiBlockingAd]
+    [interstitialLoaded, recordAdImpression]
   );
 
   const handleInterstitialClosed = useCallback(() => {
@@ -471,8 +460,9 @@ export default function App() {
     interstitialHistoryRef.current = interstitialHistoryRef.current.filter(
       (timestamp) => Date.now() - timestamp < INTERSTITIAL_WINDOW_MS
     );
-    // In compliant mode we do not run an initial double‑ad sequence; nothing to do here
-  }, [currentScreen]);
+    // Mark usable period start
+    lastAdClosedAtRef.current = Date.now();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -513,30 +503,13 @@ export default function App() {
     waitingForInterstitialRef.current = false;
   }, []);
 
-  // Periodic interstitial attempts at a conservative cadence (every 120s),
-  // only when UI is free and after a short post‑launch grace period.
+  // Periodic attempt exactly every 30s; respects usable gap via maybeShowInterstitial logic
   useEffect(() => {
     const interval = setInterval(() => {
-      const elapsedSinceLaunch = Date.now() - launchTimeRef.current;
-      if (elapsedSinceLaunch < 45 * 1000) return; // 45s grace after launch
-      if (!isUiBlockingAd()) {
-        maybeShowInterstitialRef.current({ force: true });
-      } else {
-        pendingAdRef.current = true;
-      }
-    }, 120000);
+      maybeShowInterstitialRef.current({ force: false });
+    }, INTERSTITIAL_WINDOW_MS);
     return () => clearInterval(interval);
-  }, [isUiBlockingAd]);
-
-  // When UI becomes unblocked, attempt any pending interstitial once
-  useEffect(() => {
-    if (!isUiBlockingAd() && pendingAdRef.current) {
-      const shown = maybeShowInterstitialRef.current({ force: true });
-      if (shown) {
-        pendingAdRef.current = false;
-      }
-    }
-  }, [isUiBlockingAd, showAddForm, showMenu, showRatingModal, loading]);
+  }, []);
 
   const maybeShowInterstitialPublic = useCallback(
     (options = {}) => maybeShowInterstitialRef.current(options),
