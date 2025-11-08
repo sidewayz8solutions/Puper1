@@ -1497,6 +1497,18 @@ export default function App() {
             {loading ? 'Searching...' : 'Refresh Nearby Restrooms'}
           </Text>
         </TouchableOpacity>
+        {/* In‑app purchase CTA: make Remove Ads very visible */}
+        {!removeAds && (
+          <TouchableOpacity
+            style={[styles.secondaryButton, purchasing && styles.buttonDisabled]}
+            onPress={buyRemoveAds}
+            disabled={purchasing}
+          >
+            <Text style={styles.secondaryButtonText}>
+              {purchasing ? 'Processing…' : 'Remove Ads — $4.99'}
+            </Text>
+          </TouchableOpacity>
+        )}
         {/* Test Banner Ad (replace TestIds with real unit IDs in production) */}
         <View style={styles.adWrapper}>
           {removeAds ? (
@@ -2255,6 +2267,18 @@ const styles = StyleSheet.create({
     color: '#6B4423',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  secondaryButton: {
+    marginTop: 8,
+    backgroundColor: '#0dffe7',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 22,
+  },
+  secondaryButtonText: {
+    color: '#064f48',
+    fontSize: 14,
+    fontWeight: '600',
   },
   // Modal styles
   modalContainer: {
