@@ -76,6 +76,9 @@
         "bannerUnitIdIos": "ca-app-pub-8579480495006676/7646946952",
         "interstitialUnitIdIos": "ca-app-pub-8579480495006676/6631881201"
       },
+      "iap": {
+        "autoRestoreOnLaunch": false
+      },
       "eas": {
         "projectId": "ee7c255a-c7c7-4664-837e-c123d70e2105"
       }
