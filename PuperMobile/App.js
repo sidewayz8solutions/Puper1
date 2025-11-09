@@ -98,6 +98,7 @@ export default function App() {
   const lastMapActivityRef = useRef(Date.now());
   const watchdogIntervalRef = useRef(null);
   const resumeCheckTimeoutRef = useRef(null);
+  const reviewsSubRef = useRef(null);
   
   // Location and map state
   const [location, setLocation] = useState(null);
@@ -587,6 +588,30 @@ export default function App() {
         review_count: typeof r.review_count === 'number' ? r.review_count : (r.reviews?.length || 0),
       }));
       setRestrooms(withAggregates);
+      // Refresh realtime subscription for these restroom IDs
+      try {
+        const ids = withAggregates.map(r => r.id).filter(Boolean);
+        if (reviewsSubRef.current && reviewsSubRef.current.unsubscribe) {
+          reviewsSubRef.current.unsubscribe();
+          reviewsSubRef.current = null;
+        }
+        if (ids.length > 0 && restroomService.subscribeToReviews) {
+          reviewsSubRef.current = restroomService.subscribeToReviews(ids, (newReview) => {
+            const restId = newReview.restroom_id;
+            const rating = Number(newReview.rating) || 0;
+            setRestrooms(prev => prev.map(r => {
+              if (r.id !== restId) return r;
+              const prevCount = r.review_count || 0;
+              const prevAvg = r.avg_rating || 0;
+              const nextCount = prevCount + 1;
+              const nextAvg = nextCount > 0 ? ((prevAvg * prevCount) + rating) / nextCount : rating;
+              return { ...r, review_count: nextCount, avg_rating: nextAvg };
+            }));
+          });
+        }
+      } catch (e) {
+        console.warn('Realtime reviews subscription setup failed', e?.message || e);
+      }
       setErrorMsg(null);
 
       // Update stats
@@ -606,6 +631,18 @@ export default function App() {
       setLoading(false);
     }
   };
+
+  // Cleanup subscription on unmount
+  useEffect(() => {
+    return () => {
+      try {
+        if (reviewsSubRef.current && reviewsSubRef.current.unsubscribe) {
+          reviewsSubRef.current.unsubscribe();
+          reviewsSubRef.current = null;
+        }
+      } catch {}
+    };
+  }, []);
 
   // Load initial seeded data for map initialization
   const loadInitialSeededData = async () => {
@@ -1415,24 +1452,39 @@ export default function App() {
     return (
       <View style={{ flex: 1 }}>
         {showSplashVideo && (
-          <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}> 
-            <Video
-              source={require('./assets/splash.mp4')}
-              style={styles.introSplashVideo}
-              resizeMode="cover"
-              shouldPlay
-              isLooping={false}
-              onPlaybackStatusUpdate={(status) => {
-                if (status.didJustFinish) {
-                  Animated.timing(splashOpacity, {
-                    toValue: 0,
-                    duration: 450,
-                    useNativeDriver: true,
-                  }).start(() => setShowSplashVideo(false));
-                }
-              }}
-            />
-          </Animated.View>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {
+              Animated.timing(splashOpacity, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+              }).start(() => setShowSplashVideo(false));
+            }}
+            style={StyleSheet.absoluteFill}
+          >
+            <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}> 
+              <Video
+                source={require('./assets/splash.mp4')}
+                style={styles.introSplashVideo}
+                resizeMode="cover"
+                shouldPlay
+                isLooping={false}
+                onPlaybackStatusUpdate={(status) => {
+                  if (status.didJustFinish) {
+                    Animated.timing(splashOpacity, {
+                      toValue: 0,
+                      duration: 450,
+                      useNativeDriver: true,
+                    }).start(() => setShowSplashVideo(false));
+                  }
+                }}
+              />
+              <View style={styles.skipHintContainer} pointerEvents="none">
+                <Text style={styles.skipHintText}>Tap to skip</Text>
+              </View>
+            </Animated.View>
+          </TouchableOpacity>
         )}
         <HomePage />
       </View>
@@ -1443,6 +1495,59 @@ export default function App() {
     return (
       <View style={{ flex: 1 }}>
         {showSplashVideo && (
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {
+              Animated.timing(splashOpacity, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+              }).start(() => setShowSplashVideo(false));
+            }}
+            style={StyleSheet.absoluteFill}
+          >
+            <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}> 
+              <Video
+                source={require('./assets/splash.mp4')}
+                style={styles.introSplashVideo}
+                resizeMode="cover"
+                shouldPlay
+                isLooping={false}
+                onPlaybackStatusUpdate={(status) => {
+                  if (status.didJustFinish) {
+                    Animated.timing(splashOpacity, {
+                      toValue: 0,
+                      duration: 450,
+                      useNativeDriver: true,
+                    }).start(() => setShowSplashVideo(false));
+                  }
+                }}
+              />
+              <View style={styles.skipHintContainer} pointerEvents="none">
+                <Text style={styles.skipHintText}>Tap to skip</Text>
+              </View>
+            </Animated.View>
+          </TouchableOpacity>
+        )}
+        <RankingPage />
+      </View>
+    );
+  }
+  
+  return (
+    <View style={styles.container}>
+      {showSplashVideo && (
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => {
+            Animated.timing(splashOpacity, {
+              toValue: 0,
+              duration: 300,
+              useNativeDriver: true,
+            }).start(() => setShowSplashVideo(false));
+          }}
+          style={StyleSheet.absoluteFill}
+        >
           <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}> 
             <Video
               source={require('./assets/splash.mp4')}
@@ -1460,34 +1565,11 @@ export default function App() {
                 }
               }}
             />
+            <View style={styles.skipHintContainer} pointerEvents="none">
+              <Text style={styles.skipHintText}>Tap to skip</Text>
+            </View>
           </Animated.View>
-        )}
-        <RankingPage />
-      </View>
-    );
-  }
-  
-  return (
-    <View style={styles.container}>
-      {showSplashVideo && (
-        <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}> 
-          <Video
-            source={require('./assets/splash.mp4')}
-            style={styles.introSplashVideo}
-            resizeMode="cover"
-            shouldPlay
-            isLooping={false}
-            onPlaybackStatusUpdate={(status) => {
-              if (status.didJustFinish) {
-                Animated.timing(splashOpacity, {
-                  toValue: 0,
-                  duration: 450,
-                  useNativeDriver: true,
-                }).start(() => setShowSplashVideo(false));
-              }
-            }}
-          />
-        </Animated.View>
+        </TouchableOpacity>
       )}
       <StatusBar style="light" />
 
@@ -2074,6 +2156,18 @@ const styles = StyleSheet.create({
   introSplashVideo: {
     width: '100%',
     height: '100%',
+  },
+  skipHintContainer: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  skipHintText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    opacity: 0.85,
   },
   
   // Landing Page Styles

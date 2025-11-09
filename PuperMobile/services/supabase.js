@@ -202,6 +202,45 @@ export const restroomService = {
       throw error;
     }
   },
+  
+  // Subscribe to real-time review inserts for given restroom IDs
+  subscribeToReviews(restroomIds, onInsert) {
+    if (!Array.isArray(restroomIds) || restroomIds.length === 0) {
+      console.warn('[Supabase] subscribeToReviews called with empty restroomIds');
+      return { unsubscribe: () => {} };
+    }
+    // Deduplicate IDs and build filter list
+    const uniqueIds = [...new Set(restroomIds)].filter(Boolean);
+    const channel = supabase
+      .channel('reviews-inserts')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'reviews'
+        },
+        payload => {
+          try {
+            const newRow = payload?.new;
+            if (!newRow || !uniqueIds.includes(newRow.restroom_id)) return;
+            onInsert && onInsert(newRow);
+          } catch (err) {
+            console.warn('[Supabase] review subscription handler error', err?.message || err);
+          }
+        }
+      )
+      .subscribe(status => {
+        if (status === 'SUBSCRIBED') {
+          console.log('[Supabase] Review subscription active');
+        }
+      });
+    return {
+      unsubscribe: () => {
+        try { supabase.removeChannel(channel); } catch {}
+      }
+    };
+  },
 
   // Calculate distance between two points (Haversine formula)
   calculateDistance(lat1, lon1, lat2, lon2) {
