@@ -4,6 +4,8 @@ import React, {
   useState,
   useRef,
 } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import { Asset } from 'expo-asset';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -12,6 +14,8 @@ import {
   useVideoPlayer,
   VideoView,
 } from 'expo-video';
+import { Video } from 'expo-av';
+import { Animated } from 'react-native';
 import {
   ActivityIndicator,
   Alert,
@@ -45,6 +49,48 @@ import {
 const { width, height } = Dimensions.get('window');
 
 export default function App() {
+  // Show custom splash.mp4 on launch
+  const [showSplashVideo, setShowSplashVideo] = useState(true);
+  const splashOpacity = useRef(new Animated.Value(1)).current;
+  // Keep splash screen visible until we explicitly hide (prevents blank flash)
+  const splashHiddenRef = useRef(false);
+  useEffect(() => {
+    // Prevent auto-hide immediately on mount
+    SplashScreen.preventAutoHideAsync().catch(() => {});
+  }, []);
+
+  // Track when critical UI is ready (video + first data fetch)
+  const criticalReadyRef = useRef({ video: false, data: false });
+  const hideSplashIfReady = useCallback(() => {
+    if (!splashHiddenRef.current && criticalReadyRef.current.video && criticalReadyRef.current.data) {
+      splashHiddenRef.current = true;
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, []);
+
+  // Fallback timeout: ensure splash goes away even if something stalls (4s)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!splashHiddenRef.current) {
+        splashHiddenRef.current = true;
+        SplashScreen.hideAsync().catch(() => {});
+      }
+    }, 4000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  // Ensure splash overlay doesn't hang forever if video can't play
+  useEffect(() => {
+    if (!showSplashVideo) return;
+    const t = setTimeout(() => {
+      Animated.timing(splashOpacity, {
+        toValue: 0,
+        duration: 450,
+        useNativeDriver: true,
+      }).start(() => setShowSplashVideo(false));
+    }, 3500);
+    return () => clearTimeout(t);
+  }, [showSplashVideo, splashOpacity]);
   // Main navigation state
   const [currentScreen, setCurrentScreen] = useState('home'); // 'home', 'map', or 'ranking'
   const mapRef = useRef(null);
@@ -1119,6 +1165,18 @@ export default function App() {
   
   // HomePage Component (Landing Page)
   const HomePage = () => {
+    const [videoReady, setVideoReady] = useState(false);
+    const heroSource = useRef(Asset.fromModule(require('./assets/hero-video.mp4')));
+    // Preload hero video file so we don't show blank background
+    useEffect(() => {
+      (async () => {
+        try { await heroSource.current.downloadAsync(); } catch {}
+        setVideoReady(true);
+        criticalReadyRef.current.video = true;
+        hideSplashIfReady();
+      })();
+    }, [hideSplashIfReady]);
+
     const player = useVideoPlayer(require('./assets/hero-video.mp4'), player => {
       player.loop = true;
       player.muted = true;
@@ -1136,6 +1194,11 @@ export default function App() {
             style={styles.heroBackground}
             contentFit="cover"
             nativeControls={false}
+            onLoad={() => {
+              // In case preload missed or load event fires later
+              criticalReadyRef.current.video = true;
+              hideSplashIfReady();
+            }}
           />
           {/* Simple Map Button - Top Left */}
           <TouchableOpacity 
@@ -1349,15 +1412,83 @@ export default function App() {
 
   // Main render function
   if (currentScreen === 'home') {
-    return <HomePage />;
+    return (
+      <View style={{ flex: 1 }}>
+        {showSplashVideo && (
+          <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}> 
+            <Video
+              source={require('./assets/splash.mp4')}
+              style={styles.introSplashVideo}
+              resizeMode="cover"
+              shouldPlay
+              isLooping={false}
+              onPlaybackStatusUpdate={(status) => {
+                if (status.didJustFinish) {
+                  Animated.timing(splashOpacity, {
+                    toValue: 0,
+                    duration: 450,
+                    useNativeDriver: true,
+                  }).start(() => setShowSplashVideo(false));
+                }
+              }}
+            />
+          </Animated.View>
+        )}
+        <HomePage />
+      </View>
+    );
   }
 
   if (currentScreen === 'ranking') {
-    return <RankingPage />;
+    return (
+      <View style={{ flex: 1 }}>
+        {showSplashVideo && (
+          <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}> 
+            <Video
+              source={require('./assets/splash.mp4')}
+              style={styles.introSplashVideo}
+              resizeMode="cover"
+              shouldPlay
+              isLooping={false}
+              onPlaybackStatusUpdate={(status) => {
+                if (status.didJustFinish) {
+                  Animated.timing(splashOpacity, {
+                    toValue: 0,
+                    duration: 450,
+                    useNativeDriver: true,
+                  }).start(() => setShowSplashVideo(false));
+                }
+              }}
+            />
+          </Animated.View>
+        )}
+        <RankingPage />
+      </View>
+    );
   }
   
   return (
     <View style={styles.container}>
+      {showSplashVideo && (
+        <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}> 
+          <Video
+            source={require('./assets/splash.mp4')}
+            style={styles.introSplashVideo}
+            resizeMode="cover"
+            shouldPlay
+            isLooping={false}
+            onPlaybackStatusUpdate={(status) => {
+              if (status.didJustFinish) {
+                Animated.timing(splashOpacity, {
+                  toValue: 0,
+                  duration: 450,
+                  useNativeDriver: true,
+                }).start(() => setShowSplashVideo(false));
+              }
+            }}
+          />
+        </Animated.View>
+      )}
       <StatusBar style="light" />
 
       {/* Header with Back Button and Menu */}
@@ -1932,6 +2063,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5DC',
+  },
+  introSplashContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+  introSplashVideo: {
+    width: '100%',
+    height: '100%',
   },
   
   // Landing Page Styles
