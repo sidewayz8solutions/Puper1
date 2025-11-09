@@ -65,7 +65,13 @@
           "locationAlwaysAndWhenInUsePermission": "Allow Püper to use your location to find nearby restrooms."
         }
       ],
-      "expo-video"
+      "expo-video",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "ios_app_id": "ca-app-pub-8579480495006676~6423147580"
+        }
+      ]
     ],
     "extra": {
       "supabaseUrl": "https://qunaiicjcelvdunluwqh.supabase.co",
@@ -84,8 +90,5 @@
       }
     }
   }
-,
-"react-native-google-mobile-ads": {
-  "ios_app_id": "ca-app-pub-8579480495006676~6423147580"
-}
+ 
 }
