@@ -534,16 +534,22 @@ export default function App() {
         return;
       }
 
-      setRestrooms(data);
+      // Attach formatted aggregates for UI convenience
+      const withAggregates = data.map(r => ({
+        ...r,
+        avg_rating: typeof r.avg_rating === 'number' ? r.avg_rating : (r.rating || 0),
+        review_count: typeof r.review_count === 'number' ? r.review_count : (r.reviews?.length || 0),
+      }));
+      setRestrooms(withAggregates);
       setErrorMsg(null);
 
       // Update stats
       setStats({
         totalRestrooms: data.length,
-        averageRating: data.length > 0
-          ? (data.reduce((sum, r) => sum + (r.avg_rating || r.rating || 0), 0) / data.length).toFixed(1)
+        averageRating: withAggregates.length > 0
+          ? (withAggregates.reduce((sum, r) => sum + (r.avg_rating || 0), 0) / withAggregates.length).toFixed(1)
           : '0.0',
-        accessibleCount: data.filter(r => r.wheelchair_accessible).length
+        accessibleCount: withAggregates.filter(r => r.wheelchair_accessible).length
       });
     } catch (error) {
       console.error('Error fetching restrooms:', error);
@@ -840,7 +846,21 @@ export default function App() {
       };
       
       // Add the review
-      await restroomService.addReview(reviewData);
+      const inserted = await restroomService.addReview(reviewData);
+      // Optimistically update local aggregates for the specific restroom without full refetch (will still refetch below)
+      if (inserted && inserted.restroom_id) {
+        setRestrooms(prev => prev.map(r => {
+          if (r.id !== inserted.restroom_id) return r;
+          const newCount = (r.review_count || (r.reviews?.length || 0)) + 1;
+          const newAvg = ((r.avg_rating || 0) * (newCount - 1) + (inserted.rating || 0)) / newCount;
+          return {
+            ...r,
+            review_count: newCount,
+            avg_rating: newAvg,
+            reviews: r.reviews ? [...r.reviews, inserted] : [inserted]
+          };
+        }));
+      }
       
       // Reset rating form and photos
       setNewRating({
@@ -973,7 +993,7 @@ export default function App() {
         review_text: '',
         gender: 'unisex',
         availability_status: 'available'
-      });
+      });P
       setReviewPhotos([]);
       setShowRatingModal(false);
       setSelectedRestroom(null);
@@ -1275,6 +1295,7 @@ export default function App() {
           ) : (
             sortedRestrooms.map((restroom, index) => {
               const avgRating = getAverageRating(restroom);
+              const reviewCount = restroom.review_count || (restroom.reviews?.length || 0);
               const distance = restroom.distance
                 ? restroomService.formatDistance(restroom.distance)
                 : '';
@@ -1301,6 +1322,7 @@ export default function App() {
                     <Text style={styles.restroomName}>{restroom.name || 'Restroom'}</Text>
                     <Text style={styles.restroomDetails}>
                       {distance && `${distance} • `}
+                      {`${reviewCount} review${reviewCount === 1 ? '' : 's'} • `}
                       {restroom.wheelchair_accessible && '♿ '}
                       {restroom.baby_changing && '👶 '}
                       {restroom.gender_neutral && '🚻 '}
@@ -1410,6 +1432,7 @@ export default function App() {
             ? restroomService.formatDistance(restroom.distance)
             : '';
 
+          const reviewCount = restroom.review_count || (restroom.reviews?.length || 0);
           return (
             <Marker
               key={restroom.id}
@@ -1418,7 +1441,7 @@ export default function App() {
                 longitude: restroom.longitude || restroom.lon,
               }}
               title={restroom.name || 'Restroom'}
-              description={`${renderToiletRating(avgRating)} ${distance ? `• ${distance}` : ''}`}
+              description={`${renderToiletRating(avgRating)} • ${reviewCount} review${reviewCount === 1 ? '' : 's'} ${distance ? `• ${distance}` : ''}`}
               onPress={() => {
                 setSelectedRestroom(restroom);
                 setShowRatingModal(true);

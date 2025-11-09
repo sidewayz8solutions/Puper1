@@ -29,13 +29,39 @@ export const restroomService = {
       }
 
       // Normalize coordinate names for mobile compatibility
-      return (data || []).map(restroom => ({
+      const base = (data || []).map(restroom => ({
         ...restroom,
         latitude: restroom.lat,
         longitude: restroom.lon || restroom.lng,
-        // Ensure distance is available
-        distance: restroom.distance_meters || restroom.distance
+        distance: restroom.distance_meters || restroom.distance,
+        review_count: 0,
+        avg_rating: 0
       }));
+
+      // Fetch global aggregates (avg + count) for these restrooms
+      const ids = base.map(r => r.id).filter(Boolean);
+      if (ids.length > 0) {
+        const { data: aggRows, error: aggError } = await supabase
+          .from('reviews')
+          .select('restroom_id, rating')
+          .in('restroom_id', ids);
+        if (!aggError && aggRows) {
+          const grouped = aggRows.reduce((acc, row) => {
+            if (!acc[row.restroom_id]) acc[row.restroom_id] = { sum: 0, count: 0 };
+            acc[row.restroom_id].sum += (row.rating || 0);
+            acc[row.restroom_id].count += 1;
+            return acc;
+          }, {});
+          for (const r of base) {
+            const g = grouped[r.id];
+            if (g) {
+              r.review_count = g.count;
+              r.avg_rating = g.count > 0 ? g.sum / g.count : 0;
+            }
+          }
+        }
+      }
+      return base;
     } catch (error) {
       console.error('Error fetching nearby restrooms:', error);
       return this.getNearbyFallback(lat, lon, radius);
@@ -92,7 +118,7 @@ export const restroomService = {
           // Add normalized coordinate names for mobile compatibility
           latitude: restroom.lat,
           longitude: restroom.lon,
-          // Calculate average rating from reviews
+          review_count: restroom.reviews ? restroom.reviews.length : 0,
           avg_rating: restroom.reviews && restroom.reviews.length > 0
             ? restroom.reviews.reduce((sum, review) => sum + (review.rating || 0), 0) / restroom.reviews.length
             : 0
