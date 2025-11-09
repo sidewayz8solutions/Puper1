@@ -1,0 +1,9 @@
+# Monorepo-level .easignore to keep the archive minimal
+# Only include the React Native app in PuperMobile
+/*
+!/PuperMobile
+!/PuperMobile/**
+
+# Optionally allow root EAS files if ever needed (not required for managed app in subdir)
+!eas.json
+!app.json

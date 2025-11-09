@@ -2,9 +2,9 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-  "version": "1.4.1",
+    "version": "1.4.1",
     "orientation": "portrait",
-  "icon": "./assets/icon.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "description": "Your guide to relief - Find clean, accessible public restrooms wherever you are",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-  "buildNumber": "37",
+      "buildNumber": "37",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
@@ -26,7 +26,9 @@
         "NSUserTrackingUsageDescription": "This identifier will be used to deliver ads that help support the app.",
         "GADApplicationIdentifier": "ca-app-pub-8579480495006676~6423147580",
         "SKAdNetworkItems": [
-          { "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork" }
+          {
+            "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
+          }
         ]
       },
       "config": {
@@ -65,7 +67,8 @@
           "locationAlwaysAndWhenInUsePermission": "Allow Püper to use your location to find nearby restrooms."
         }
       ],
-      "expo-video"
+      "expo-video",
+      "expo-asset"
     ],
     "extra": {
       "supabaseUrl": "https://qunaiicjcelvdunluwqh.supabase.co",
@@ -83,8 +86,7 @@
         "projectId": "ee7c255a-c7c7-4664-837e-c123d70e2105"
       }
     }
-  }
- ,
+  },
   "react-native-google-mobile-ads": {
     "ios_app_id": "ca-app-pub-8579480495006676~6423147580"
   }
