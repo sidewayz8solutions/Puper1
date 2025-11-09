@@ -1314,7 +1314,6 @@ export default function App() {
                     <Text style={styles.rankingNumber}>#{index + 1}</Text>
                     <View style={styles.rankingStars}>
                       <Text style={styles.starText}>{renderToiletRating(avgRating)}</Text>
-                      <Text style={styles.ratingText}>{avgRating.toFixed(1)}</Text>
                     </View>
                   </View>
 
@@ -1509,7 +1508,7 @@ export default function App() {
         <Text style={styles.infoText}>
           {errorMsg
             ? `⚠️ ${errorMsg}`
-            : `📍 ${stats.totalRestrooms} restrooms • ⭐ ${stats.averageRating} avg • ♿ ${stats.accessibleCount} accessible`}
+            : `📍 ${stats.totalRestrooms} restrooms • ${renderToiletRating(Number(stats.averageRating))} • ♿ ${stats.accessibleCount} accessible`}
         </Text>
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
