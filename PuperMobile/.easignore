@@ -1,0 +1,105 @@
+# EAS build upload ignore file
+# Docs: https://docs.expo.dev/build-reference/monorepos/#easignore
+
+# Version control
+.git
+.gitignore
+.gitattributes
+.github/
+
+# Node / Package manager artifacts
+**/node_modules/**
+!packages/*/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.pnpm-store/
+**/.pnpm-store/**
+
+# Lockfiles from other managers (keep only primary one if desired)
+# Uncomment if you only use one manager
+# yarn.lock
+# package-lock.json
+# pnpm-lock.yaml
+
+# Expo / Metro / Cache
+.expo/
+.expo-shared/
+.expo/web-cache/
+.expo/deprecated-apk/
+.dist/
+.cache/
+**/.cache/**
+.tmp/
+.temp/
+.DS_Store
+Thumbs.db
+
+# Build artifacts & distribution outputs
+android/
+ios/
+web-build/
+build/
+outputs/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Logs
+*.log
+logs/
+
+# Tests & local tooling (not needed in app binary)
+__tests__/
+*.spec.js
+*.spec.ts
+*.spec.tsx
+*.test.js
+*.test.ts
+*.test.tsx
+coverage/
+.cypress/
+playwright-report/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment & secrets (handled via EAS secrets, not source)
+.env
+.env.*
+!.env.example
+
+# Scripts you do NOT want in the tarball (keep deploy/build scripts if needed)
+# Adjust as needed; keeping build scripts for now
+# scripts/local-only/
+
+# Generated assets
+npm-packages-offline-cache/
+
+auth/
+
+# Keep important asset directories explicitly
+!assets/**
+!**/assets/**
+!splash.mp4
+!**/splash.mp4
+
+# Keep migrations
+!migrations/**
+
+# Keep Supabase service files
+!services/**
+
+# Keep in-app-purchases metadata
+!in-app-purchases/**
+
+# Allow EAS config files
+!eas.json
+!app.json
+
+# End of file
