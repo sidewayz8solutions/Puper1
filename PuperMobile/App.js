@@ -117,6 +117,8 @@ export default function App() {
   const [showMenu, setShowMenu] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingModalTab, setRatingModalTab] = useState('form');
+
   const [showFilters, setShowFilters] = useState(false);
   const [addMode, setAddMode] = useState(false);
   const [addLocation, setAddLocation] = useState(null);
@@ -151,9 +153,7 @@ export default function App() {
   });
 
   // Review photos (up to 3)
-  // Restroom details modal state (view reviews & photos)
-  const [showRestroomModal, setShowRestroomModal] = useState(false);
-  const [restroomTab, setRestroomTab] = useState('reviews'); // 'reviews' | 'photos'
+  // Reviews and photos data
   const [restroomReviews, setRestroomReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [photoViewer, setPhotoViewer] = useState({ visible: false, url: null });
@@ -884,9 +884,9 @@ export default function App() {
       gender_neutral: false
     };
 
-    // Show restroom details for this Google Place
+    // Show rating modal for this Google Place
     setSelectedRestroom(googlePlaceRestroom);
-    setShowRestroomModal(true);
+    setShowRatingModal(true);
   };
 
   // Add new restroom
@@ -1074,9 +1074,10 @@ export default function App() {
   }, [showRestroomModal, selectedRestroom?.id]);
 
 
-  // When opening the rating modal, fetch reviews/photos for the selected restroom
+  // When opening the rating modal, reset to the form and preload reviews/photos
   useEffect(() => {
     if (showRatingModal && selectedRestroom?.id) {
+      setRatingModalTab('form');
       loadRestroomReviews(selectedRestroom.id);
     }
   }, [showRatingModal, selectedRestroom?.id]);
@@ -1524,7 +1525,7 @@ export default function App() {
                   style={styles.rankingItem}
                   onPress={() => {
                     setSelectedRestroom(restroom);
-                    setShowRestroomModal(true);
+                    setShowRatingModal(true);
                     setCurrentScreen('map');
                   }}
                 >
@@ -1737,7 +1738,7 @@ export default function App() {
               description={`${avgRating.toFixed(1)} 🚽 • ${reviewCount} review${reviewCount === 1 ? '' : 's'} ${distance ? `• ${distance}` : ''}`}
               onPress={() => {
                 setSelectedRestroom(restroom);
-                setShowRestroomModal(true);
+                setShowRatingModal(true);
               }}
             >
               <View style={[
@@ -2133,91 +2134,7 @@ export default function App() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Restroom Details Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showRestroomModal}
-        onRequestClose={() => setShowRestroomModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.detailsModal}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitleLight}>{selectedRestroom?.name || 'Restroom'}</Text>
-              <TouchableOpacity onPress={() => {
-                setShowRestroomModal(false);
-                setRestroomReviews([]);
-                setPhotoViewer({ visible: false, url: null });
-              }}>
-                <Text style={styles.closeButtonLight}>✕</Text>
-              </TouchableOpacity>
-            </View>
 
-            {/* Tabs */}
-            <View style={styles.tabsRow}>
-              <TouchableOpacity
-                style={[styles.tab, restroomTab === 'reviews' && styles.tabActive]}
-                onPress={() => setRestroomTab('reviews')}
-              >
-                <Text style={[styles.tabText, restroomTab === 'reviews' && styles.tabTextActive]}>Reviews</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.tab, restroomTab === 'photos' && styles.tabActive]}
-                onPress={() => setRestroomTab('photos')}
-              >
-                <Text style={[styles.tabText, restroomTab === 'photos' && styles.tabTextActive]}>Photos</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.writeReviewButton}
-                onPress={() => setShowRatingModal(true)}
-              >
-                <Text style={styles.writeReviewButtonText}>Write a Review</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Tab Content */}
-            {restroomTab === 'reviews' ? (
-              <ScrollView style={{ maxHeight: '75%' }}>
-                {reviewsLoading ? (
-                  <ActivityIndicator size="small" color="#FFF" style={{ marginTop: 12 }} />
-                ) : restroomReviews.length === 0 ? (
-                  <Text style={styles.noDataText}>No reviews yet. Be the first to review!</Text>
-                ) : (
-                  restroomReviews.map((r) => (
-                    <View key={r.id} style={styles.reviewItem}>
-                      <Text style={styles.reviewMeta}>{Number(r.rating || 0).toFixed(1)} 🚽 • {new Date(r.created_at).toLocaleDateString()}</Text>
-                      {(r.review_text || r.comment) ? (
-                        <Text style={styles.reviewText}>{r.review_text || r.comment}</Text>
-                      ) : null}
-                      {Array.isArray(r.photos) && r.photos.length > 0 && (
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photosRow}>
-                          {r.photos.map((url, idx) => (
-                            <TouchableOpacity key={`${r.id}-${idx}`} onPress={() => setPhotoViewer({ visible: true, url })}>
-                              <Image source={{ uri: url }} style={styles.photoThumb} />
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView>
-                      )}
-                    </View>
-                  ))
-                )}
-              </ScrollView>
-            ) : (
-              <ScrollView contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 10 }}>
-                {restroomPhotos.length === 0 ? (
-                  <Text style={styles.noDataText}>No photos yet.</Text>
-                ) : (
-                  restroomPhotos.map((p) => (
-                    <TouchableOpacity key={p.key} onPress={() => setPhotoViewer({ visible: true, url: p.url })}>
-                      <Image source={{ uri: p.url }} style={styles.photoThumb} />
-                    </TouchableOpacity>
-                  ))
-                )}
-              </ScrollView>
-            )}
-          </View>
-        </View>
-      </Modal>
 
       {/* Photo Viewer */}
       <Modal
@@ -2272,114 +2189,177 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* Single-pane rating form */}
-            <ScrollView style={styles.ratingContainer}>
-              <Text style={styles.ratingLabel}>Overall Rating</Text>
-              <StarRating
-                rating={newRating.rating}
-                onRatingChange={(rating) => setNewRating(prev => ({ ...prev, rating }))}
-                size={32}
-              />
+            {/* Tabs inside Rating Modal */}
+            <View style={styles.tabsRow}>
+              <TouchableOpacity
+                style={[styles.tab, ratingModalTab === 'form' && styles.tabActive]}
+                onPress={() => setRatingModalTab('form')}
+              >
+                <Text style={[styles.tabText, ratingModalTab === 'form' && styles.tabTextActive]}>Rate</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tab, ratingModalTab === 'reviews' && styles.tabActive]}
+                onPress={() => setRatingModalTab('reviews')}
+              >
+                <Text style={[styles.tabText, ratingModalTab === 'reviews' && styles.tabTextActive]}>Written Reviews</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tab, ratingModalTab === 'photos' && styles.tabActive]}
+                onPress={() => setRatingModalTab('photos')}
+              >
+                <Text style={[styles.tabText, ratingModalTab === 'photos' && styles.tabTextActive]}>Photos</Text>
+              </TouchableOpacity>
+            </View>
 
-              <Text style={styles.ratingLabel}>Cleanliness</Text>
-              <StarRating
-                rating={newRating.cleanliness_rating}
-                onRatingChange={(rating) => setNewRating(prev => ({ ...prev, cleanliness_rating: rating }))}
-              />
+            {ratingModalTab === 'form' ? (
+              <View>
+                {/* Rating form */}
+                <ScrollView style={styles.ratingContainer}>
+                  <Text style={styles.ratingLabel}>Overall Rating</Text>
+                  <StarRating
+                    rating={newRating.rating}
+                    onRatingChange={(rating) => setNewRating(prev => ({ ...prev, rating }))}
+                    size={32}
+                  />
 
-              <Text style={styles.ratingLabel}>Stock Level</Text>
-              <StarRating
-                rating={newRating.stocked_rating}
-                onRatingChange={(rating) => setNewRating(prev => ({ ...prev, stocked_rating: rating }))}
-              />
+                  <Text style={styles.ratingLabel}>Cleanliness</Text>
+                  <StarRating
+                    rating={newRating.cleanliness_rating}
+                    onRatingChange={(rating) => setNewRating(prev => ({ ...prev, cleanliness_rating: rating }))}
+                  />
 
-              <Text style={styles.ratingLabel}>Availability Status</Text>
-              <View style={styles.availabilityOptions}>
-                {[
-                  { value: 'available', label: '🟢 Available', color: '#27AE60' },
-                  { value: 'busy', label: '🟡 Busy', color: '#F39C12' },
-                  { value: 'closed', label: '🔴 Closed', color: '#E74C3C' }
-                ].map(option => (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[
-                      styles.availabilityOption,
-                      {
-                        backgroundColor: newRating.availability_status === option.value ? option.color : 'rgba(26,26,26,0.5)',
-                        borderColor: option.color
-                      }
-                    ]}
-                    onPress={() => setNewRating(prev => ({ ...prev, availability_status: option.value }))}
-                  >
-                    <Text style={[
-                      styles.availabilityOptionText,
-                      { color: newRating.availability_status === option.value ? '#FFF' : option.color }
-                    ]}>
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+                  <Text style={styles.ratingLabel}>Stock Level</Text>
+                  <StarRating
+                    rating={newRating.stocked_rating}
+                    onRatingChange={(rating) => setNewRating(prev => ({ ...prev, stocked_rating: rating }))}
+                  />
 
-              <Text style={styles.ratingLabel}>Write Your Review</Text>
-              <TextInput
-                style={[styles.textInputDark, styles.textArea]}
-                value={newRating.review_text}
-                onChangeText={(text) => setNewRating(prev => ({ ...prev, review_text: text }))}
-                placeholder="Share your experience... How was the cleanliness? What amenities were available? Any tips for other users?"
-                placeholderTextColor="#888"
-                multiline
-                numberOfLines={5}
-              />
-
-              {/* Photo Upload Section */}
-              <Text style={styles.ratingLabel}>Photos (Optional - Up to 3)</Text>
-              <View style={styles.photoContainer}>
-                {reviewPhotos.map((photo, index) => (
-                  <View key={index} style={styles.photoPreview}>
-                    <Image source={{ uri: photo.uri }} style={styles.photoImage} />
-                    <TouchableOpacity
-                      style={styles.removePhotoButton}
-                      onPress={() => removePhoto(index)}
-                    >
-                      <Text style={styles.removePhotoText}>✕</Text>
-                    </TouchableOpacity>
+                  <Text style={styles.ratingLabel}>Availability Status</Text>
+                  <View style={styles.availabilityOptions}>
+                    {[
+                      { value: 'available', label: '🟢 Available', color: '#27AE60' },
+                      { value: 'busy', label: '🟡 Busy', color: '#F39C12' },
+                      { value: 'closed', label: '🔴 Closed', color: '#E74C3C' }
+                    ].map(option => (
+                      <TouchableOpacity
+                        key={option.value}
+                        style={[
+                          styles.availabilityOption,
+                          {
+                            backgroundColor: newRating.availability_status === option.value ? option.color : 'rgba(26,26,26,0.5)',
+                            borderColor: option.color
+                          }
+                        ]}
+                        onPress={() => setNewRating(prev => ({ ...prev, availability_status: option.value }))}
+                      >
+                        <Text style={[
+                          styles.availabilityOptionText,
+                          { color: newRating.availability_status === option.value ? '#FFF' : option.color }
+                        ]}>
+                          {option.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                ))}
 
-                {reviewPhotos.length < 3 && (
-                  <TouchableOpacity
-                    style={styles.addPhotoButton}
-                    onPress={() => {
-                      Alert.alert(
-                        'Add Photo',
-                        'Choose photo source',
-                        [
-                          { text: 'Camera', onPress: () => pickImage('camera') },
-                          { text: 'Photo Library', onPress: () => pickImage('library') },
-                          { text: 'Cancel', style: 'cancel' }
-                        ]
-                      );
-                    }}
-                  >
-                    <Text style={styles.addPhotoText}>+</Text>
-                    <Text style={styles.addPhotoLabel}>Add Photo</Text>
-                  </TouchableOpacity>
-                )}
+                  <Text style={styles.ratingLabel}>Write Your Review</Text>
+                  <TextInput
+                    style={[styles.textInputDark, styles.textArea]}
+                    value={newRating.review_text}
+                    onChangeText={(text) => setNewRating(prev => ({ ...prev, review_text: text }))}
+                    placeholder="Share your experience... How was the cleanliness? What amenities were available? Any tips for other users?"
+                    placeholderTextColor="#888"
+                    multiline
+                    numberOfLines={5}
+                  />
+
+                  {/* Photo Upload Section */}
+                  <Text style={styles.ratingLabel}>Photos (Optional - Up to 3)</Text>
+                  <View style={styles.photoContainer}>
+                    {reviewPhotos.map((photo, index) => (
+                      <View key={index} style={styles.photoPreview}>
+                        <Image source={{ uri: photo.uri }} style={styles.photoImage} />
+                        <TouchableOpacity
+                          style={styles.removePhotoButton}
+                          onPress={() => removePhoto(index)}
+                        >
+                          <Text style={styles.removePhotoText}>✕</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+
+                    {reviewPhotos.length < 3 && (
+                      <TouchableOpacity
+                        style={styles.addPhotoButton}
+                        onPress={() => {
+                          Alert.alert(
+                            'Add Photo',
+                            'Choose photo source',
+                            [
+                              { text: 'Camera', onPress: () => pickImage('camera') },
+                              { text: 'Photo Library', onPress: () => pickImage('library') },
+                              { text: 'Cancel', style: 'cancel' }
+                            ]
+                          );
+                        }}
+                      >
+                        <Text style={styles.addPhotoText}>+</Text>
+                        <Text style={styles.addPhotoLabel}>Add Photo</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </ScrollView>
+
+                <TouchableOpacity
+                  style={styles.submitRatingButton}
+                  onPress={handleAddRating}
+                  disabled={loading}
+                >
+                  <Text style={styles.submitRatingButtonText}>
+                    {loading ? 'Submitting...' : 'Submit Rating'}
+                  </Text>
+                </TouchableOpacity>
               </View>
-            </ScrollView>
-
-            <TouchableOpacity
-              style={styles.submitRatingButton}
-              onPress={handleAddRating}
-              disabled={loading}
-            >
-              <Text style={styles.submitRatingButtonText}>
-                {loading ? 'Submitting...' : 'Submit Rating'}
-              </Text>
-            </TouchableOpacity>
+            ) : ratingModalTab === 'reviews' ? (
+              <ScrollView style={{ maxHeight: '75%' }}>
+                {reviewsLoading ? (
+                  <ActivityIndicator size="small" color="#FFF" style={{ marginTop: 12 }} />
+                ) : restroomReviews.length === 0 ? (
+                  <Text style={styles.noDataText}>No reviews yet. Be the first to review!</Text>
+                ) : (
+                  restroomReviews.map((r) => (
+                    <View key={r.id} style={styles.reviewItem}>
+                      <Text style={styles.reviewMeta}>{Number(r.rating || 0).toFixed(1)} 🚽 • {new Date(r.created_at).toLocaleDateString()}</Text>
+                      {(r.review_text || r.comment) ? (
+                        <Text style={styles.reviewText}>{r.review_text || r.comment}</Text>
+                      ) : null}
+                      {Array.isArray(r.photos) && r.photos.length > 0 && (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photosRow}>
+                          {r.photos.map((url, idx) => (
+                            <TouchableOpacity key={`${r.id}-${idx}`} onPress={() => setPhotoViewer({ visible: true, url })}>
+                              <Image source={{ uri: url }} style={styles.photoThumb} />
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+                      )}
+                    </View>
+                  ))
+                )}
+              </ScrollView>
+            ) : (
+              <ScrollView contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 10 }}>
+                {restroomPhotos.length === 0 ? (
+                  <Text style={styles.noDataText}>No photos yet.</Text>
+                ) : (
+                  restroomPhotos.map((p) => (
+                    <TouchableOpacity key={p.key} onPress={() => setPhotoViewer({ visible: true, url: p.url })}>
+                      <Image source={{ uri: p.url }} style={styles.photoThumb} />
+                    </TouchableOpacity>
+                  ))
+                )}
+              </ScrollView>
+            )}
           </View>
-
 
 
 
@@ -2855,10 +2835,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2C', // Dark background for better emoji visibility
     borderRadius: 20,
     padding: 20,
-    flex: 1,
-    minWidth: 0,
-    maxWidth: 480,
-    maxHeight: '80%',
+    width: '92%',
+    maxWidth: 440,
+    maxHeight: '85%',
   },
   modalHeader: {
     flexDirection: 'row',
