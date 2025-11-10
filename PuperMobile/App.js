@@ -72,7 +72,7 @@ export default function App() {
 
 
 
-  // Fallback timeout: ensure splash video overlay doesn't hang forever (6 seconds max)
+  // Fallback timeout: allow full 12s video; only hide if something is wrong (15s fallback)
   useEffect(() => {
     if (!showSplashVideo) return;
     const t = setTimeout(() => {
@@ -84,7 +84,7 @@ export default function App() {
           useNativeDriver: true,
         }).start(() => setShowSplashVideo(false));
       }
-    }, 6000);
+    }, 15000);
     return () => clearTimeout(t);
   }, [showSplashVideo, splashOpacity]);
   // Main navigation state
@@ -1301,8 +1301,8 @@ export default function App() {
             onPress={() => onRatingChange && onRatingChange(star)}
             disabled={!onRatingChange}
           >
-            <Text style={[styles.star, { fontSize: size }]}>
-              {star <= rating ? '🚽' : '🚾'}
+            <Text style={[styles.star, { fontSize: size, opacity: star <= rating ? 1 : 0.35 }]}>
+              {'🚽'}
             </Text>
           </TouchableOpacity>
         ))}
@@ -1571,17 +1571,9 @@ export default function App() {
       <View style={{ flex: 1 }}>
         <HomePage />
         {showSplashVideo && (
-          <TouchableOpacity
+          <View
             activeOpacity={1}
-            onPress={() => {
-              console.log('👆 User tapped to skip splash video');
-              splashVideoFinished.current = true;
-              Animated.timing(splashOpacity, {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: true,
-              }).start(() => setShowSplashVideo(false));
-            }}
+
             style={[StyleSheet.absoluteFill, { zIndex: 10000 }]}
           >
             <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}>
@@ -1607,10 +1599,10 @@ export default function App() {
                 }}
               />
               <View style={styles.skipHintContainer} pointerEvents="none">
-                <Text style={styles.skipHintText}>Tap to skip</Text>
+                <Text style={styles.skipHintText}></Text>
               </View>
             </Animated.View>
-          </TouchableOpacity>
+          </View>
         )}
       </View>
     );
@@ -1621,17 +1613,9 @@ export default function App() {
       <View style={{ flex: 1 }}>
         <RankingPage />
         {showSplashVideo && (
-          <TouchableOpacity
+          <View
             activeOpacity={1}
-            onPress={() => {
-              console.log('👆 User tapped to skip splash video');
-              splashVideoFinished.current = true;
-              Animated.timing(splashOpacity, {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: true,
-              }).start(() => setShowSplashVideo(false));
-            }}
+
             style={[StyleSheet.absoluteFill, { zIndex: 10000 }]}
           >
             <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}>
@@ -1657,10 +1641,10 @@ export default function App() {
                 }}
               />
               <View style={styles.skipHintContainer} pointerEvents="none">
-                <Text style={styles.skipHintText}>Tap to skip</Text>
+                <Text style={styles.skipHintText}></Text>
               </View>
             </Animated.View>
-          </TouchableOpacity>
+          </View>
         )}
       </View>
     );
@@ -2263,7 +2247,7 @@ export default function App() {
           style={styles.modalContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-            <View style={styles.sideBySideRow}>
+
 
           <View style={styles.ratingModal}>
             <View style={styles.modalHeader}>
@@ -2395,67 +2379,18 @@ export default function App() {
               </Text>
             </TouchableOpacity>
           </View>
-            {/* Details pane: existing reviews and photos */}
-            <View style={styles.detailsPane}>
-              <ScrollView>
-                <Text style={styles.ratingLabel}>Recent Reviews</Text>
-                {reviewsLoading ? (
-                  <ActivityIndicator size="small" color="#FFF" style={{ marginTop: 12 }} />
-                ) : restroomReviews.length === 0 ? (
-                  <Text style={styles.noDataText}>No reviews yet. Be the first to review!</Text>
-                ) : (
-                  restroomReviews.map((r) => (
-                    <View key={r.id} style={styles.reviewItem}>
-                      <Text style={styles.reviewMeta}>{Number(r.rating || 0).toFixed(1)} 🚽 • {new Date(r.created_at).toLocaleDateString()}</Text>
-                      {(r.review_text || r.comment) ? (
-                        <Text style={styles.reviewText}>{r.review_text || r.comment}</Text>
-                      ) : null}
-                      {Array.isArray(r.photos) && r.photos.length > 0 && (
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photosRow}>
-                          {r.photos.map((url, idx) => (
-                            <TouchableOpacity key={`${r.id}-${idx}`} onPress={() => setPhotoViewer({ visible: true, url })}>
-                              <Image source={{ uri: url }} style={styles.photoThumb} />
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView>
-                      )}
-                    </View>
-                  ))
-                )}
 
-                <Text style={[styles.ratingLabel, { marginTop: 24 }]}>Photos</Text>
-                {restroomPhotos.length === 0 ? (
-                  <Text style={styles.noDataText}>No photos yet.</Text>
-                ) : (
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 10 }}>
-                    {restroomPhotos.map((p) => (
-                      <TouchableOpacity key={p.key} onPress={() => setPhotoViewer({ visible: true, url: p.url })}>
-                        <Image source={{ uri: p.url }} style={styles.photoThumb} />
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              </ScrollView>
-            </View>
 
-            </View>
+
 
         </KeyboardAvoidingView>
       </Modal>
 
       {/* Splash Video Overlay - Rendered last so it's on top */}
       {showSplashVideo && (
-        <TouchableOpacity
+        <View
           activeOpacity={1}
-          onPress={() => {
-            console.log('👆 User tapped to skip splash video');
-            splashVideoFinished.current = true;
-            Animated.timing(splashOpacity, {
-              toValue: 0,
-              duration: 300,
-              useNativeDriver: true,
-            }).start(() => setShowSplashVideo(false));
-          }}
+
           style={[StyleSheet.absoluteFill, { zIndex: 10000 }]}
         >
           <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}>
@@ -2481,10 +2416,10 @@ export default function App() {
               }}
             />
             <View style={styles.skipHintContainer} pointerEvents="none">
-              <Text style={styles.skipHintText}>Tap to skip</Text>
+              <Text style={styles.skipHintText}></Text>
             </View>
           </Animated.View>
-        </TouchableOpacity>
+        </View>
       )}
     </View>
   );
