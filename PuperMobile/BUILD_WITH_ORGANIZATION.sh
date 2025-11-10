@@ -26,3 +26,4 @@ echo "1. Check build status: https://expo.dev/accounts/sidewayz-8-solutions/proj
 echo "2. After build completes, submit to App Store Connect:"
 echo "   EXPO_ACCOUNT=sidewayz-8-solutions npx eas-cli submit --platform ios --profile production --latest"
 
+

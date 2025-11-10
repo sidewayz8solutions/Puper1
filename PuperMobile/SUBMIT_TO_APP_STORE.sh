@@ -27,3 +27,4 @@ echo "4. Submit for review"
 echo ""
 echo "See APP_STORE_PRICING_SETUP.md for detailed instructions."
 
+

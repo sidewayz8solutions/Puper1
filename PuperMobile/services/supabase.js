@@ -112,8 +112,8 @@ export const restroomService = {
           restroom.lat,
           restroom.lon
         );
-        return { 
-          ...restroom, 
+        return {
+          ...restroom,
           distance,
           // Add normalized coordinate names for mobile compatibility
           latitude: restroom.lat,
@@ -133,6 +133,89 @@ export const restroomService = {
       return [];
     }
   },
+
+  // Get all restrooms globally (paginated) with aggregates; optionally compute distance relative to user location
+  async getAllRestrooms(userLat = null, userLon = null, batchSize = 1000, maxPages = 50) {
+    try {
+      const all = [];
+      let from = 0;
+      for (let page = 0; page < maxPages; page++) {
+        const to = from + batchSize - 1;
+        const { data, error } = await supabase
+          .from('restrooms')
+          .select(`
+            id,
+            name,
+            description,
+            lat,
+            lon,
+            wheelchair_accessible,
+            baby_changing,
+            gender_neutral,
+            created_at
+          `)
+          .range(from, to);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+
+        const base = (data || []).map((restroom) => {
+          const obj = {
+            ...restroom,
+            latitude: restroom.lat,
+            longitude: restroom.lon || restroom.lng,
+            review_count: 0,
+            avg_rating: 0,
+          };
+          if (
+            userLat != null &&
+            userLon != null &&
+            restroom.lat != null &&
+            restroom.lon != null
+          ) {
+            obj.distance = this.calculateDistance(
+              userLat,
+              userLon,
+              restroom.lat,
+              restroom.lon
+            );
+          }
+          return obj;
+        });
+
+        const ids = base.map((r) => r.id).filter(Boolean);
+        if (ids.length > 0) {
+          const { data: aggRows, error: aggError } = await supabase
+            .from('reviews')
+            .select('restroom_id, rating')
+            .in('restroom_id', ids);
+          if (!aggError && aggRows) {
+            const grouped = aggRows.reduce((acc, row) => {
+              if (!acc[row.restroom_id]) acc[row.restroom_id] = { sum: 0, count: 0 };
+              acc[row.restroom_id].sum += row.rating || 0;
+              acc[row.restroom_id].count += 1;
+              return acc;
+            }, {});
+            for (const r of base) {
+              const g = grouped[r.id];
+              if (g) {
+                r.review_count = g.count;
+                r.avg_rating = g.count > 0 ? g.sum / g.count : 0;
+              }
+            }
+          }
+        }
+
+        all.push(...base);
+        if (data.length < batchSize) break;
+        from += batchSize;
+      }
+      return all;
+    } catch (error) {
+      console.error('Error fetching all restrooms:', error);
+      return [];
+    }
+  },
+
 
   // Get restroom by ID
   async getById(id) {
@@ -202,7 +285,7 @@ export const restroomService = {
       throw error;
     }
   },
-  
+
   // Subscribe to real-time review inserts for given restroom IDs
   subscribeToReviews(restroomIds, onInsert) {
     if (!Array.isArray(restroomIds) || restroomIds.length === 0) {
@@ -242,6 +325,36 @@ export const restroomService = {
     };
   },
 
+  // Subscribe to real-time restroom inserts (global map updates)
+  subscribeToRestrooms(onInsert) {
+    const channel = supabase
+      .channel('restrooms-inserts')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'restrooms' },
+        (payload) => {
+          try {
+            const newRow = payload?.new;
+            if (!newRow) return;
+            onInsert && onInsert(newRow);
+          } catch (err) {
+            console.warn('[Supabase] restrooms subscription handler error', err?.message || err);
+          }
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('[Supabase] Restroom insert subscription active');
+        }
+      });
+    return {
+      unsubscribe: () => {
+        try { supabase.removeChannel(channel); } catch {}
+      }
+    };
+  },
+
+
   // Calculate distance between two points (Haversine formula)
   calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371e3; // Earth's radius in meters
@@ -266,11 +379,12 @@ export const restroomService = {
     return `${(meters / 1000).toFixed(1)}km`;
   },
 
-  // Calculate average rating from reviews
+  // Calculate average rating from reviews (return precise average)
   calculateAverageRating(reviews) {
     if (!reviews || reviews.length === 0) return 0;
     const sum = reviews.reduce((acc, review) => acc + (review.rating || 0), 0);
-    return Math.round(sum / reviews.length);
+    const avg = sum / reviews.length;
+    return Number.isFinite(avg) ? avg : 0;
   }
 };
 
@@ -282,13 +396,13 @@ export const photoService = {
       // Convert local URI to blob for upload
       const response = await fetch(photoUri);
       const blob = await response.blob();
-      
+
       // Generate unique filename using identifier (restroom ID + timestamp)
       const timestamp = Date.now();
       const fileExt = photoUri.split('.').pop().split('?')[0] || 'jpg';
       const fileName = `review-${identifier}-${photoIndex}-${timestamp}.${fileExt}`;
       const filePath = `review-photos/${fileName}`;
-      
+
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('review-photos')
@@ -296,51 +410,51 @@ export const photoService = {
           contentType: blob.type || 'image/jpeg',
           upsert: false
         });
-      
+
       if (uploadError) {
         console.error('Photo upload error:', uploadError);
         throw uploadError;
       }
-      
+
       // Get public URL
       const { data } = supabase.storage
         .from('review-photos')
         .getPublicUrl(filePath);
-      
+
       return { url: data.publicUrl, error: null };
     } catch (error) {
       console.error('Error uploading review photo:', error);
       return { url: null, error: error.message };
     }
   },
-  
+
   // Upload multiple photos for a review
   async uploadReviewPhotos(photoUris, reviewId) {
     try {
-      const uploadPromises = photoUris.map((uri, index) => 
+      const uploadPromises = photoUris.map((uri, index) =>
         this.uploadReviewPhoto(uri, reviewId, index)
       );
-      
+
       const results = await Promise.all(uploadPromises);
-      
+
       // Extract URLs from successful uploads
       const photoUrls = results
         .filter(result => result.url && !result.error)
         .map(result => result.url);
-      
+
       // Check if any uploads failed
       const failedUploads = results.filter(result => result.error);
       if (failedUploads.length > 0) {
         console.warn('Some photos failed to upload:', failedUploads);
       }
-      
+
       return { urls: photoUrls, errors: failedUploads };
     } catch (error) {
       console.error('Error uploading review photos:', error);
       return { urls: [], errors: [error] };
     }
   },
-  
+
   // Delete photo from Supabase Storage (optional cleanup function)
   async deleteReviewPhoto(photoUrl) {
     try {
@@ -349,13 +463,13 @@ export const photoService = {
       if (urlParts.length < 2) {
         throw new Error('Invalid photo URL format');
       }
-      
+
       const filePath = urlParts[1].split('?')[0]; // Remove query params
-      
+
       const { error } = await supabase.storage
         .from('review-photos')
         .remove([`review-photos/${filePath}`]);
-      
+
       if (error) throw error;
       return { success: true, error: null };
     } catch (error) {

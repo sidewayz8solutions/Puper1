@@ -18,3 +18,4 @@ echo ""
 
 EXPO_ACCOUNT=sidewayz-8-solutions npx eas-cli build --platform ios --profile production
 
+

@@ -145,6 +145,14 @@ export const RemoveAdsProvider = ({ children }) => {
     return true;
   }, []);
 
+  const grantLocalEntitlement = useCallback(async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, '1');
+    } catch {}
+    setRemoveAds(true);
+    return true;
+  }, []);
+
   const value = useMemo(() => ({
     ready,
     removeAds,
@@ -154,7 +162,8 @@ export const RemoveAdsProvider = ({ children }) => {
     buyRemoveAds,
     restorePurchases,
     clearLocalEntitlement,
-  }), [ready, removeAds, purchasing, restoring, error, buyRemoveAds, restorePurchases, clearLocalEntitlement]);
+    grantLocalEntitlement,
+  }), [ready, removeAds, purchasing, restoring, error, buyRemoveAds, restorePurchases, clearLocalEntitlement, grantLocalEntitlement]);
 
   return (
     <RemoveAdsContext.Provider value={value}>
