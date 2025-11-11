@@ -56,7 +56,7 @@ export default function App() {
   const splashOpacity = useRef(new Animated.Value(1)).current;
   const splashVideoFinished = useRef(false);
   // Preload the splash video so it starts immediately
-  const splashAssetRef = useRef(Asset.fromModule(require('./assets/splash2.mp4')));
+  const splashAssetRef = useRef(Asset.fromModule(require('./assets/splash3.mp4')));
 
   useEffect(() => {
     console.log('🎬 App mounted - splash video will play');
@@ -1065,14 +1065,6 @@ export default function App() {
     return out;
   }, [restroomReviews]);
 
-  // When opening the restroom details modal, fetch reviews
-  useEffect(() => {
-    if (showRestroomModal && selectedRestroom?.id) {
-      setRestroomTab('reviews');
-      loadRestroomReviews(selectedRestroom.id);
-    }
-  }, [showRestroomModal, selectedRestroom?.id]);
-
 
   // When opening the rating modal, reset to the form and preload reviews/photos
   useEffect(() => {
@@ -1188,14 +1180,8 @@ export default function App() {
       setReviewPhotos([]);
       setShowRatingModal(false);
 
-      // If details modal is open, refresh its Reviews tab and keep selection
-      const restroomId = selectedRestroom?.id;
-      if (showRestroomModal && restroomId) {
-        await loadRestroomReviews(restroomId);
-        setRestroomTab('reviews');
-      } else {
-        setSelectedRestroom(null);
-      }
+      // Clear selection after submitting
+      setSelectedRestroom(null);
 
       // Refresh global restrooms list
       if (location) {
@@ -1579,7 +1565,7 @@ export default function App() {
           >
             <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}>
               <Video
-                source={require('./assets/splash2.mp4')}
+                source={require('./assets/splash3.mp4')}
                 style={styles.introSplashVideo}
                 resizeMode="cover"
                 shouldPlay
@@ -1621,7 +1607,7 @@ export default function App() {
           >
             <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}>
               <Video
-                source={require('./assets/splash2.mp4')}
+                source={require('./assets/splash3.mp4')}
                 style={styles.introSplashVideo}
                 resizeMode="cover"
                 shouldPlay
@@ -2375,7 +2361,7 @@ export default function App() {
         >
           <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}>
             <Video
-              source={require('./assets/splash2.mp4')}
+              source={require('./assets/splash3.mp4')}
               style={styles.introSplashVideo}
               resizeMode="cover"
               shouldPlay

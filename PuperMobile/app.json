@@ -2,21 +2,21 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-  "version": "1.6.4",
+  "version": "1.6.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "description": "Your guide to relief - Find clean, accessible public restrooms wherever you are",
     "splash": {
-
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-  "buildNumber": "27",
+  "buildNumber": "28",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
@@ -42,7 +42,7 @@
         "backgroundColor": "#6B4423"
       },
       "package": "com.sidewayz8.puper",
-      "versionCode": 1,
+      "versionCode": 29,
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
@@ -68,7 +68,14 @@
         }
       ],
       "expo-video",
-      "expo-asset"
+      "expo-asset",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "iosAppId": "ca-app-pub-8579480495006676~6423147580",
+          "androidAppId": "ca-app-pub-8579480495006676~2589937681"
+        }
+      ]
     ],
     "extra": {
       "supabaseUrl": "https://qunaiicjcelvdunluwqh.supabase.co",
@@ -87,8 +94,6 @@
       },
       "adminOverrideCode": "PUPER-ADMIN-2025"
     }
-  },
-  "react-native-google-mobile-ads": {
-    "ios_app_id": "ca-app-pub-8579480495006676~6423147580"
   }
+
 }
