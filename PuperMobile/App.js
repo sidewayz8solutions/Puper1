@@ -166,7 +166,7 @@ export default function App() {
     accessibleCount: 0
   });
   const [adsInitialized, setAdsInitialized] = useState(false);
-  const { removeAds, buyRemoveAds, restorePurchases, purchasing, restoring, grantLocalEntitlement } = useRemoveAds();
+  const { ready, removeAds, buyRemoveAds, restorePurchases, purchasing, restoring, grantLocalEntitlement } = useRemoveAds();
   // Interstitial ad state
   const interstitialRef = useRef(null);
   const [interstitialLoaded, setInterstitialLoaded] = useState(false);
@@ -1803,12 +1803,12 @@ export default function App() {
         {/* In‑app purchase CTA: make Remove Ads very visible */}
         {!removeAds && (
           <TouchableOpacity
-            style={[styles.secondaryButton, purchasing && styles.buttonDisabled]}
+            style={[styles.secondaryButton, (purchasing || !ready) && styles.buttonDisabled]}
             onPress={buyRemoveAds}
-            disabled={purchasing}
+            disabled={purchasing || !ready}
           >
             <Text style={styles.secondaryButtonText}>
-              {purchasing ? 'Processing…' : 'Remove Ads — $4.99'}
+              {purchasing ? 'Processing…' : (!ready ? 'Loading…' : 'Remove Ads — $4.99')}
             </Text>
           </TouchableOpacity>
         )}
@@ -1847,12 +1847,14 @@ export default function App() {
             {!removeAds && (
               <TouchableOpacity
                 style={styles.menuItem}
+                disabled={!ready || purchasing}
                 onPress={() => {
+                  if (!ready) return;
                   setShowMenu(false);
                   buyRemoveAds();
                 }}
               >
-                <Text style={styles.menuItemText}>{purchasing ? 'Processing…' : '🚫 Remove Ads ($4.99)'}</Text>
+                <Text style={styles.menuItemText}>{purchasing ? 'Processing…' : (!ready ? '🚫 Remove Ads (Loading…)' : '🚫 Remove Ads ($4.99)')}</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity

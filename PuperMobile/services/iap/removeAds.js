@@ -5,7 +5,7 @@ import * as RNIap from 'react-native-iap';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import productConfig from '../../in-app-purchases/remove-ads.json';
 
-const PRODUCT_ID = productConfig?.productId || 'com.sidewayz8.puper.remove_ads';
+const PRODUCT_ID = productConfig?.productId || 'Premium';
 const STORAGE_KEY = '@puper/removeAdsPurchased';
 
 const RemoveAdsContext = createContext({
@@ -68,7 +68,9 @@ export const RemoveAdsProvider = ({ children }) => {
           try { await RNIap.flushFailedPurchasesCachedAsPendingAndroid(); } catch {}
         }
         // Prefetch product metadata (optional)
-        try { await RNIap.getProducts({ skus: [PRODUCT_ID] }); } catch {}
+        try { await RNIap.getProducts({ skus: [PRODUCT_ID] }); } catch (e1) {
+          try { await RNIap.getProducts([PRODUCT_ID]); } catch {}
+        }
 
         // Subscribe to purchase updates
         purchaseUpdateSubRef.current = RNIap.purchaseUpdatedListener(async (purchase) => {
@@ -108,11 +110,23 @@ export const RemoveAdsProvider = ({ children }) => {
   }, [checkEntitlementFromStore]);
 
   const buyRemoveAds = useCallback(async () => {
+    if (!ready) {
+      setError('Store not ready. Please try again in a moment.');
+      return;
+    }
     setPurchasing(true);
     setError(null);
     try {
-      // API variants exist across versions; this form works on modern RNIap
-      await RNIap.requestPurchase({ sku: PRODUCT_ID });
+      // API variants exist across versions; try object form then fallback to legacy signature
+      try {
+        await RNIap.requestPurchase({ sku: PRODUCT_ID });
+      } catch (e1) {
+        try {
+          await RNIap.requestPurchase(PRODUCT_ID);
+        } catch (e2) {
+          throw e2 || e1;
+        }
+      }
       // Post-purchase, purchaseUpdatedListener will set entitlement
       // As a fallback, re-check entitlement after a short delay
       setTimeout(checkEntitlementFromStore, 1500);
@@ -121,7 +135,7 @@ export const RemoveAdsProvider = ({ children }) => {
     } finally {
       setPurchasing(false);
     }
-  }, [checkEntitlementFromStore]);
+  }, [ready, checkEntitlementFromStore]);
 
   const restorePurchases = useCallback(async () => {
     setRestoring(true);
