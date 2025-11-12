@@ -11,6 +11,9 @@ import {
   useVideoPlayer,
   VideoView,
 } from 'expo-video';
+import { Video } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {
   ActivityIndicator,
   Alert,
@@ -44,14 +47,14 @@ const { width, height } = Dimensions.get('window');
 
 export default function App() {
   // Remove Ads IAP hook
-  const { 
-    ready: iapReady, 
-    removeAds, 
-    purchasing, 
-    restoring, 
+  const {
+    ready: iapReady,
+    removeAds,
+    purchasing,
+    restoring,
     error: iapError,
-    buyRemoveAds, 
-    restorePurchases 
+    buyRemoveAds,
+    restorePurchases
   } = useRemoveAds();
 
   // Show success message when ads are removed
@@ -70,7 +73,7 @@ export default function App() {
 
   // Main navigation state
   const [currentScreen, setCurrentScreen] = useState('home'); // 'home', 'map', or 'ranking'
-  
+
   // Location and map state
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -86,7 +89,7 @@ export default function App() {
   // Restroom data
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
-  
+
   // UI State
   const [showMenu, setShowMenu] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -94,14 +97,16 @@ export default function App() {
   const [showFilters, setShowFilters] = useState(false);
   const [addMode, setAddMode] = useState(false);
   const [addLocation, setAddLocation] = useState(null);
-  
+  const [showLaunchVideo, setShowLaunchVideo] = useState(false);
+
+
   // Filters
   const [filters, setFilters] = useState({
     wheelchair_accessible: false,
     baby_changing: false,
     gender_neutral: false
   });
-  
+
   // Add restroom form
   const [newRestroom, setNewRestroom] = useState({
     name: '',
@@ -110,7 +115,7 @@ export default function App() {
     baby_changing: false,
     gender_neutral: false
   });
-  
+
   // Rating form
   const [newRating, setNewRating] = useState({
     rating: 5,
@@ -120,10 +125,10 @@ export default function App() {
     gender: 'unisex',
     availability_status: 'available' // 'available', 'busy', 'closed'
   });
-  
+
   // Review photos (up to 3)
   const [reviewPhotos, setReviewPhotos] = useState([]);
-  
+
   const [stats, setStats] = useState({
     totalRestrooms: 0,
     averageRating: '0.0',
@@ -134,6 +139,21 @@ export default function App() {
   const interstitialRef = useRef(null);
   const [interstitialLoaded, setInterstitialLoaded] = useState(false);
   const lastInterstitialTimeRef = useRef(0);
+
+  // Check if splash video has been shown before
+  useEffect(() => {
+    (async () => {
+      try {
+        const hasShownSplash = await AsyncStorage.getItem('hasShownSplash_v2');
+        if (!hasShownSplash) {
+          setShowLaunchVideo(true);
+          await AsyncStorage.setItem('hasShownSplash_v2', 'true');
+        }
+      } catch (error) {
+        console.warn('Error checking splash status:', error);
+      }
+    })();
+  }, []);
 
   // Load location and fetch nearby restrooms
   useEffect(() => {
@@ -380,7 +400,7 @@ export default function App() {
   // Handle POI (Point of Interest) clicks - Google Places
   const handlePoiClick = (event) => {
     const { coordinate, placeId, name } = event.nativeEvent;
-    
+
     // Create a temporary restroom object for the Google Place
     const googlePlaceRestroom = {
       id: placeId || `google-place-${Date.now()}`,
@@ -397,19 +417,19 @@ export default function App() {
       baby_changing: false,
       gender_neutral: false
     };
-    
+
     // Show rating modal for this Google Place
     setSelectedRestroom(googlePlaceRestroom);
     setShowRatingModal(true);
   };
-  
+
   // Add new restroom
   const handleAddRestroom = async () => {
     if (!addLocation || !newRestroom.name.trim()) {
       Alert.alert('Error', 'Please provide a name and location for the restroom');
       return;
     }
-    
+
     try {
       setLoading(true);
       await restroomService.create({
@@ -417,7 +437,7 @@ export default function App() {
         lat: addLocation.latitude,
         lon: addLocation.longitude
       });
-      
+
       // Reset form
       setNewRestroom({
         name: '',
@@ -429,12 +449,12 @@ export default function App() {
       setShowAddForm(false);
       setAddMode(false);
       setAddLocation(null);
-      
+
       // Refresh restrooms
       if (location) {
         await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
       }
-      
+
       Alert.alert('Success', 'Restroom added successfully!');
     } catch (error) {
       console.error('Error adding restroom:', error);
@@ -443,27 +463,27 @@ export default function App() {
       setLoading(false);
     }
   };
-  
+
   // Helper function to submit review without photos
   const submitReviewWithoutPhotos = async () => {
     if (!selectedRestroom) return;
-    
+
     try {
       setLoading(true);
-      
+
       // If this is a Google Place that doesn't exist in our database yet, create it first
       if (selectedRestroom.isGooglePlace) {
         console.log('Rating Google Place:', selectedRestroom.name);
-        
+
         // Check if restroom already exists by location (within ~10 meters)
-        const existing = restrooms.find(r => 
-          Math.abs(r.lat - selectedRestroom.lat) < 0.0001 && 
+        const existing = restrooms.find(r =>
+          Math.abs(r.lat - selectedRestroom.lat) < 0.0001 &&
           Math.abs(r.lon - selectedRestroom.lon) < 0.0001
         );
-        
+
         if (!existing) {
           console.log('Creating new restroom entry for:', selectedRestroom.name);
-          
+
           try {
             // Create new restroom from Google Place
             const newRestroomData = await restroomService.create({
@@ -475,7 +495,7 @@ export default function App() {
               baby_changing: false,
               gender_neutral: false
             });
-            
+
             // Use the newly created restroom ID for the review
             selectedRestroom.id = newRestroomData.id;
             console.log('Successfully created restroom with ID:', newRestroomData.id);
@@ -489,7 +509,7 @@ export default function App() {
           selectedRestroom.id = existing.id;
         }
       }
-      
+
       // Prepare review data without photos
       const reviewData = {
         restroom_id: selectedRestroom.id,
@@ -502,10 +522,10 @@ export default function App() {
         gender: newRating.gender,
         availability_status: newRating.availability_status
       };
-      
+
       // Add the review
       await restroomService.addReview(reviewData);
-      
+
       // Reset rating form and photos
       setNewRating({
         rating: 5,
@@ -518,12 +538,12 @@ export default function App() {
       setReviewPhotos([]);
       setShowRatingModal(false);
       setSelectedRestroom(null);
-      
+
       // Refresh restrooms
       if (location) {
         await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
       }
-      
+
       Alert.alert('Success', 'Review added successfully!');
   // Attempt to show an interstitial after adding a review (gentle frequency control handled in maybeShowInterstitial)
   maybeShowInterstitial();
@@ -534,27 +554,27 @@ export default function App() {
       setLoading(false);
     }
   };
-  
+
   // Add rating
   const handleAddRating = async () => {
     if (!selectedRestroom) return;
-    
+
     try {
       setLoading(true);
-      
+
       // If this is a Google Place that doesn't exist in our database yet, create it first
       if (selectedRestroom.isGooglePlace) {
         console.log('Rating Google Place:', selectedRestroom.name);
-        
+
         // Check if restroom already exists by location (within ~10 meters)
-        const existing = restrooms.find(r => 
-          Math.abs(r.lat - selectedRestroom.lat) < 0.0001 && 
+        const existing = restrooms.find(r =>
+          Math.abs(r.lat - selectedRestroom.lat) < 0.0001 &&
           Math.abs(r.lon - selectedRestroom.lon) < 0.0001
         );
-        
+
         if (!existing) {
           console.log('Creating new restroom entry for:', selectedRestroom.name);
-          
+
           try {
             // Create new restroom from Google Place
             const newRestroomData = await restroomService.create({
@@ -566,7 +586,7 @@ export default function App() {
               baby_changing: false,
               gender_neutral: false
             });
-            
+
             // Use the newly created restroom ID for the review
             selectedRestroom.id = newRestroomData.id;
             console.log('Successfully created restroom with ID:', newRestroomData.id);
@@ -580,17 +600,17 @@ export default function App() {
           selectedRestroom.id = existing.id;
         }
       }
-      
+
       // Upload photos to Supabase Storage first (if any)
       let photoUrls = [];
       if (reviewPhotos.length > 0) {
         const photoUris = reviewPhotos.map(photo => photo.uri);
-        
+
         // Generate a unique identifier for file naming (using restroom ID + timestamp)
         const fileIdentifier = `${selectedRestroom.id}-${Date.now()}`;
-        
+
         const uploadResult = await photoService.uploadReviewPhotos(photoUris, fileIdentifier);
-        
+
         if (uploadResult.errors && uploadResult.errors.length > 0) {
           console.warn('Some photos failed to upload:', uploadResult.errors);
           // Continue with successful uploads, but warn user
@@ -609,10 +629,10 @@ export default function App() {
             return;
           }
         }
-        
+
         photoUrls = uploadResult.urls;
       }
-      
+
       // Prepare review data with photo URLs
       const reviewData = {
         restroom_id: selectedRestroom.id,
@@ -625,10 +645,10 @@ export default function App() {
         gender: newRating.gender,
         availability_status: newRating.availability_status
       };
-      
+
       // Add the review
       await restroomService.addReview(reviewData);
-      
+
       // Reset rating form and photos
       setNewRating({
         rating: 5,
@@ -641,12 +661,12 @@ export default function App() {
       setReviewPhotos([]);
       setShowRatingModal(false);
       setSelectedRestroom(null);
-      
+
       // Refresh restrooms
       if (location) {
         await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
       }
-      
+
       Alert.alert('Success', 'Rating added successfully!');
   // Attempt to show an interstitial after adding a rating
   maybeShowInterstitial();
@@ -655,7 +675,7 @@ export default function App() {
       console.error('Error details:', error.message);
       console.error('Selected restroom:', selectedRestroom);
       Alert.alert(
-        'Error', 
+        'Error',
         `Failed to add rating: ${error.message || 'Unknown error'}\n\nPlease check the console for details.`
       );
     } finally {
@@ -676,12 +696,12 @@ export default function App() {
     }
     return restroom.avg_rating || 3;
   };
-  
+
   // Request camera and media library permissions
   const requestImagePermissions = async () => {
     const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
     const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
     if (cameraStatus !== 'granted' || mediaStatus !== 'granted') {
       Alert.alert(
         'Permissions Required',
@@ -691,19 +711,19 @@ export default function App() {
     }
     return true;
   };
-  
+
   // Pick image from camera or library
   const pickImage = async (source) => {
     if (reviewPhotos.length >= 3) {
       Alert.alert('Maximum Photos', 'You can only add up to 3 photos per review.');
       return;
     }
-    
+
     const hasPermission = await requestImagePermissions();
     if (!hasPermission) return;
-    
+
     let result;
-    
+
     if (source === 'camera') {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -720,19 +740,19 @@ export default function App() {
         allowsMultipleSelection: false,
       });
     }
-    
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const newPhotos = [...reviewPhotos, ...result.assets];
       // Limit to 3 photos
       setReviewPhotos(newPhotos.slice(0, 3));
     }
   };
-  
+
   // Remove photo from review
   const removePhoto = (index) => {
     setReviewPhotos(reviewPhotos.filter((_, i) => i !== index));
   };
-  
+
   // Filter restrooms based on current filters
   const filteredRestrooms = restrooms.filter(restroom => {
     if (filters.wheelchair_accessible && !restroom.wheelchair_accessible) return false;
@@ -740,7 +760,7 @@ export default function App() {
     if (filters.gender_neutral && !restroom.gender_neutral) return false;
     return true;
   });
-  
+
   // Star rating component
   const StarRating = ({ rating, onRatingChange, size = 24 }) => {
     return (
@@ -759,8 +779,8 @@ export default function App() {
       </View>
     );
   };
-  
-  
+
+
   // HomePage Component (Landing Page)
   const HomePage = () => {
     const player = useVideoPlayer(require('./assets/hero-video.mp4'), player => {
@@ -772,7 +792,7 @@ export default function App() {
     return (
       <ScrollView style={styles.homeContainer} showsVerticalScrollIndicator={false}>
         <StatusBar style="light" />
-        
+
         {/* Hero Section */}
         <View style={styles.heroSection}>
           <VideoView
@@ -782,14 +802,14 @@ export default function App() {
             nativeControls={false}
           />
           {/* Simple Map Button - Top Left */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.simpleMapButton}
             onPress={() => setCurrentScreen('map')}
           >
             <Text style={styles.mapButtonText}>🗺️ Map</Text>
           </TouchableOpacity>
         </View>
-        
+
         {/* Guide to Relief Section */}
         <View style={styles.guideSection}>
           <View style={styles.guideContent}>
@@ -798,8 +818,8 @@ export default function App() {
             <Text style={styles.guideDescription}>
               Never get caught without a clean restroom again! Find and rate public restrooms wherever you are.
             </Text>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.guideCtaButton}
               onPress={() => setCurrentScreen('map')}
             >
@@ -807,11 +827,11 @@ export default function App() {
             </TouchableOpacity>
           </View>
         </View>
-        
+
         {/* Features Section */}
         <View style={styles.featuresSection}>
           <Text style={styles.sectionTitle}>Why Choose Püper?</Text>
-          
+
           <View style={styles.featuresGrid}>
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🗺️</Text>
@@ -820,7 +840,7 @@ export default function App() {
                 Find restrooms near you with our interactive map powered by community data.
               </Text>
             </View>
-            
+
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🚽</Text>
               <Text style={styles.featureTitle}>5-Toilet Rating System</Text>
@@ -828,7 +848,7 @@ export default function App() {
                 Rate restrooms with our unique toilet-based system instead of boring stars.
               </Text>
             </View>
-            
+
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>♿</Text>
               <Text style={styles.featureTitle}>Accessibility Info</Text>
@@ -836,7 +856,7 @@ export default function App() {
                 Filter by wheelchair access, baby changing stations, and gender-neutral options.
               </Text>
             </View>
-            
+
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🏆</Text>
               <Text style={styles.featureTitle}>Community Reviews</Text>
@@ -844,7 +864,7 @@ export default function App() {
                 Read honest reviews about cleanliness, accessibility, and amenities.
               </Text>
             </View>
-            
+
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>📱</Text>
               <Text style={styles.featureTitle}>Mobile First</Text>
@@ -852,7 +872,7 @@ export default function App() {
                 Designed specifically for mobile users with smooth, native performance.
               </Text>
             </View>
-            
+
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🔒</Text>
               <Text style={styles.featureTitle}>Privacy Focused</Text>
@@ -862,22 +882,22 @@ export default function App() {
             </View>
           </View>
         </View>
-        
+
         {/* Call to Action Section */}
         <View style={styles.ctaSection}>
           <Text style={styles.ctaTitle}>Join the Community</Text>
           <Text style={styles.ctaDescription}>
             Help others find relief by adding and reviewing restrooms in your area.
           </Text>
-          
+
           <View style={styles.ctaButtons}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.ctaButton, styles.primaryButton]}
               onPress={() => setCurrentScreen('map')}
             >
               <Text style={styles.ctaButtonText}>Get Started</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={[styles.ctaButton, styles.secondaryButton]}
               onPress={() => setCurrentScreen('ranking')}
@@ -886,7 +906,7 @@ export default function App() {
             </TouchableOpacity>
           </View>
         </View>
-        
+
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>© 2024 Püper - Your Guide to Relief</Text>
@@ -894,7 +914,7 @@ export default function App() {
       </ScrollView>
     );
   };
-  
+
   // Ranking Page Component
   const RankingPage = () => {
     const sortedRestrooms = [...filteredRestrooms].sort((a, b) => {
@@ -991,21 +1011,38 @@ export default function App() {
   };
 
   // Main render function
-  if (currentScreen === 'home') {
-    return <HomePage />;
-  }
-
-  if (currentScreen === 'ranking') {
-    return <RankingPage />;
-  }
-  
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
+    <>
+      {/* Launch Splash Video Overlay - Shows ONCE on first app launch */}
+      <Modal visible={showLaunchVideo} animationType="fade" presentationStyle="fullScreen">
+        <View style={styles.launchVideoContainer}>
+          <Video
+            source={require('./assets/splash3.mp4')}
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="cover"
+            shouldPlay
+            isMuted={false}
+            isLooping={false}
+            onPlaybackStatusUpdate={(status) => {
+              if (status?.isLoaded && status.didJustFinish) {
+                setShowLaunchVideo(false);
+              }
+            }}
+          />
+        </View>
+      </Modal>
+
+      {/* Screen Content */}
+      {currentScreen === 'home' && <HomePage />}
+      {currentScreen === 'ranking' && <RankingPage />}
+      {currentScreen === 'map' && (
+        <View style={styles.container}>
+          <StatusBar style="light" />
+
 
       {/* Header with Back Button and Menu */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.menuButton}
           onPress={() => setCurrentScreen('home')}
         >
@@ -1016,13 +1053,13 @@ export default function App() {
           <Text style={styles.headerSubtitle}>Your Guide to Relief</Text>
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.menuButton}
             onPress={() => setShowMenu(true)}
           >
             <Text style={styles.menuIcon}>☰</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.addButton}
             onPress={() => {
               if (addMode) {
@@ -1110,7 +1147,7 @@ export default function App() {
             </Marker>
           );
         })}
-        
+
         {/* Add location marker */}
         {addLocation && (
           <Marker
@@ -1120,7 +1157,7 @@ export default function App() {
           >
             <View style={[
               styles.markerContainer,
-              { 
+              {
                 backgroundColor: '#0dffe7', // Cyan color like web app
                 borderColor: '#00bfa5'
               }
@@ -1158,7 +1195,7 @@ export default function App() {
             {loading ? 'Searching...' : 'Refresh Nearby Restrooms'}
           </Text>
         </TouchableOpacity>
-        
+
         {/* Remove Ads Button - Only show if ads are not removed */}
         {!removeAds && (
           <>
@@ -1195,7 +1232,7 @@ export default function App() {
                 {purchasing ? 'Processing...' : 'Remove Ads - $4.99'}
               </Text>
             </TouchableOpacity>
-            
+
             {/* Restore Purchases Button - Required by Apple */}
             <TouchableOpacity
               style={[styles.restoreButton, (restoring || !iapReady) && styles.buttonDisabled]}
@@ -1226,19 +1263,19 @@ export default function App() {
             </TouchableOpacity>
           </>
         )}
-        
+
         {/* Show success message if ads are removed */}
         {removeAds && (
           <View style={styles.adsRemovedContainer}>
             <Text style={styles.adsRemovedText}>✅ Ads Removed - Thank you for your support!</Text>
           </View>
         )}
-        
+
         {/* Show IAP error if any */}
         {iapError && !removeAds && (
           <Text style={styles.iapErrorText}>⚠️ {iapError}</Text>
         )}
-        
+
         {/* Banner Ad - Only show if ads are not removed */}
         {!removeAds && (
           <View style={styles.adWrapper}>
@@ -1270,8 +1307,8 @@ export default function App() {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
                 setShowMenu(false);
@@ -1280,8 +1317,8 @@ export default function App() {
             >
               <Text style={styles.menuItemText}>🏠 Home</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
                 setShowMenu(false);
@@ -1290,8 +1327,8 @@ export default function App() {
             >
               <Text style={styles.menuItemText}>🔍 Filters</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
                 setShowMenu(false);
@@ -1300,7 +1337,7 @@ export default function App() {
             >
               <Text style={styles.menuItemText}>📍 Find Nearby</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
@@ -1339,7 +1376,7 @@ export default function App() {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-            
+
             <View style={styles.filterItem}>
               <Text style={styles.filterText}>♿ Wheelchair Accessible</Text>
               <Switch
@@ -1348,7 +1385,7 @@ export default function App() {
                 trackColor={{ false: '#ccc', true: '#6B4423' }}
               />
             </View>
-            
+
             <View style={styles.filterItem}>
               <Text style={styles.filterText}>👶 Baby Changing</Text>
               <Switch
@@ -1357,7 +1394,7 @@ export default function App() {
                 trackColor={{ false: '#ccc', true: '#6B4423' }}
               />
             </View>
-            
+
             <View style={styles.filterItem}>
               <Text style={styles.filterText}>🚻 Gender Neutral</Text>
               <Switch
@@ -1366,7 +1403,7 @@ export default function App() {
                 trackColor={{ false: '#ccc', true: '#6B4423' }}
               />
             </View>
-            
+
             <TouchableOpacity
               style={styles.clearFiltersButton}
               onPress={() => {
@@ -1390,7 +1427,7 @@ export default function App() {
         visible={showAddForm}
         onRequestClose={() => setShowAddForm(false)}
       >
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           style={styles.modalContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
@@ -1405,7 +1442,7 @@ export default function App() {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-            
+
             <ScrollView style={styles.formContainer}>
               <Text style={styles.formLabel}>Name *</Text>
               <TextInput
@@ -1415,7 +1452,7 @@ export default function App() {
                 placeholder="Enter restroom name"
                 placeholderTextColor="#999"
               />
-              
+
               <Text style={styles.formLabel}>Description</Text>
               <TextInput
                 style={[styles.textInput, styles.textArea]}
@@ -1426,7 +1463,7 @@ export default function App() {
                 multiline
                 numberOfLines={3}
               />
-              
+
               <View style={styles.switchContainer}>
                 <View style={styles.switchItem}>
                   <Text style={styles.switchText}>♿ Wheelchair Accessible</Text>
@@ -1436,7 +1473,7 @@ export default function App() {
                     trackColor={{ false: '#ccc', true: '#6B4423' }}
                   />
                 </View>
-                
+
                 <View style={styles.switchItem}>
                   <Text style={styles.switchText}>👶 Baby Changing</Text>
                   <Switch
@@ -1445,7 +1482,7 @@ export default function App() {
                     trackColor={{ false: '#ccc', true: '#6B4423' }}
                   />
                 </View>
-                
+
                 <View style={styles.switchItem}>
                   <Text style={styles.switchText}>🚻 Gender Neutral</Text>
                   <Switch
@@ -1456,7 +1493,7 @@ export default function App() {
                 </View>
               </View>
             </ScrollView>
-            
+
             <TouchableOpacity
               style={[styles.addRestroomButton, { opacity: newRestroom.name.trim() ? 1 : 0.5 }]}
               onPress={handleAddRestroom}
@@ -1477,7 +1514,7 @@ export default function App() {
         visible={showRatingModal}
         onRequestClose={() => setShowRatingModal(false)}
       >
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           style={styles.modalContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
@@ -1503,27 +1540,27 @@ export default function App() {
                 <Text style={styles.closeButtonLight}>✕</Text>
               </TouchableOpacity>
             </View>
-            
+
             <ScrollView style={styles.ratingContainer}>
               <Text style={styles.ratingLabel}>Overall Rating</Text>
-              <StarRating 
-                rating={newRating.rating} 
+              <StarRating
+                rating={newRating.rating}
                 onRatingChange={(rating) => setNewRating(prev => ({ ...prev, rating }))}
                 size={32}
               />
-              
+
               <Text style={styles.ratingLabel}>Cleanliness</Text>
-              <StarRating 
-                rating={newRating.cleanliness_rating} 
+              <StarRating
+                rating={newRating.cleanliness_rating}
                 onRatingChange={(rating) => setNewRating(prev => ({ ...prev, cleanliness_rating: rating }))}
               />
-              
+
               <Text style={styles.ratingLabel}>Stock Level</Text>
-              <StarRating 
-                rating={newRating.stocked_rating} 
+              <StarRating
+                rating={newRating.stocked_rating}
                 onRatingChange={(rating) => setNewRating(prev => ({ ...prev, stocked_rating: rating }))}
               />
-              
+
               <Text style={styles.ratingLabel}>Availability Status</Text>
               <View style={styles.availabilityOptions}>
                 {[
@@ -1562,7 +1599,7 @@ export default function App() {
                 multiline
                 numberOfLines={5}
               />
-              
+
               {/* Photo Upload Section */}
               <Text style={styles.ratingLabel}>Photos (Optional - Up to 3)</Text>
               <View style={styles.photoContainer}>
@@ -1577,7 +1614,7 @@ export default function App() {
                     </TouchableOpacity>
                   </View>
                 ))}
-                
+
                 {reviewPhotos.length < 3 && (
                   <TouchableOpacity
                     style={styles.addPhotoButton}
@@ -1599,7 +1636,7 @@ export default function App() {
                 )}
               </View>
             </ScrollView>
-            
+
             <TouchableOpacity
               style={styles.submitRatingButton}
               onPress={handleAddRating}
@@ -1612,7 +1649,9 @@ export default function App() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
-    </View>
+        </View>
+      )}
+    </>
   );
 }
 
@@ -1621,7 +1660,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5DC',
   },
-  
+  launchVideoContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+
+
   // Landing Page Styles
   homeContainer: {
     flex: 1,
@@ -1681,7 +1728,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     paddingHorizontal: 20,
   },
-  
+
   // Features Section
   featuresSection: {
     padding: 30,
@@ -1729,7 +1776,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-  
+
   // Call to Action Section
   ctaSection: {
     backgroundColor: '#6B4423',
@@ -1785,7 +1832,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: '#FFF',
   },
-  
+
   // Footer
   footer: {
     backgroundColor: '#2D1810',
@@ -2400,7 +2447,7 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
   },
-  
+
   // Simple map button styles
   simpleMapButton: {
     position: 'absolute',
@@ -2422,7 +2469,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#6B4423',
   },
-  
+
   // Guide to Relief section styles
   guideSection: {
     backgroundColor: '#F5F5DC',
