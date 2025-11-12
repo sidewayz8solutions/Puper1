@@ -27,3 +27,6 @@ echo "2. After build completes, submit to App Store Connect:"
 echo "   EXPO_ACCOUNT=sidewayz-8-solutions npx eas-cli submit --platform ios --profile production --latest"
 
 
+
+
+

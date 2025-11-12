@@ -27,10 +27,12 @@
     "expo-asset": "~12.0.9",
     "expo-av": "^16.0.7",
     "expo-constants": "~18.0.10",
+    "expo-gl": "^16.0.7",
     "expo-image-picker": "^17.0.8",
     "expo-location": "^19.0.7",
     "expo-splash-screen": "~31.0.10",
     "expo-status-bar": "~3.0.8",
+    "expo-three": "^8.0.0",
     "expo-video": "~3.0.14",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -39,7 +41,8 @@
     "react-native-iap": "^14.4.38",
     "react-native-maps": "^1.20.1",
     "react-native-vector-icons": "^10.3.0",
-    "react-native-web": "^0.21.0"
+    "react-native-web": "^0.21.0",
+    "three": "^0.166.1"
   },
   "private": true,
   "packageManager": "npm@latest",

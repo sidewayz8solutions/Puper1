@@ -1,12 +1,8 @@
 import React, {
-  useCallback,
   useEffect,
   useState,
   useRef,
-  useMemo,
 } from 'react';
-
-import { Asset } from 'expo-asset';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -15,12 +11,9 @@ import {
   useVideoPlayer,
   VideoView,
 } from 'expo-video';
-import { Video } from 'expo-av';
-import { Animated } from 'react-native';
 import {
   ActivityIndicator,
   Alert,
-  AppState,
   Dimensions,
   Image,
   KeyboardAvoidingView,
@@ -38,65 +31,46 @@ import MapView, {
   Marker,
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
-import mobileAds, { AppOpenAd, BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
-import { useRemoveAds } from './services/iap/removeAds';
+import mobileAds, { BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 import Constants from 'expo-constants';
 
 import {
   photoService,
   restroomService,
-  supabase,
 } from './services/supabase';
+import { useRemoveAds } from './services/iap/removeAds';
 
 const { width, height } = Dimensions.get('window');
 
 export default function App() {
-  // Show custom splash.MOV on launch - always starts true on every app open
-  const [showSplashVideo, setShowSplashVideo] = useState(true);
-  const splashOpacity = useRef(new Animated.Value(1)).current;
-  const splashVideoFinished = useRef(false);
-  // Preload the splash video so it starts immediately
-  const splashAssetRef = useRef(Asset.fromModule(require('./assets/splash3.mp4')));
+  // Remove Ads IAP hook
+  const { 
+    ready: iapReady, 
+    removeAds, 
+    purchasing, 
+    restoring, 
+    error: iapError,
+    buyRemoveAds, 
+    restorePurchases 
+  } = useRemoveAds();
 
+  // Show success message when ads are removed
+  const prevRemoveAds = useRef(removeAds);
   useEffect(() => {
-    console.log('🎬 App mounted - splash video will play');
-    (async () => {
-      try {
-        await splashAssetRef.current.downloadAsync();
-        console.log('✅ Splash video asset preloaded');
-      } catch (e) {
-        console.log('⚠️ Splash video preload failed:', e);
-      }
-    })();
-  }, []);
+    if (removeAds && !prevRemoveAds.current) {
+      // Ads were just removed
+      Alert.alert(
+        'Thank You!',
+        'Ads have been successfully removed. Enjoy your ad-free experience!',
+        [{ text: 'OK' }]
+      );
+    }
+    prevRemoveAds.current = removeAds;
+  }, [removeAds]);
 
-
-
-  // Fallback timeout: allow full 12s video; only hide if something is wrong (15s fallback)
-  useEffect(() => {
-    if (!showSplashVideo) return;
-    const t = setTimeout(() => {
-      if (!splashVideoFinished.current) {
-        console.log('⏱️ Splash video timeout - forcing hide');
-        Animated.timing(splashOpacity, {
-          toValue: 0,
-          duration: 450,
-          useNativeDriver: true,
-        }).start(() => setShowSplashVideo(false));
-      }
-    }, 15000);
-    return () => clearTimeout(t);
-  }, [showSplashVideo, splashOpacity]);
   // Main navigation state
   const [currentScreen, setCurrentScreen] = useState('home'); // 'home', 'map', or 'ranking'
-  const mapRef = useRef(null);
-  const [mapRenderKey, setMapRenderKey] = useState(0);
-  const lastMapActivityRef = useRef(Date.now());
-  const watchdogIntervalRef = useRef(null);
-  const resumeCheckTimeoutRef = useRef(null);
-  const reviewsSubRef = useRef(null);
-  const restroomsSubRef = useRef(null);
-
+  
   // Location and map state
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -112,27 +86,22 @@ export default function App() {
   // Restroom data
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
-
+  
   // UI State
   const [showMenu, setShowMenu] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
-  const [ratingModalTab, setRatingModalTab] = useState('form');
-
   const [showFilters, setShowFilters] = useState(false);
   const [addMode, setAddMode] = useState(false);
   const [addLocation, setAddLocation] = useState(null);
-
-  const [showAdminCodeModal, setShowAdminCodeModal] = useState(false);
-  const [adminCodeInput, setAdminCodeInput] = useState('');
-
+  
   // Filters
   const [filters, setFilters] = useState({
     wheelchair_accessible: false,
     baby_changing: false,
     gender_neutral: false
   });
-
+  
   // Add restroom form
   const [newRestroom, setNewRestroom] = useState({
     name: '',
@@ -141,7 +110,7 @@ export default function App() {
     baby_changing: false,
     gender_neutral: false
   });
-
+  
   // Rating form
   const [newRating, setNewRating] = useState({
     rating: 5,
@@ -151,185 +120,20 @@ export default function App() {
     gender: 'unisex',
     availability_status: 'available' // 'available', 'busy', 'closed'
   });
-
+  
   // Review photos (up to 3)
-  // Reviews and photos data
-  const [restroomReviews, setRestroomReviews] = useState([]);
-  const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [photoViewer, setPhotoViewer] = useState({ visible: false, url: null });
-
   const [reviewPhotos, setReviewPhotos] = useState([]);
-
+  
   const [stats, setStats] = useState({
     totalRestrooms: 0,
     averageRating: '0.0',
     accessibleCount: 0
   });
   const [adsInitialized, setAdsInitialized] = useState(false);
-  const { ready, removeAds, buyRemoveAds, restorePurchases, purchasing, restoring, grantLocalEntitlement } = useRemoveAds();
   // Interstitial ad state
   const interstitialRef = useRef(null);
   const [interstitialLoaded, setInterstitialLoaded] = useState(false);
   const lastInterstitialTimeRef = useRef(0);
-  const interstitialHistoryRef = useRef([]);
-  // Policy‑friendly ad frequency: no forced double on launch, user-first shows,
-  // and a conservative cadence (1 per 120s max) with UI gating.
-  const INTERSTITIAL_WINDOW_MS = 30 * 1000; // 30s cadence window
-  const INTERSTITIAL_MAX_PER_WINDOW = 1; // one per window
-  const STARTUP_SECOND_AD_MIN_GAP_MS = 5 * 1000; // retained but unused in compliant mode
-  const initialInterstitialCountRef = useRef(0);
-  const waitingForSecondInitialInterstitialRef = useRef(false);
-  const pendingAdRef = useRef(false); // when UI is busy, remember to show when free
-  const launchTimeRef = useRef(Date.now());
-
-  const recordAdImpression = useCallback(() => {
-    const now = Date.now();
-    interstitialHistoryRef.current = interstitialHistoryRef.current.filter(
-      (timestamp) => now - timestamp < INTERSTITIAL_WINDOW_MS
-    );
-    interstitialHistoryRef.current.push(now);
-  }, []);
-
-  const canShowAnotherAd = useCallback(() => {
-    const now = Date.now();
-    interstitialHistoryRef.current = interstitialHistoryRef.current.filter(
-      (timestamp) => now - timestamp < INTERSTITIAL_WINDOW_MS
-    );
-    return interstitialHistoryRef.current.length < INTERSTITIAL_MAX_PER_WINDOW;
-  }, []);
-
-  // App open ad management
-  const appOpenUnitIdIos = Constants?.expoConfig?.extra?.admob?.appOpenUnitIdIos;
-  const APP_OPEN_AD_UNIT_ID = Platform.select({
-    ios: __DEV__ ? TestIds.APP_OPEN : (appOpenUnitIdIos || 'ca-app-pub-8579480495006676/9033300373'),
-    android: TestIds.APP_OPEN,
-    default: TestIds.APP_OPEN,
-  });
-  const APP_OPEN_AD_MAX_AGE_MS = 4 * 60 * 60 * 1000;
-  const appOpenAdRef = useRef(null);
-  const appOpenAdLoadTimeRef = useRef(null);
-  const appOpenAdIsShowingRef = useRef(false);
-  const appOpenAdRetryTimeoutRef = useRef(null);
-  const appOpenLastShownRef = useRef(0);
-  const appOpenAllowedRef = useRef(true);
-  const showAppOpenAdIfAvailableRef = useRef(() => {});
-  const initialAdSequencePendingRef = useRef(true);
-  const waitingForInterstitialRef = useRef(false);
-  const maybeShowInterstitialRef = useRef(() => false);
-  // Track when the last fullscreen ad (interstitial or app-open) fully closed to enforce usable gap
-  const lastAdClosedAtRef = useRef(0);
-
-  const loadInterstitialForInitialSequence = useCallback(() => {
-    if (!interstitialRef.current) {
-      return;
-    }
-    try {
-      interstitialRef.current.load();
-    } catch (error) {
-      console.warn('Failed to load interstitial for initial sequence', error?.message ?? error);
-    }
-  }, []);
-
-  const loadAppOpenAd = useCallback(() => {
-    if (!appOpenAllowedRef.current || !initialAdSequencePendingRef.current) {
-      return;
-    }
-    if (!APP_OPEN_AD_UNIT_ID || appOpenAdRef.current) {
-      return;
-    }
-    if (appOpenAdRetryTimeoutRef.current) {
-      clearTimeout(appOpenAdRetryTimeoutRef.current);
-      appOpenAdRetryTimeoutRef.current = null;
-    }
-
-    const ad = AppOpenAd.createForAdRequest(APP_OPEN_AD_UNIT_ID, {
-      requestNonPersonalizedAdsOnly: false,
-    });
-
-    ad.addAdEventListener(AdEventType.LOADED, () => {
-      appOpenAdLoadTimeRef.current = Date.now();
-      showAppOpenAdIfAvailableRef.current();
-    });
-
-    ad.addAdEventListener(AdEventType.OPENED, () => {
-      appOpenAdIsShowingRef.current = true;
-    });
-
-    ad.addAdEventListener(AdEventType.CLOSED, () => {
-      appOpenAdIsShowingRef.current = false;
-      appOpenAdRef.current = null;
-      appOpenAdLoadTimeRef.current = null;
-      // Start 30s usability timer only after ad fully closes
-      lastAdClosedAtRef.current = Date.now();
-      appOpenLastShownRef.current = lastAdClosedAtRef.current;
-      appOpenAllowedRef.current = false;
-      // Do NOT chain an interstitial immediately; next scheduled interval will handle it
-    });
-
-    ad.addAdEventListener(AdEventType.ERROR, () => {
-      appOpenAdIsShowingRef.current = false;
-      appOpenAdRef.current = null;
-      appOpenAdLoadTimeRef.current = null;
-      if (appOpenAllowedRef.current) {
-        appOpenAdRetryTimeoutRef.current = setTimeout(() => loadAppOpenAd(), 30000);
-      }
-      if (initialAdSequencePendingRef.current) {
-        initialAdSequencePendingRef.current = false;
-        waitingForInterstitialRef.current = false;
-        setCurrentScreen('map');
-      }
-    });
-
-    ad.load();
-    appOpenAdRef.current = ad;
-  }, [APP_OPEN_AD_UNIT_ID, loadInterstitialForInitialSequence]);
-
-  const showAppOpenAdIfAvailable = useCallback(() => {
-    if (Platform.OS !== 'ios') {
-      return;
-    }
-
-    const ad = appOpenAdRef.current;
-    if (!ad) {
-      loadAppOpenAd();
-      return;
-    }
-
-    if (!appOpenAllowedRef.current) {
-      return;
-    }
-
-    if (!canShowAnotherAd()) {
-      appOpenAllowedRef.current = false;
-      return;
-    }
-
-    if (appOpenAdIsShowingRef.current) {
-      return;
-    }
-
-    const loadedAt = appOpenAdLoadTimeRef.current;
-    if (!loadedAt || Date.now() - loadedAt > APP_OPEN_AD_MAX_AGE_MS) {
-      appOpenAdRef.current = null;
-      appOpenAdLoadTimeRef.current = null;
-      loadAppOpenAd();
-      return;
-    }
-
-    try {
-      ad.show();
-    } catch (error) {
-      console.warn('App open ad show failed', error?.message ?? error);
-      appOpenAdIsShowingRef.current = false;
-      appOpenAdRef.current = null;
-      appOpenAdLoadTimeRef.current = null;
-      loadAppOpenAd();
-    }
-  }, [loadAppOpenAd, canShowAnotherAd, recordAdImpression]);
-
-  useEffect(() => {
-    showAppOpenAdIfAvailableRef.current = showAppOpenAdIfAvailable;
-  }, [showAppOpenAdIfAvailable]);
 
   // Load location and fetch nearby restrooms
   useEffect(() => {
@@ -360,87 +164,11 @@ export default function App() {
 
   // Initialize ads SDK once
   useEffect(() => {
-    if (removeAds) return; // Skip ads init if user purchased removal
-    let initializationTimeout;
     mobileAds()
       .initialize()
-      .then(() => {
-        if (removeAds) return; // double-check after async
-        setAdsInitialized(true);
-        loadAppOpenAd();
-        initializationTimeout = setTimeout(() => {
-          showAppOpenAdIfAvailable();
-          if (Platform.OS !== 'ios') {
-            waitingForInterstitialRef.current = true;
-            if (maybeShowInterstitialRef.current) {
-              const shown = maybeShowInterstitialRef.current({ force: true });
-              if (shown) {
-                waitingForInterstitialRef.current = false;
-              }
-            }
-          }
-        }, 1500);
-      })
+      .then(() => setAdsInitialized(true))
       .catch(err => console.warn('Ads initialization failed', err));
-    return () => {
-      if (initializationTimeout) clearTimeout(initializationTimeout);
-    };
-  }, [loadAppOpenAd, showAppOpenAdIfAvailable, removeAds]);
-
-  useEffect(() => {
-    if (Platform.OS !== 'ios') {
-      return undefined;
-    }
-
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState === 'active') {
-        // Re-mount the MapView to avoid blank map issues after returning from ads/external apps
-        setMapRenderKey((k) => k + 1);
-        // Give React a tick to mount before attempting any map interaction
-        setTimeout(() => {
-          try {
-            if (mapRef.current && region) {
-              // Nudge the map to re-render its tiles
-              mapRef.current.animateToRegion(region, 0);
-            }
-          } catch (e) {
-            console.warn('Map animateToRegion after resume failed', e?.message ?? e);
-          }
-        }, 50);
-        // One-shot fallback: if map not ready or no activity within short window, force another remount
-        if (resumeCheckTimeoutRef.current) {
-          clearTimeout(resumeCheckTimeoutRef.current);
-        }
-        resumeCheckTimeoutRef.current = setTimeout(() => {
-          const sinceActivity = Date.now() - lastMapActivityRef.current;
-          if (currentScreen === 'map' && (!mapReady || sinceActivity > 15000)) {
-            console.warn('Watchdog: forcing secondary map remount after resume');
-            setMapRenderKey((k) => k + 1);
-            try {
-              if (mapRef.current && region) {
-                mapRef.current.animateToRegion(region, 0);
-              }
-            } catch (e) {
-              console.warn('Map animateToRegion in resume watchdog failed', e?.message ?? e);
-            }
-          }
-        }, 3000);
-        showAppOpenAdIfAvailable();
-      }
-    });
-
-    return () => {
-      subscription.remove();
-      if (appOpenAdRetryTimeoutRef.current) {
-        clearTimeout(appOpenAdRetryTimeoutRef.current);
-        appOpenAdRetryTimeoutRef.current = null;
-      }
-      if (resumeCheckTimeoutRef.current) {
-        clearTimeout(resumeCheckTimeoutRef.current);
-        resumeCheckTimeoutRef.current = null;
-      }
-    };
-  }, [showAppOpenAdIfAvailable]);
+  }, []);
 
   // Prefer real AdMob unit IDs from app config (extra.admob.bannerUnitIdIos / interstitialUnitIdIos) with test fallback
   const realBannerIdIos = Constants?.expoConfig?.extra?.admob?.bannerUnitIdIos;
@@ -462,124 +190,41 @@ export default function App() {
       requestNonPersonalizedAdsOnly: false,
     });
     interstitialRef.current = ad;
-    const onLoaded = ad.addAdEventListener(AdEventType.LOADED, handleInterstitialLoaded);
+    const onLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setInterstitialLoaded(true));
     const onClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
-      handleInterstitialClosed();
+      setInterstitialLoaded(false);
+      // Preload next ad
       ad.load();
     });
-    const onError = ad.addAdEventListener(AdEventType.ERROR, handleInterstitialError);
+    const onError = ad.addAdEventListener(AdEventType.ERROR, () => setInterstitialLoaded(false));
     ad.load();
     return () => {
       onLoaded();
       onClosed();
       onError();
     };
-  }, [handleInterstitialClosed, handleInterstitialError, handleInterstitialLoaded, interstitialUnitId]);
+  }, [interstitialUnitId]);
 
-  const isUiBlockingAd = useCallback(() => {
-    // UI gating disabled: allow interstitials to interrupt any screen
-    return false;
-  }, []);
-
-  const maybeShowInterstitial = useCallback(
-    ({ force = false } = {}) => {
-      try {
-        const now = Date.now();
-        // Enforce at least 30s since last fullscreen ad closed
-        const gapOk = now - (lastAdClosedAtRef.current || 0) >= INTERSTITIAL_WINDOW_MS;
-        if (!force && !gapOk) {
-          return false;
-        }
-        if (force && !gapOk) {
-          return false;
-        }
-        if (interstitialLoaded && interstitialRef.current) {
-          interstitialRef.current.show();
-          recordAdImpression();
-          if (initialAdSequencePendingRef.current) {
-            initialInterstitialCountRef.current += 1;
-          }
-          return true;
-        }
-      } catch (e) {
-        console.warn('Interstitial show failed', e?.message);
+  const maybeShowInterstitial = () => {
+    try {
+      const now = Date.now();
+      // Cooldown to avoid spamming: 90 seconds
+      if (interstitialLoaded && interstitialRef.current && (now - lastInterstitialTimeRef.current > 90 * 1000)) {
+        interstitialRef.current.show();
+        lastInterstitialTimeRef.current = now;
       }
-      return false;
-    },
-    [interstitialLoaded, recordAdImpression]
-  );
-
-  const handleInterstitialClosed = useCallback(() => {
-    setInterstitialLoaded(false);
-    interstitialHistoryRef.current = interstitialHistoryRef.current.filter(
-      (timestamp) => Date.now() - timestamp < INTERSTITIAL_WINDOW_MS
-    );
-    // Mark usable period start
-    lastAdClosedAtRef.current = Date.now();
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      waitingForInterstitialRef.current = false;
-      initialAdSequencePendingRef.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    maybeShowInterstitialRef.current = maybeShowInterstitial;
-  }, [maybeShowInterstitial]);
-
-  const handleInterstitialLoaded = useCallback(() => {
-    setInterstitialLoaded(true);
-    if (waitingForInterstitialRef.current) {
-      const shown = maybeShowInterstitialRef.current({ force: true });
-      if (shown) {
-        waitingForInterstitialRef.current = false;
-      }
+    } catch (e) {
+      console.warn('Interstitial show failed', e?.message);
     }
-    // No second startup ad in compliant mode
-  }, []);
-
-  const handleInterstitialError = useCallback(() => {
-    setInterstitialLoaded(false);
-    if (waitingForInterstitialRef.current) {
-      waitingForInterstitialRef.current = false;
-      initialAdSequencePendingRef.current = false;
-      if (currentScreen !== 'map') {
-        setCurrentScreen('map');
-      }
-    }
-  }, [currentScreen]);
-
-  useEffect(() => {
-    // Compliant mode: no initial forced interstitial sequence
-    initialAdSequencePendingRef.current = false;
-    waitingForInterstitialRef.current = false;
-  }, []);
-
-  // Periodic attempt exactly every 30s; respects usable gap and disable when ads removed
-  useEffect(() => {
-    if (removeAds) return;
-    const interval = setInterval(() => {
-      if (!removeAds) {
-        maybeShowInterstitialRef.current({ force: false });
-      }
-    }, INTERSTITIAL_WINDOW_MS);
-    return () => clearInterval(interval);
-  }, [removeAds]);
-
-  const maybeShowInterstitialPublic = useCallback(
-    (options = {}) => maybeShowInterstitialRef.current(options),
-    []
-  );
+  };
 
   // Fetch nearby restrooms from Supabase
   const fetchNearbyRestrooms = async (lat, lon, radius = 5000) => {
     setLoading(true);
     try {
-      console.log(`Fetching ALL restrooms globally (distance computed from ${lat}, ${lon})`);
-      const data = await restroomService.getAllRestrooms(lat, lon);
-      console.log(`Loaded ${data.length} restrooms globally`);
+      console.log(`Fetching restrooms near (${lat}, ${lon})`);
+      const data = await restroomService.getNearby(lat, lon, radius);
+      console.log(`Found ${data.length} restrooms`);
 
       // If no restrooms found, load seeded data
       if (data.length === 0) {
@@ -588,46 +233,16 @@ export default function App() {
         return;
       }
 
-      // Attach formatted aggregates for UI convenience
-      const withAggregates = data.map(r => ({
-        ...r,
-        avg_rating: typeof r.avg_rating === 'number' ? r.avg_rating : (r.rating || 0),
-        review_count: typeof r.review_count === 'number' ? r.review_count : (r.reviews?.length || 0),
-      }));
-      setRestrooms(withAggregates);
-      // Refresh realtime subscription for these restroom IDs
-      try {
-        const ids = withAggregates.map(r => r.id).filter(Boolean);
-        if (reviewsSubRef.current && reviewsSubRef.current.unsubscribe) {
-          reviewsSubRef.current.unsubscribe();
-          reviewsSubRef.current = null;
-        }
-        if (ids.length > 0 && restroomService.subscribeToReviews) {
-          reviewsSubRef.current = restroomService.subscribeToReviews(ids, (newReview) => {
-            const restId = newReview.restroom_id;
-            const rating = Number(newReview.rating) || 0;
-            setRestrooms(prev => prev.map(r => {
-              if (r.id !== restId) return r;
-              const prevCount = r.review_count || 0;
-              const prevAvg = r.avg_rating || 0;
-              const nextCount = prevCount + 1;
-              const nextAvg = nextCount > 0 ? ((prevAvg * prevCount) + rating) / nextCount : rating;
-              return { ...r, review_count: nextCount, avg_rating: nextAvg };
-            }));
-          });
-        }
-      } catch (e) {
-        console.warn('Realtime reviews subscription setup failed', e?.message || e);
-      }
+      setRestrooms(data);
       setErrorMsg(null);
 
       // Update stats
       setStats({
         totalRestrooms: data.length,
-        averageRating: withAggregates.length > 0
-          ? (withAggregates.reduce((sum, r) => sum + (r.avg_rating || 0), 0) / withAggregates.length).toFixed(1)
+        averageRating: data.length > 0
+          ? (data.reduce((sum, r) => sum + (r.avg_rating || r.rating || 0), 0) / data.length).toFixed(1)
           : '0.0',
-        accessibleCount: withAggregates.filter(r => r.wheelchair_accessible).length
+        accessibleCount: data.filter(r => r.wheelchair_accessible).length
       });
     } catch (error) {
       console.error('Error fetching restrooms:', error);
@@ -638,72 +253,6 @@ export default function App() {
       setLoading(false);
     }
   };
-
-  // Cleanup subscription on unmount
-  useEffect(() => {
-    return () => {
-      try {
-        if (reviewsSubRef.current && reviewsSubRef.current.unsubscribe) {
-          reviewsSubRef.current.unsubscribe();
-          reviewsSubRef.current = null;
-        }
-      } catch {}
-    };
-  }, []);
-
-  // Subscribe to global restroom inserts so new restrooms appear immediately
-  useEffect(() => {
-    if (!restroomService.subscribeToRestrooms) return;
-    try {
-      if (restroomsSubRef.current && restroomsSubRef.current.unsubscribe) {
-        restroomsSubRef.current.unsubscribe();
-        restroomsSubRef.current = null;
-      }
-      restroomsSubRef.current = restroomService.subscribeToRestrooms((newRestroom) => {
-        try {
-          const lat = newRestroom.lat ?? newRestroom.latitude;
-          const lon = newRestroom.lon ?? newRestroom.lng ?? newRestroom.longitude;
-          let distance = 0;
-          if (location?.coords && lat != null && lon != null) {
-            distance = restroomService.calculateDistance(
-              location.coords.latitude,
-              location.coords.longitude,
-              lat,
-              lon
-            );
-          }
-
-          setRestrooms((prev) => {
-            if (prev.some((r) => r.id === newRestroom.id)) return prev;
-            return [
-              {
-                ...newRestroom,
-                latitude: lat,
-                longitude: lon,
-                distance,
-                review_count: 0,
-                avg_rating: 0
-              },
-              ...prev
-            ];
-          });
-        } catch (e) {
-          console.warn('[Realtime] Failed to merge restroom', e?.message || e);
-        }
-      });
-    } catch (e) {
-      console.warn('[Realtime] Restrooms subscribe failed', e?.message || e);
-    }
-    return () => {
-      try {
-        if (restroomsSubRef.current && restroomsSubRef.current.unsubscribe) {
-          restroomsSubRef.current.unsubscribe();
-          restroomsSubRef.current = null;
-        }
-      } catch {}
-    };
-  }, [location]);
-
 
   // Load initial seeded data for map initialization
   const loadInitialSeededData = async () => {
@@ -811,42 +360,7 @@ export default function App() {
   const handleMapReady = () => {
     console.log('Map is ready');
     setMapReady(true);
-    lastMapActivityRef.current = Date.now();
   };
-  const handleRegionChangeComplete = () => {
-    lastMapActivityRef.current = Date.now();
-  };
-
-  // Map watchdog: periodically verify activity; if stale for >60s while on map screen, remount.
-  useEffect(() => {
-    if (watchdogIntervalRef.current) {
-      clearInterval(watchdogIntervalRef.current);
-    }
-    watchdogIntervalRef.current = setInterval(() => {
-      if (currentScreen !== 'map') return;
-      const sinceActivity = Date.now() - lastMapActivityRef.current;
-      if (sinceActivity > 60000) { // 60s without region change or ready event
-        console.warn('Watchdog: map appears stale (>60s inactivity); remounting MapView');
-        setMapReady(false);
-        setMapRenderKey((k) => k + 1);
-        setTimeout(() => {
-          try {
-            if (mapRef.current && region) {
-              mapRef.current.animateToRegion(region, 0);
-            }
-          } catch (e) {
-            console.warn('Map animateToRegion after stale remount failed', e?.message ?? e);
-          }
-        }, 75);
-      }
-    }, 10000); // check every 10s
-    return () => {
-      if (watchdogIntervalRef.current) {
-        clearInterval(watchdogIntervalRef.current);
-        watchdogIntervalRef.current = null;
-      }
-    };
-  }, [currentScreen, region]);
 
   // Handle map errors
   const handleMapError = (error) => {
@@ -866,7 +380,7 @@ export default function App() {
   // Handle POI (Point of Interest) clicks - Google Places
   const handlePoiClick = (event) => {
     const { coordinate, placeId, name } = event.nativeEvent;
-
+    
     // Create a temporary restroom object for the Google Place
     const googlePlaceRestroom = {
       id: placeId || `google-place-${Date.now()}`,
@@ -883,19 +397,19 @@ export default function App() {
       baby_changing: false,
       gender_neutral: false
     };
-
+    
     // Show rating modal for this Google Place
     setSelectedRestroom(googlePlaceRestroom);
     setShowRatingModal(true);
   };
-
+  
   // Add new restroom
   const handleAddRestroom = async () => {
     if (!addLocation || !newRestroom.name.trim()) {
       Alert.alert('Error', 'Please provide a name and location for the restroom');
       return;
     }
-
+    
     try {
       setLoading(true);
       await restroomService.create({
@@ -903,7 +417,7 @@ export default function App() {
         lat: addLocation.latitude,
         lon: addLocation.longitude
       });
-
+      
       // Reset form
       setNewRestroom({
         name: '',
@@ -915,12 +429,12 @@ export default function App() {
       setShowAddForm(false);
       setAddMode(false);
       setAddLocation(null);
-
+      
       // Refresh restrooms
       if (location) {
         await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
       }
-
+      
       Alert.alert('Success', 'Restroom added successfully!');
     } catch (error) {
       console.error('Error adding restroom:', error);
@@ -929,27 +443,27 @@ export default function App() {
       setLoading(false);
     }
   };
-
+  
   // Helper function to submit review without photos
   const submitReviewWithoutPhotos = async () => {
     if (!selectedRestroom) return;
-
+    
     try {
       setLoading(true);
-
+      
       // If this is a Google Place that doesn't exist in our database yet, create it first
       if (selectedRestroom.isGooglePlace) {
         console.log('Rating Google Place:', selectedRestroom.name);
-
+        
         // Check if restroom already exists by location (within ~10 meters)
-        const existing = restrooms.find(r =>
-          Math.abs(r.lat - selectedRestroom.lat) < 0.0001 &&
+        const existing = restrooms.find(r => 
+          Math.abs(r.lat - selectedRestroom.lat) < 0.0001 && 
           Math.abs(r.lon - selectedRestroom.lon) < 0.0001
         );
-
+        
         if (!existing) {
           console.log('Creating new restroom entry for:', selectedRestroom.name);
-
+          
           try {
             // Create new restroom from Google Place
             const newRestroomData = await restroomService.create({
@@ -961,7 +475,7 @@ export default function App() {
               baby_changing: false,
               gender_neutral: false
             });
-
+            
             // Use the newly created restroom ID for the review
             selectedRestroom.id = newRestroomData.id;
             console.log('Successfully created restroom with ID:', newRestroomData.id);
@@ -975,7 +489,7 @@ export default function App() {
           selectedRestroom.id = existing.id;
         }
       }
-
+      
       // Prepare review data without photos
       const reviewData = {
         restroom_id: selectedRestroom.id,
@@ -988,24 +502,10 @@ export default function App() {
         gender: newRating.gender,
         availability_status: newRating.availability_status
       };
-
+      
       // Add the review
-      const inserted = await restroomService.addReview(reviewData);
-      // Optimistically update local aggregates for the specific restroom without full refetch (will still refetch below)
-      if (inserted && inserted.restroom_id) {
-        setRestrooms(prev => prev.map(r => {
-          if (r.id !== inserted.restroom_id) return r;
-          const newCount = (r.review_count || (r.reviews?.length || 0)) + 1;
-          const newAvg = ((r.avg_rating || 0) * (newCount - 1) + (inserted.rating || 0)) / newCount;
-          return {
-            ...r,
-            review_count: newCount,
-            avg_rating: newAvg,
-            reviews: r.reviews ? [...r.reviews, inserted] : [inserted]
-          };
-        }));
-      }
-
+      await restroomService.addReview(reviewData);
+      
       // Reset rating form and photos
       setNewRating({
         rating: 5,
@@ -1018,15 +518,15 @@ export default function App() {
       setReviewPhotos([]);
       setShowRatingModal(false);
       setSelectedRestroom(null);
-
+      
       // Refresh restrooms
       if (location) {
         await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
       }
-
+      
       Alert.alert('Success', 'Review added successfully!');
   // Attempt to show an interstitial after adding a review (gentle frequency control handled in maybeShowInterstitial)
-  maybeShowInterstitialPublic();
+  maybeShowInterstitial();
     } catch (error) {
       console.error('Error adding review:', error);
       Alert.alert('Error', `Failed to add review: ${error.message || 'Unknown error'}`);
@@ -1034,66 +534,27 @@ export default function App() {
       setLoading(false);
     }
   };
-  // Load reviews for a restroom (latest first)
-  async function loadRestroomReviews(restroomId) {
-    try {
-      setReviewsLoading(true);
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('id, restroom_id, rating, cleanliness_rating, stocked_rating, review_text, comment, photos, gender, availability_status, created_at')
-        .eq('restroom_id', restroomId)
-        .order('created_at', { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      setRestroomReviews(data || []);
-    } catch (e) {
-      console.warn('Failed to load restroom reviews', e?.message || e);
-      setRestroomReviews([]);
-    } finally {
-      setReviewsLoading(false);
-    }
-  }
-
-  // Flatten all photos across reviews for the Photos tab
-  const restroomPhotos = useMemo(() => {
-    const out = [];
-    (restroomReviews || []).forEach((r) => {
-      (r.photos || []).forEach((url, idx) => {
-        out.push({ url, key: `${r.id}-${idx}` });
-      });
-    });
-    return out;
-  }, [restroomReviews]);
-
-
-  // When opening the rating modal, reset to the form and preload reviews/photos
-  useEffect(() => {
-    if (showRatingModal && selectedRestroom?.id) {
-      setRatingModalTab('form');
-      loadRestroomReviews(selectedRestroom.id);
-    }
-  }, [showRatingModal, selectedRestroom?.id]);
-
+  
   // Add rating
   const handleAddRating = async () => {
     if (!selectedRestroom) return;
-
+    
     try {
       setLoading(true);
-
+      
       // If this is a Google Place that doesn't exist in our database yet, create it first
       if (selectedRestroom.isGooglePlace) {
         console.log('Rating Google Place:', selectedRestroom.name);
-
+        
         // Check if restroom already exists by location (within ~10 meters)
-        const existing = restrooms.find(r =>
-          Math.abs(r.lat - selectedRestroom.lat) < 0.0001 &&
+        const existing = restrooms.find(r => 
+          Math.abs(r.lat - selectedRestroom.lat) < 0.0001 && 
           Math.abs(r.lon - selectedRestroom.lon) < 0.0001
         );
-
+        
         if (!existing) {
           console.log('Creating new restroom entry for:', selectedRestroom.name);
-
+          
           try {
             // Create new restroom from Google Place
             const newRestroomData = await restroomService.create({
@@ -1105,7 +566,7 @@ export default function App() {
               baby_changing: false,
               gender_neutral: false
             });
-
+            
             // Use the newly created restroom ID for the review
             selectedRestroom.id = newRestroomData.id;
             console.log('Successfully created restroom with ID:', newRestroomData.id);
@@ -1119,17 +580,17 @@ export default function App() {
           selectedRestroom.id = existing.id;
         }
       }
-
+      
       // Upload photos to Supabase Storage first (if any)
       let photoUrls = [];
       if (reviewPhotos.length > 0) {
         const photoUris = reviewPhotos.map(photo => photo.uri);
-
+        
         // Generate a unique identifier for file naming (using restroom ID + timestamp)
         const fileIdentifier = `${selectedRestroom.id}-${Date.now()}`;
-
+        
         const uploadResult = await photoService.uploadReviewPhotos(photoUris, fileIdentifier);
-
+        
         if (uploadResult.errors && uploadResult.errors.length > 0) {
           console.warn('Some photos failed to upload:', uploadResult.errors);
           // Continue with successful uploads, but warn user
@@ -1148,10 +609,10 @@ export default function App() {
             return;
           }
         }
-
+        
         photoUrls = uploadResult.urls;
       }
-
+      
       // Prepare review data with photo URLs
       const reviewData = {
         restroom_id: selectedRestroom.id,
@@ -1164,10 +625,10 @@ export default function App() {
         gender: newRating.gender,
         availability_status: newRating.availability_status
       };
-
+      
       // Add the review
       await restroomService.addReview(reviewData);
-
+      
       // Reset rating form and photos
       setNewRating({
         rating: 5,
@@ -1179,24 +640,22 @@ export default function App() {
       });
       setReviewPhotos([]);
       setShowRatingModal(false);
-
-      // Clear selection after submitting
       setSelectedRestroom(null);
-
-      // Refresh global restrooms list
+      
+      // Refresh restrooms
       if (location) {
         await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
       }
-
+      
       Alert.alert('Success', 'Rating added successfully!');
-      // Attempt to show an interstitial after adding a rating
-      maybeShowInterstitialPublic();
+  // Attempt to show an interstitial after adding a rating
+  maybeShowInterstitial();
     } catch (error) {
       console.error('Error adding rating:', error);
       console.error('Error details:', error.message);
       console.error('Selected restroom:', selectedRestroom);
       Alert.alert(
-        'Error',
+        'Error', 
         `Failed to add rating: ${error.message || 'Unknown error'}\n\nPlease check the console for details.`
       );
     } finally {
@@ -1204,7 +663,11 @@ export default function App() {
     }
   };
 
-
+  // Render toilet rating (1-5 toilets)
+  const renderToiletRating = (rating) => {
+    const toiletCount = Math.min(Math.max(Math.round(rating || 0), 0), 5);
+    return '🚽'.repeat(toiletCount);
+  };
 
   // Calculate average rating from reviews
   const getAverageRating = (restroom) => {
@@ -1213,12 +676,12 @@ export default function App() {
     }
     return restroom.avg_rating || 3;
   };
-
+  
   // Request camera and media library permissions
   const requestImagePermissions = async () => {
     const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
     const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
+    
     if (cameraStatus !== 'granted' || mediaStatus !== 'granted') {
       Alert.alert(
         'Permissions Required',
@@ -1228,19 +691,19 @@ export default function App() {
     }
     return true;
   };
-
+  
   // Pick image from camera or library
   const pickImage = async (source) => {
     if (reviewPhotos.length >= 3) {
       Alert.alert('Maximum Photos', 'You can only add up to 3 photos per review.');
       return;
     }
-
+    
     const hasPermission = await requestImagePermissions();
     if (!hasPermission) return;
-
+    
     let result;
-
+    
     if (source === 'camera') {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -1257,19 +720,19 @@ export default function App() {
         allowsMultipleSelection: false,
       });
     }
-
+    
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const newPhotos = [...reviewPhotos, ...result.assets];
       // Limit to 3 photos
       setReviewPhotos(newPhotos.slice(0, 3));
     }
   };
-
+  
   // Remove photo from review
   const removePhoto = (index) => {
     setReviewPhotos(reviewPhotos.filter((_, i) => i !== index));
   };
-
+  
   // Filter restrooms based on current filters
   const filteredRestrooms = restrooms.filter(restroom => {
     if (filters.wheelchair_accessible && !restroom.wheelchair_accessible) return false;
@@ -1277,7 +740,7 @@ export default function App() {
     if (filters.gender_neutral && !restroom.gender_neutral) return false;
     return true;
   });
-
+  
   // Star rating component
   const StarRating = ({ rating, onRatingChange, size = 24 }) => {
     return (
@@ -1288,28 +751,18 @@ export default function App() {
             onPress={() => onRatingChange && onRatingChange(star)}
             disabled={!onRatingChange}
           >
-            <Text style={[styles.star, { fontSize: size, opacity: star <= rating ? 1 : 0.35 }]}>
-              {'🚽'}
+            <Text style={[styles.star, { fontSize: size }]}>
+              {star <= rating ? '🚽' : '🚾'}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
     );
   };
-
-
+  
+  
   // HomePage Component (Landing Page)
   const HomePage = () => {
-    const [videoReady, setVideoReady] = useState(false);
-    const heroSource = useRef(Asset.fromModule(require('./assets/hero-video.mp4')));
-    // Preload hero video file so we don't show blank background
-    useEffect(() => {
-      (async () => {
-        try { await heroSource.current.downloadAsync(); } catch {}
-        setVideoReady(true);
-      })();
-    }, []);
-
     const player = useVideoPlayer(require('./assets/hero-video.mp4'), player => {
       player.loop = true;
       player.muted = true;
@@ -1319,7 +772,7 @@ export default function App() {
     return (
       <ScrollView style={styles.homeContainer} showsVerticalScrollIndicator={false}>
         <StatusBar style="light" />
-
+        
         {/* Hero Section */}
         <View style={styles.heroSection}>
           <VideoView
@@ -1329,14 +782,14 @@ export default function App() {
             nativeControls={false}
           />
           {/* Simple Map Button - Top Left */}
-          <TouchableOpacity
+          <TouchableOpacity 
             style={styles.simpleMapButton}
             onPress={() => setCurrentScreen('map')}
           >
             <Text style={styles.mapButtonText}>🗺️ Map</Text>
           </TouchableOpacity>
         </View>
-
+        
         {/* Guide to Relief Section */}
         <View style={styles.guideSection}>
           <View style={styles.guideContent}>
@@ -1345,8 +798,8 @@ export default function App() {
             <Text style={styles.guideDescription}>
               Never get caught without a clean restroom again! Find and rate public restrooms wherever you are.
             </Text>
-
-            <TouchableOpacity
+            
+            <TouchableOpacity 
               style={styles.guideCtaButton}
               onPress={() => setCurrentScreen('map')}
             >
@@ -1354,11 +807,11 @@ export default function App() {
             </TouchableOpacity>
           </View>
         </View>
-
+        
         {/* Features Section */}
         <View style={styles.featuresSection}>
           <Text style={styles.sectionTitle}>Why Choose Püper?</Text>
-
+          
           <View style={styles.featuresGrid}>
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🗺️</Text>
@@ -1367,7 +820,7 @@ export default function App() {
                 Find restrooms near you with our interactive map powered by community data.
               </Text>
             </View>
-
+            
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🚽</Text>
               <Text style={styles.featureTitle}>5-Toilet Rating System</Text>
@@ -1375,7 +828,7 @@ export default function App() {
                 Rate restrooms with our unique toilet-based system instead of boring stars.
               </Text>
             </View>
-
+            
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>♿</Text>
               <Text style={styles.featureTitle}>Accessibility Info</Text>
@@ -1383,7 +836,7 @@ export default function App() {
                 Filter by wheelchair access, baby changing stations, and gender-neutral options.
               </Text>
             </View>
-
+            
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🏆</Text>
               <Text style={styles.featureTitle}>Community Reviews</Text>
@@ -1391,7 +844,7 @@ export default function App() {
                 Read honest reviews about cleanliness, accessibility, and amenities.
               </Text>
             </View>
-
+            
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>📱</Text>
               <Text style={styles.featureTitle}>Mobile First</Text>
@@ -1399,7 +852,7 @@ export default function App() {
                 Designed specifically for mobile users with smooth, native performance.
               </Text>
             </View>
-
+            
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🔒</Text>
               <Text style={styles.featureTitle}>Privacy Focused</Text>
@@ -1409,22 +862,22 @@ export default function App() {
             </View>
           </View>
         </View>
-
+        
         {/* Call to Action Section */}
         <View style={styles.ctaSection}>
           <Text style={styles.ctaTitle}>Join the Community</Text>
           <Text style={styles.ctaDescription}>
             Help others find relief by adding and reviewing restrooms in your area.
           </Text>
-
+          
           <View style={styles.ctaButtons}>
-            <TouchableOpacity
+            <TouchableOpacity 
               style={[styles.ctaButton, styles.primaryButton]}
               onPress={() => setCurrentScreen('map')}
             >
               <Text style={styles.ctaButtonText}>Get Started</Text>
             </TouchableOpacity>
-
+            
             <TouchableOpacity
               style={[styles.ctaButton, styles.secondaryButton]}
               onPress={() => setCurrentScreen('ranking')}
@@ -1433,7 +886,7 @@ export default function App() {
             </TouchableOpacity>
           </View>
         </View>
-
+        
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>© 2024 Püper - Your Guide to Relief</Text>
@@ -1441,27 +894,13 @@ export default function App() {
       </ScrollView>
     );
   };
-
+  
   // Ranking Page Component
   const RankingPage = () => {
-    const baseForRanking = location?.coords
-      ? filteredRestrooms.filter(r => {
-          if (typeof r.distance === 'number') return r.distance <= 30000; // 30 km radius
-          const la = r.latitude ?? r.lat;
-          const lo = r.longitude ?? r.lon;
-          if (la == null || lo == null) return false;
-          const d = restroomService.calculateDistance(location.coords.latitude, location.coords.longitude, la, lo);
-          return d <= 30000;
-        })
-      : filteredRestrooms;
-
-    const sortedRestrooms = [...baseForRanking].sort((a, b) => {
+    const sortedRestrooms = [...filteredRestrooms].sort((a, b) => {
       const ratingA = getAverageRating(a);
       const ratingB = getAverageRating(b);
-      if (ratingB !== ratingA) return ratingB - ratingA; // Highest rating first
-      const da = typeof a.distance === 'number' ? a.distance : Number.POSITIVE_INFINITY;
-      const db = typeof b.distance === 'number' ? b.distance : Number.POSITIVE_INFINITY;
-      return da - db; // tie-breaker by proximity
+      return ratingB - ratingA; // Highest rating first
     });
 
     return (
@@ -1500,7 +939,6 @@ export default function App() {
           ) : (
             sortedRestrooms.map((restroom, index) => {
               const avgRating = getAverageRating(restroom);
-              const reviewCount = restroom.review_count || (restroom.reviews?.length || 0);
               const distance = restroom.distance
                 ? restroomService.formatDistance(restroom.distance)
                 : '';
@@ -1518,7 +956,8 @@ export default function App() {
                   <View style={styles.rankingHeader}>
                     <Text style={styles.rankingNumber}>#{index + 1}</Text>
                     <View style={styles.rankingStars}>
-                      <Text style={styles.starText}>{avgRating.toFixed(1)} 🚽</Text>
+                      <Text style={styles.starText}>{renderToiletRating(avgRating)}</Text>
+                      <Text style={styles.ratingText}>{avgRating.toFixed(1)}</Text>
                     </View>
                   </View>
 
@@ -1526,7 +965,6 @@ export default function App() {
                     <Text style={styles.restroomName}>{restroom.name || 'Restroom'}</Text>
                     <Text style={styles.restroomDetails}>
                       {distance && `${distance} • `}
-                      {`${reviewCount} review${reviewCount === 1 ? '' : 's'} • `}
                       {restroom.wheelchair_accessible && '♿ '}
                       {restroom.baby_changing && '👶 '}
                       {restroom.gender_neutral && '🚻 '}
@@ -1554,96 +992,20 @@ export default function App() {
 
   // Main render function
   if (currentScreen === 'home') {
-    return (
-      <View style={{ flex: 1 }}>
-        <HomePage />
-        {showSplashVideo && (
-          <View
-            activeOpacity={1}
-
-            style={[StyleSheet.absoluteFill, { zIndex: 10000 }]}
-          >
-            <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}>
-              <Video
-                source={require('./assets/splash3.mp4')}
-                style={styles.introSplashVideo}
-                resizeMode="cover"
-                shouldPlay
-                isLooping={false}
-                onLoad={() => {
-                  console.log('✅ Splash video loaded and playing');
-                }}
-                onPlaybackStatusUpdate={(status) => {
-                  if (status.didJustFinish && !splashVideoFinished.current) {
-                    console.log('🎬 Splash video finished playing');
-                    splashVideoFinished.current = true;
-                    Animated.timing(splashOpacity, {
-                      toValue: 0,
-                      duration: 450,
-                      useNativeDriver: true,
-                    }).start(() => setShowSplashVideo(false));
-                  }
-                }}
-              />
-              <View style={styles.skipHintContainer} pointerEvents="none">
-                <Text style={styles.skipHintText}></Text>
-              </View>
-            </Animated.View>
-          </View>
-        )}
-      </View>
-    );
+    return <HomePage />;
   }
 
   if (currentScreen === 'ranking') {
-    return (
-      <View style={{ flex: 1 }}>
-        <RankingPage />
-        {showSplashVideo && (
-          <View
-            activeOpacity={1}
-
-            style={[StyleSheet.absoluteFill, { zIndex: 10000 }]}
-          >
-            <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}>
-              <Video
-                source={require('./assets/splash3.mp4')}
-                style={styles.introSplashVideo}
-                resizeMode="cover"
-                shouldPlay
-                isLooping={false}
-                onLoad={() => {
-                  console.log('✅ Splash video loaded and playing');
-                }}
-                onPlaybackStatusUpdate={(status) => {
-                  if (status.didJustFinish && !splashVideoFinished.current) {
-                    console.log('🎬 Splash video finished playing');
-                    splashVideoFinished.current = true;
-                    Animated.timing(splashOpacity, {
-                      toValue: 0,
-                      duration: 450,
-                      useNativeDriver: true,
-                    }).start(() => setShowSplashVideo(false));
-                  }
-                }}
-              />
-              <View style={styles.skipHintContainer} pointerEvents="none">
-                <Text style={styles.skipHintText}></Text>
-              </View>
-            </Animated.View>
-          </View>
-        )}
-      </View>
-    );
+    return <RankingPage />;
   }
-
+  
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
       {/* Header with Back Button and Menu */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity 
           style={styles.menuButton}
           onPress={() => setCurrentScreen('home')}
         >
@@ -1654,13 +1016,13 @@ export default function App() {
           <Text style={styles.headerSubtitle}>Your Guide to Relief</Text>
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity
+          <TouchableOpacity 
             style={styles.menuButton}
             onPress={() => setShowMenu(true)}
           >
             <Text style={styles.menuIcon}>☰</Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          <TouchableOpacity 
             style={styles.addButton}
             onPress={() => {
               if (addMode) {
@@ -1679,8 +1041,6 @@ export default function App() {
 
       {/* Map */}
       <MapView
-        key={`map-${mapRenderKey}`}
-        ref={mapRef}
         style={styles.map}
         provider={PROVIDER_GOOGLE}
         region={region}
@@ -1694,7 +1054,6 @@ export default function App() {
         onMapError={handleMapError}
         onPress={handleMapPress}
         onPoiClick={handlePoiClick}
-        onRegionChangeComplete={handleRegionChangeComplete}
         // Additional iOS optimizations
         showsCompass={true}
         showsScale={Platform.OS === 'ios'}
@@ -1712,7 +1071,6 @@ export default function App() {
             ? restroomService.formatDistance(restroom.distance)
             : '';
 
-          const reviewCount = restroom.review_count || (restroom.reviews?.length || 0);
           return (
             <Marker
               key={restroom.id}
@@ -1721,7 +1079,7 @@ export default function App() {
                 longitude: restroom.longitude || restroom.lon,
               }}
               title={restroom.name || 'Restroom'}
-              description={`${avgRating.toFixed(1)} 🚽 • ${reviewCount} review${reviewCount === 1 ? '' : 's'} ${distance ? `• ${distance}` : ''}`}
+              description={`${renderToiletRating(avgRating)} ${distance ? `• ${distance}` : ''}`}
               onPress={() => {
                 setSelectedRestroom(restroom);
                 setShowRatingModal(true);
@@ -1752,7 +1110,7 @@ export default function App() {
             </Marker>
           );
         })}
-
+        
         {/* Add location marker */}
         {addLocation && (
           <Marker
@@ -1762,7 +1120,7 @@ export default function App() {
           >
             <View style={[
               styles.markerContainer,
-              {
+              { 
                 backgroundColor: '#0dffe7', // Cyan color like web app
                 borderColor: '#00bfa5'
               }
@@ -1789,7 +1147,7 @@ export default function App() {
         <Text style={styles.infoText}>
           {errorMsg
             ? `⚠️ ${errorMsg}`
-            : `📍 ${stats.totalRestrooms} restrooms • ${Number(stats.averageRating).toFixed(1)} 🚽 • ♿ ${stats.accessibleCount} accessible`}
+            : `📍 ${stats.totalRestrooms} restrooms • ⭐ ${stats.averageRating} avg • ♿ ${stats.accessibleCount} accessible`}
         </Text>
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -1800,32 +1158,101 @@ export default function App() {
             {loading ? 'Searching...' : 'Refresh Nearby Restrooms'}
           </Text>
         </TouchableOpacity>
-        {/* In‑app purchase CTA: make Remove Ads very visible */}
+        
+        {/* Remove Ads Button - Only show if ads are not removed */}
         {!removeAds && (
-          <TouchableOpacity
-            style={[styles.secondaryButton, (purchasing || !ready) && styles.buttonDisabled]}
-            onPress={buyRemoveAds}
-            disabled={purchasing || !ready}
-          >
-            <Text style={styles.secondaryButtonText}>
-              {purchasing ? 'Processing…' : (!ready ? 'Loading…' : 'Remove Ads — $4.99')}
-            </Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              style={[styles.removeAdsButton, (purchasing || !iapReady) && styles.buttonDisabled]}
+              onPress={async () => {
+                if (!iapReady) {
+                  Alert.alert('Not Ready', 'Store is initializing. Please wait a moment and try again.');
+                  return;
+                }
+                if (purchasing) {
+                  return; // Already processing
+                }
+                try {
+                  await buyRemoveAds();
+                  // Don't show alert here - the purchase listener will handle success
+                  // The button will show "Processing..." state
+                } catch (error) {
+                  console.error('Purchase error:', error);
+                  Alert.alert(
+                    'Purchase Error',
+                    error?.message || 'Failed to initiate purchase. Please try again.',
+                    [{ text: 'OK' }]
+                  );
+                }
+              }}
+              disabled={purchasing || !iapReady}
+              activeOpacity={0.7}
+            >
+              {purchasing ? (
+                <ActivityIndicator size="small" color="#FFF" style={{ marginRight: 8 }} />
+              ) : null}
+              <Text style={styles.removeAdsButtonText}>
+                {purchasing ? 'Processing...' : 'Remove Ads - $4.99'}
+              </Text>
+            </TouchableOpacity>
+            
+            {/* Restore Purchases Button - Required by Apple */}
+            <TouchableOpacity
+              style={[styles.restoreButton, (restoring || !iapReady) && styles.buttonDisabled]}
+              onPress={async () => {
+                try {
+                  const restored = await restorePurchases();
+                  if (restored) {
+                    Alert.alert('Success', 'Your purchase has been restored!');
+                  } else {
+                    Alert.alert('No Purchases Found', 'No previous purchases were found to restore.');
+                  }
+                } catch (error) {
+                  Alert.alert(
+                    'Restore Error',
+                    error?.message || 'Failed to restore purchases. Please try again.',
+                    [{ text: 'OK' }]
+                  );
+                }
+              }}
+              disabled={restoring || !iapReady}
+            >
+              {restoring ? (
+                <ActivityIndicator size="small" color="#6B4423" style={{ marginRight: 8 }} />
+              ) : null}
+              <Text style={styles.restoreButtonText}>
+                {restoring ? 'Restoring...' : 'Restore Purchases'}
+              </Text>
+            </TouchableOpacity>
+          </>
         )}
-        {/* Test Banner Ad (replace TestIds with real unit IDs in production) */}
-        <View style={styles.adWrapper}>
-          {removeAds ? (
-            <Text style={styles.adFreeText}>Ad-Free ✅</Text>
-          ) : adsInitialized ? (
-            <BannerAd
-              unitId={bannerAdUnitId}
-              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-              onAdFailedToLoad={(e) => console.warn('Banner failed to load', e?.message)}
-            />
-          ) : (
-            <Text style={styles.adLoadingText}>Loading ad…</Text>
-          )}
-        </View>
+        
+        {/* Show success message if ads are removed */}
+        {removeAds && (
+          <View style={styles.adsRemovedContainer}>
+            <Text style={styles.adsRemovedText}>✅ Ads Removed - Thank you for your support!</Text>
+          </View>
+        )}
+        
+        {/* Show IAP error if any */}
+        {iapError && !removeAds && (
+          <Text style={styles.iapErrorText}>⚠️ {iapError}</Text>
+        )}
+        
+        {/* Banner Ad - Only show if ads are not removed */}
+        {!removeAds && (
+          <View style={styles.adWrapper}>
+            {adsInitialized ? (
+              <BannerAd
+                unitId={bannerAdUnitId}
+                size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+                onAdFailedToLoad={(e) => console.warn('Banner failed to load', e?.message)}
+              />
+            ) : (
+              <Text style={styles.adLoadingText}>Loading ad…</Text>
+            )}
+          </View>
+        )}
       </View>
 
       {/* Menu Modal */}
@@ -1843,21 +1270,8 @@ export default function App() {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-
-            {!removeAds && (
-              <TouchableOpacity
-                style={styles.menuItem}
-                disabled={!ready || purchasing}
-                onPress={() => {
-                  if (!ready) return;
-                  setShowMenu(false);
-                  buyRemoveAds();
-                }}
-              >
-                <Text style={styles.menuItemText}>{purchasing ? 'Processing…' : (!ready ? '🚫 Remove Ads (Loading…)' : '🚫 Remove Ads ($4.99)')}</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity
+            
+            <TouchableOpacity 
               style={styles.menuItem}
               onPress={() => {
                 setShowMenu(false);
@@ -1866,8 +1280,8 @@ export default function App() {
             >
               <Text style={styles.menuItemText}>🏠 Home</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
+            
+            <TouchableOpacity 
               style={styles.menuItem}
               onPress={() => {
                 setShowMenu(false);
@@ -1876,8 +1290,8 @@ export default function App() {
             >
               <Text style={styles.menuItemText}>🔍 Filters</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
+            
+            <TouchableOpacity 
               style={styles.menuItem}
               onPress={() => {
                 setShowMenu(false);
@@ -1886,7 +1300,7 @@ export default function App() {
             >
               <Text style={styles.menuItemText}>📍 Find Nearby</Text>
             </TouchableOpacity>
-
+            
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
@@ -1906,77 +1320,11 @@ export default function App() {
             >
               <Text style={styles.menuItemText}>ℹ️ About</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={async () => {
-                setShowMenu(false);
-                await restorePurchases();
-              }}
-            >
-              <Text style={styles.menuItemText}>{restoring ? 'Restoring…' : '🔄 Restore Purchases'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                setShowMenu(false);
-                setShowAdminCodeModal(true);
-              }}
-            >
-              <Text style={styles.menuItemText}>🔑 Enter Admin Code</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
       {/* Filters Modal */}
-
-      {/* Admin Code Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showAdminCodeModal}
-        onRequestClose={() => setShowAdminCodeModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.menuModal}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Enter Admin Code</Text>
-              <TouchableOpacity onPress={() => setShowAdminCodeModal(false)}>
-                <Text style={styles.closeButton}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            <TextInput
-              style={styles.textInput}
-              value={adminCodeInput}
-              onChangeText={setAdminCodeInput}
-              placeholder="Enter code"
-              secureTextEntry
-              autoCapitalize="none"
-            />
-            <TouchableOpacity
-              style={styles.submitRatingButton}
-              onPress={async () => {
-                const expected = Constants?.expoConfig?.extra?.adminOverrideCode;
-                if (!expected) {
-                  Alert.alert('Not configured', 'No admin code set in app.json (extra.adminOverrideCode).');
-                  return;
-                }
-                if ((adminCodeInput || '').trim() === expected) {
-                  await grantLocalEntitlement();
-                  Alert.alert('Ad‑Free Unlocked', 'Admin override activated on this device.');
-                  setShowAdminCodeModal(false);
-                  setAdminCodeInput('');
-                } else {
-                  Alert.alert('Invalid Code', 'Please try again.');
-                }
-              }}
-            >
-              <Text style={styles.submitRatingButtonText}>Unlock</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -1991,7 +1339,7 @@ export default function App() {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-
+            
             <View style={styles.filterItem}>
               <Text style={styles.filterText}>♿ Wheelchair Accessible</Text>
               <Switch
@@ -2000,7 +1348,7 @@ export default function App() {
                 trackColor={{ false: '#ccc', true: '#6B4423' }}
               />
             </View>
-
+            
             <View style={styles.filterItem}>
               <Text style={styles.filterText}>👶 Baby Changing</Text>
               <Switch
@@ -2009,7 +1357,7 @@ export default function App() {
                 trackColor={{ false: '#ccc', true: '#6B4423' }}
               />
             </View>
-
+            
             <View style={styles.filterItem}>
               <Text style={styles.filterText}>🚻 Gender Neutral</Text>
               <Switch
@@ -2018,7 +1366,7 @@ export default function App() {
                 trackColor={{ false: '#ccc', true: '#6B4423' }}
               />
             </View>
-
+            
             <TouchableOpacity
               style={styles.clearFiltersButton}
               onPress={() => {
@@ -2042,7 +1390,7 @@ export default function App() {
         visible={showAddForm}
         onRequestClose={() => setShowAddForm(false)}
       >
-        <KeyboardAvoidingView
+        <KeyboardAvoidingView 
           style={styles.modalContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
@@ -2057,7 +1405,7 @@ export default function App() {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-
+            
             <ScrollView style={styles.formContainer}>
               <Text style={styles.formLabel}>Name *</Text>
               <TextInput
@@ -2067,7 +1415,7 @@ export default function App() {
                 placeholder="Enter restroom name"
                 placeholderTextColor="#999"
               />
-
+              
               <Text style={styles.formLabel}>Description</Text>
               <TextInput
                 style={[styles.textInput, styles.textArea]}
@@ -2078,7 +1426,7 @@ export default function App() {
                 multiline
                 numberOfLines={3}
               />
-
+              
               <View style={styles.switchContainer}>
                 <View style={styles.switchItem}>
                   <Text style={styles.switchText}>♿ Wheelchair Accessible</Text>
@@ -2088,7 +1436,7 @@ export default function App() {
                     trackColor={{ false: '#ccc', true: '#6B4423' }}
                   />
                 </View>
-
+                
                 <View style={styles.switchItem}>
                   <Text style={styles.switchText}>👶 Baby Changing</Text>
                   <Switch
@@ -2097,7 +1445,7 @@ export default function App() {
                     trackColor={{ false: '#ccc', true: '#6B4423' }}
                   />
                 </View>
-
+                
                 <View style={styles.switchItem}>
                   <Text style={styles.switchText}>🚻 Gender Neutral</Text>
                   <Switch
@@ -2108,7 +1456,7 @@ export default function App() {
                 </View>
               </View>
             </ScrollView>
-
+            
             <TouchableOpacity
               style={[styles.addRestroomButton, { opacity: newRestroom.name.trim() ? 1 : 0.5 }]}
               onPress={handleAddRestroom}
@@ -2122,25 +1470,6 @@ export default function App() {
         </KeyboardAvoidingView>
       </Modal>
 
-
-
-      {/* Photo Viewer */}
-      <Modal
-        animationType="fade"
-        transparent
-        visible={photoViewer.visible}
-        onRequestClose={() => setPhotoViewer({ visible: false, url: null })}
-      >
-        <View style={styles.imageViewer}>
-          <TouchableOpacity style={styles.imageViewerClose} onPress={() => setPhotoViewer({ visible: false, url: null })}>
-            <Text style={{ color: '#FFF', fontSize: 16 }}>Close</Text>
-          </TouchableOpacity>
-          {photoViewer.url ? (
-            <Image source={{ uri: photoViewer.url }} style={styles.imageViewerImage} resizeMode="contain" />
-          ) : null}
-        </View>
-      </Modal>
-
       {/* Rating Modal */}
       <Modal
         animationType="slide"
@@ -2148,12 +1477,10 @@ export default function App() {
         visible={showRatingModal}
         onRequestClose={() => setShowRatingModal(false)}
       >
-        <KeyboardAvoidingView
+        <KeyboardAvoidingView 
           style={styles.modalContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-
-
           <View style={styles.ratingModal}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitleLight}>
@@ -2176,219 +1503,115 @@ export default function App() {
                 <Text style={styles.closeButtonLight}>✕</Text>
               </TouchableOpacity>
             </View>
-
-            {/* Tabs inside Rating Modal */}
-            <View style={styles.tabsRow}>
-              <TouchableOpacity
-                style={[styles.tab, ratingModalTab === 'form' && styles.tabActive]}
-                onPress={() => setRatingModalTab('form')}
-              >
-                <Text style={[styles.tabText, ratingModalTab === 'form' && styles.tabTextActive]}>Rate</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.tab, ratingModalTab === 'reviews' && styles.tabActive]}
-                onPress={() => setRatingModalTab('reviews')}
-              >
-                <Text style={[styles.tabText, ratingModalTab === 'reviews' && styles.tabTextActive]}>Written Reviews</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.tab, ratingModalTab === 'photos' && styles.tabActive]}
-                onPress={() => setRatingModalTab('photos')}
-              >
-                <Text style={[styles.tabText, ratingModalTab === 'photos' && styles.tabTextActive]}>Photos</Text>
-              </TouchableOpacity>
-            </View>
-
-            {ratingModalTab === 'form' ? (
-              <View>
-                {/* Rating form */}
-                <ScrollView style={styles.ratingContainer}>
-                  <Text style={styles.ratingLabel}>Overall Rating</Text>
-                  <StarRating
-                    rating={newRating.rating}
-                    onRatingChange={(rating) => setNewRating(prev => ({ ...prev, rating }))}
-                    size={32}
-                  />
-
-                  <Text style={styles.ratingLabel}>Cleanliness</Text>
-                  <StarRating
-                    rating={newRating.cleanliness_rating}
-                    onRatingChange={(rating) => setNewRating(prev => ({ ...prev, cleanliness_rating: rating }))}
-                  />
-
-                  <Text style={styles.ratingLabel}>Stock Level</Text>
-                  <StarRating
-                    rating={newRating.stocked_rating}
-                    onRatingChange={(rating) => setNewRating(prev => ({ ...prev, stocked_rating: rating }))}
-                  />
-
-                  <Text style={styles.ratingLabel}>Availability Status</Text>
-                  <View style={styles.availabilityOptions}>
-                    {[
-                      { value: 'available', label: '🟢 Available', color: '#27AE60' },
-                      { value: 'busy', label: '🟡 Busy', color: '#F39C12' },
-                      { value: 'closed', label: '🔴 Closed', color: '#E74C3C' }
-                    ].map(option => (
-                      <TouchableOpacity
-                        key={option.value}
-                        style={[
-                          styles.availabilityOption,
-                          {
-                            backgroundColor: newRating.availability_status === option.value ? option.color : 'rgba(26,26,26,0.5)',
-                            borderColor: option.color
-                          }
-                        ]}
-                        onPress={() => setNewRating(prev => ({ ...prev, availability_status: option.value }))}
-                      >
-                        <Text style={[
-                          styles.availabilityOptionText,
-                          { color: newRating.availability_status === option.value ? '#FFF' : option.color }
-                        ]}>
-                          {option.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-
-                  <Text style={styles.ratingLabel}>Write Your Review</Text>
-                  <TextInput
-                    style={[styles.textInputDark, styles.textArea]}
-                    value={newRating.review_text}
-                    onChangeText={(text) => setNewRating(prev => ({ ...prev, review_text: text }))}
-                    placeholder="Share your experience... How was the cleanliness? What amenities were available? Any tips for other users?"
-                    placeholderTextColor="#888"
-                    multiline
-                    numberOfLines={5}
-                  />
-
-                  {/* Photo Upload Section */}
-                  <Text style={styles.ratingLabel}>Photos (Optional - Up to 3)</Text>
-                  <View style={styles.photoContainer}>
-                    {reviewPhotos.map((photo, index) => (
-                      <View key={index} style={styles.photoPreview}>
-                        <Image source={{ uri: photo.uri }} style={styles.photoImage} />
-                        <TouchableOpacity
-                          style={styles.removePhotoButton}
-                          onPress={() => removePhoto(index)}
-                        >
-                          <Text style={styles.removePhotoText}>✕</Text>
-                        </TouchableOpacity>
-                      </View>
-                    ))}
-
-                    {reviewPhotos.length < 3 && (
-                      <TouchableOpacity
-                        style={styles.addPhotoButton}
-                        onPress={() => {
-                          Alert.alert(
-                            'Add Photo',
-                            'Choose photo source',
-                            [
-                              { text: 'Camera', onPress: () => pickImage('camera') },
-                              { text: 'Photo Library', onPress: () => pickImage('library') },
-                              { text: 'Cancel', style: 'cancel' }
-                            ]
-                          );
-                        }}
-                      >
-                        <Text style={styles.addPhotoText}>+</Text>
-                        <Text style={styles.addPhotoLabel}>Add Photo</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </ScrollView>
-
-                <TouchableOpacity
-                  style={styles.submitRatingButton}
-                  onPress={handleAddRating}
-                  disabled={loading}
-                >
-                  <Text style={styles.submitRatingButtonText}>
-                    {loading ? 'Submitting...' : 'Submit Rating'}
-                  </Text>
-                </TouchableOpacity>
+            
+            <ScrollView style={styles.ratingContainer}>
+              <Text style={styles.ratingLabel}>Overall Rating</Text>
+              <StarRating 
+                rating={newRating.rating} 
+                onRatingChange={(rating) => setNewRating(prev => ({ ...prev, rating }))}
+                size={32}
+              />
+              
+              <Text style={styles.ratingLabel}>Cleanliness</Text>
+              <StarRating 
+                rating={newRating.cleanliness_rating} 
+                onRatingChange={(rating) => setNewRating(prev => ({ ...prev, cleanliness_rating: rating }))}
+              />
+              
+              <Text style={styles.ratingLabel}>Stock Level</Text>
+              <StarRating 
+                rating={newRating.stocked_rating} 
+                onRatingChange={(rating) => setNewRating(prev => ({ ...prev, stocked_rating: rating }))}
+              />
+              
+              <Text style={styles.ratingLabel}>Availability Status</Text>
+              <View style={styles.availabilityOptions}>
+                {[
+                  { value: 'available', label: '🟢 Available', color: '#27AE60' },
+                  { value: 'busy', label: '🟡 Busy', color: '#F39C12' },
+                  { value: 'closed', label: '🔴 Closed', color: '#E74C3C' }
+                ].map(option => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.availabilityOption,
+                      {
+                        backgroundColor: newRating.availability_status === option.value ? option.color : 'rgba(26,26,26,0.5)',
+                        borderColor: option.color
+                      }
+                    ]}
+                    onPress={() => setNewRating(prev => ({ ...prev, availability_status: option.value }))}
+                  >
+                    <Text style={[
+                      styles.availabilityOptionText,
+                      { color: newRating.availability_status === option.value ? '#FFF' : option.color }
+                    ]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
-            ) : ratingModalTab === 'reviews' ? (
-              <ScrollView style={{ maxHeight: '75%' }}>
-                {reviewsLoading ? (
-                  <ActivityIndicator size="small" color="#FFF" style={{ marginTop: 12 }} />
-                ) : restroomReviews.length === 0 ? (
-                  <Text style={styles.noDataText}>No reviews yet. Be the first to review!</Text>
-                ) : (
-                  restroomReviews.map((r) => (
-                    <View key={r.id} style={styles.reviewItem}>
-                      <Text style={styles.reviewMeta}>{Number(r.rating || 0).toFixed(1)} 🚽 • {new Date(r.created_at).toLocaleDateString()}</Text>
-                      {(r.review_text || r.comment) ? (
-                        <Text style={styles.reviewText}>{r.review_text || r.comment}</Text>
-                      ) : null}
-                      {Array.isArray(r.photos) && r.photos.length > 0 && (
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photosRow}>
-                          {r.photos.map((url, idx) => (
-                            <TouchableOpacity key={`${r.id}-${idx}`} onPress={() => setPhotoViewer({ visible: true, url })}>
-                              <Image source={{ uri: url }} style={styles.photoThumb} />
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView>
-                      )}
-                    </View>
-                  ))
-                )}
-              </ScrollView>
-            ) : (
-              <ScrollView contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 10 }}>
-                {restroomPhotos.length === 0 ? (
-                  <Text style={styles.noDataText}>No photos yet.</Text>
-                ) : (
-                  restroomPhotos.map((p) => (
-                    <TouchableOpacity key={p.key} onPress={() => setPhotoViewer({ visible: true, url: p.url })}>
-                      <Image source={{ uri: p.url }} style={styles.photoThumb} />
+
+              <Text style={styles.ratingLabel}>Write Your Review</Text>
+              <TextInput
+                style={[styles.textInputDark, styles.textArea]}
+                value={newRating.review_text}
+                onChangeText={(text) => setNewRating(prev => ({ ...prev, review_text: text }))}
+                placeholder="Share your experience... How was the cleanliness? What amenities were available? Any tips for other users?"
+                placeholderTextColor="#888"
+                multiline
+                numberOfLines={5}
+              />
+              
+              {/* Photo Upload Section */}
+              <Text style={styles.ratingLabel}>Photos (Optional - Up to 3)</Text>
+              <View style={styles.photoContainer}>
+                {reviewPhotos.map((photo, index) => (
+                  <View key={index} style={styles.photoPreview}>
+                    <Image source={{ uri: photo.uri }} style={styles.photoImage} />
+                    <TouchableOpacity
+                      style={styles.removePhotoButton}
+                      onPress={() => removePhoto(index)}
+                    >
+                      <Text style={styles.removePhotoText}>✕</Text>
                     </TouchableOpacity>
-                  ))
+                  </View>
+                ))}
+                
+                {reviewPhotos.length < 3 && (
+                  <TouchableOpacity
+                    style={styles.addPhotoButton}
+                    onPress={() => {
+                      Alert.alert(
+                        'Add Photo',
+                        'Choose photo source',
+                        [
+                          { text: 'Camera', onPress: () => pickImage('camera') },
+                          { text: 'Photo Library', onPress: () => pickImage('library') },
+                          { text: 'Cancel', style: 'cancel' }
+                        ]
+                      );
+                    }}
+                  >
+                    <Text style={styles.addPhotoText}>+</Text>
+                    <Text style={styles.addPhotoLabel}>Add Photo</Text>
+                  </TouchableOpacity>
                 )}
-              </ScrollView>
-            )}
+              </View>
+            </ScrollView>
+            
+            <TouchableOpacity
+              style={styles.submitRatingButton}
+              onPress={handleAddRating}
+              disabled={loading}
+            >
+              <Text style={styles.submitRatingButtonText}>
+                {loading ? 'Submitting...' : 'Submit Rating'}
+              </Text>
+            </TouchableOpacity>
           </View>
-
-
-
         </KeyboardAvoidingView>
       </Modal>
-
-      {/* Splash Video Overlay - Rendered last so it's on top */}
-      {showSplashVideo && (
-        <View
-          activeOpacity={1}
-
-          style={[StyleSheet.absoluteFill, { zIndex: 10000 }]}
-        >
-          <Animated.View style={[styles.introSplashContainer, { opacity: splashOpacity }]}>
-            <Video
-              source={require('./assets/splash3.mp4')}
-              style={styles.introSplashVideo}
-              resizeMode="cover"
-              shouldPlay
-              isLooping={false}
-              onLoad={() => {
-                console.log('✅ Splash video loaded and playing');
-              }}
-              onPlaybackStatusUpdate={(status) => {
-                if (status.didJustFinish && !splashVideoFinished.current) {
-                  console.log('🎬 Splash video finished playing');
-                  splashVideoFinished.current = true;
-                  Animated.timing(splashOpacity, {
-                    toValue: 0,
-                    duration: 450,
-                    useNativeDriver: true,
-                  }).start(() => setShowSplashVideo(false));
-                }
-              }}
-            />
-            <View style={styles.skipHintContainer} pointerEvents="none">
-              <Text style={styles.skipHintText}></Text>
-            </View>
-          </Animated.View>
-        </View>
-      )}
     </View>
   );
 }
@@ -2398,30 +1621,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5DC',
   },
-  introSplashContainer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9999,
-  },
-  introSplashVideo: {
-    width: '100%',
-    height: '100%',
-  },
-  skipHintContainer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  skipHintText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    opacity: 0.85,
-  },
-
+  
   // Landing Page Styles
   homeContainer: {
     flex: 1,
@@ -2481,7 +1681,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     paddingHorizontal: 20,
   },
-
+  
   // Features Section
   featuresSection: {
     padding: 30,
@@ -2529,7 +1729,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-
+  
   // Call to Action Section
   ctaSection: {
     backgroundColor: '#6B4423',
@@ -2585,7 +1785,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: '#FFF',
   },
-
+  
   // Footer
   footer: {
     backgroundColor: '#2D1810',
@@ -2754,11 +1954,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontStyle: 'italic',
   },
-  adFreeText: {
-    color: '#0dffe7',
-    fontSize: 12,
-    fontWeight: '600',
-  },
   button: {
     backgroundColor: '#FFF',
     paddingVertical: 12,
@@ -2778,17 +1973,67 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  secondaryButton: {
-    marginTop: 8,
-    backgroundColor: '#0dffe7',
-    paddingVertical: 10,
+  removeAdsButton: {
+    backgroundColor: '#4CAF50', // Green color for purchase button
+    paddingVertical: 14,
     paddingHorizontal: 20,
-    borderRadius: 22,
+    borderRadius: 8,
+    marginTop: 12,
+    marginBottom: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    minHeight: 50,
   },
-  secondaryButtonText: {
-    color: '#064f48',
-    fontSize: 14,
+  removeAdsButtonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  restoreButton: {
+    backgroundColor: '#FFF',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    borderWidth: 2,
+    borderColor: '#6B4423',
+    minHeight: 44,
+  },
+  restoreButtonText: {
+    color: '#6B4423',
+    fontSize: 16,
     fontWeight: '600',
+  },
+  adsRemovedContainer: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 12,
+    marginBottom: 8,
+    alignItems: 'center',
+  },
+  adsRemovedText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  iapErrorText: {
+    color: '#FF6B6B',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 8,
+    paddingHorizontal: 10,
   },
   // Modal styles
   modalContainer: {
@@ -2823,9 +2068,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2C', // Dark background for better emoji visibility
     borderRadius: 20,
     padding: 20,
-    width: '92%',
-    maxWidth: 440,
-    maxHeight: '85%',
+    width: '90%',
+    maxWidth: 400,
+    maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -2856,104 +2101,6 @@ const styles = StyleSheet.create({
     color: '#F5F5DC', // Light color for dark background
     fontWeight: 'bold',
   },
-  // Restroom Details modal styles
-  detailsModal: {
-    backgroundColor: 'rgba(26,26,26,0.95)',
-    borderRadius: 16,
-    marginHorizontal: 12,
-    paddingBottom: 12,
-    overflow: 'hidden',
-  },
-  tabsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingBottom: 8,
-    gap: 8,
-  },
-  tab: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#8B6B4A',
-    backgroundColor: 'rgba(255,255,255,0.06)',
-  },
-  tabActive: {
-    backgroundColor: '#6B4423',
-    borderColor: '#6B4423',
-  },
-  tabText: {
-    color: '#DDD',
-    fontSize: 14,
-  },
-  tabTextActive: {
-    color: '#FFF',
-    fontWeight: '600',
-  },
-  writeReviewButton: {
-    marginLeft: 'auto',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: '#27AE60',
-    borderRadius: 999,
-  },
-  writeReviewButtonText: {
-    color: '#FFF',
-    fontWeight: '600',
-  },
-  reviewItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(255,255,255,0.12)'
-  },
-  reviewMeta: {
-    color: '#BBB',
-    marginBottom: 6,
-  },
-  reviewText: {
-    color: '#FFF',
-    fontSize: 15,
-    lineHeight: 20,
-  },
-  photosRow: {
-    marginTop: 8,
-    flexDirection: 'row',
-    gap: 8,
-  },
-  photoThumb: {
-    width: 96,
-    height: 96,
-    borderRadius: 8,
-    marginRight: 8,
-    backgroundColor: '#333',
-  },
-  noDataText: {
-    color: '#CCC',
-    padding: 16,
-    textAlign: 'center',
-  },
-  imageViewer: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.95)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imageViewerImage: {
-    width: '100%',
-    height: '80%',
-  },
-  imageViewerClose: {
-    position: 'absolute',
-    top: 48,
-    right: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 8,
-  },
-
   // Menu items
   menuItem: {
     paddingVertical: 15,
@@ -3009,25 +2156,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     color: '#333',
   },
-  // Side-by-side layout for rating modal + details pane
-  sideBySideRow: {
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    width: '95%',
-    maxWidth: 900,
-  },
-  detailsPane: {
-    backgroundColor: '#2C2C2C',
-    borderRadius: 20,
-    padding: 20,
-    flex: 1,
-    minWidth: 0,
-    maxWidth: 480,
-    maxHeight: '80%',
-  },
-
   textInputDark: {
     borderWidth: 1,
     borderColor: '#555',
@@ -3272,7 +2400,7 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
   },
-
+  
   // Simple map button styles
   simpleMapButton: {
     position: 'absolute',
@@ -3294,7 +2422,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#6B4423',
   },
-
+  
   // Guide to Relief section styles
   guideSection: {
     backgroundColor: '#F5F5DC',
