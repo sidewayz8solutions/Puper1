@@ -1229,7 +1229,7 @@ export default function App() {
                 <ActivityIndicator size="small" color="#FFF" style={{ marginRight: 8 }} />
               ) : null}
               <Text style={styles.removeAdsButtonText}>
-                {purchasing ? 'Processing...' : 'Remove Ads - $4.99'}
+                {purchasing ? 'Processing...' : 'Remove Ads (One-time purchase)'}
               </Text>
             </TouchableOpacity>
 
