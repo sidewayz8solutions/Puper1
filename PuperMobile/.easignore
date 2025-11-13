@@ -46,6 +46,31 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
+ 
+# Native bundle & archive outputs
+*.aab
+*.apk
+*.ipa
+*.app.dSYM.zip
+abc.aab
+puper-*.aab
+
+# Credentials & signing material (managed via EAS; exclude raw secrets)
+*.jks
+*.keystore
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+*.der
+*.key
+credentials.json
+google-play-service-account.json
+credentials/
+app.json.backup
+
+# Removed / local JDK distributions
+oracleJdk-*.jdk/
 
 # Logs
 *.log
