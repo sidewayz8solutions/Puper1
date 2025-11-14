@@ -5,7 +5,7 @@ import * as RNIap from 'react-native-iap';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import productConfig from '../../in-app-purchases/remove-ads.json';
 
-const PRODUCT_ID = productConfig?.productId || 'Premium';
+const PRODUCT_ID = productConfig.productId;
 const STORAGE_KEY = '@puper/removeAdsPurchased';
 
 const RemoveAdsContext = createContext({
@@ -159,14 +159,6 @@ export const RemoveAdsProvider = ({ children }) => {
     return true;
   }, []);
 
-  const grantLocalEntitlement = useCallback(async () => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, '1');
-    } catch {}
-    setRemoveAds(true);
-    return true;
-  }, []);
-
   const value = useMemo(() => ({
     ready,
     removeAds,
@@ -176,8 +168,7 @@ export const RemoveAdsProvider = ({ children }) => {
     buyRemoveAds,
     restorePurchases,
     clearLocalEntitlement,
-    grantLocalEntitlement,
-  }), [ready, removeAds, purchasing, restoring, error, buyRemoveAds, restorePurchases, clearLocalEntitlement, grantLocalEntitlement]);
+  }), [ready, removeAds, purchasing, restoring, error, buyRemoveAds, restorePurchases, clearLocalEntitlement]);
 
   return (
     <RemoveAdsContext.Provider value={value}>
