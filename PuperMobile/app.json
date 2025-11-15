@@ -2,7 +2,7 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-    "version": "1.7.6",
+    "version": "1.7.8",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,7 +14,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-      "buildNumber": "40",
+      "buildNumber": "42",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
@@ -37,15 +37,14 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#6B4423"
+        "backgroundColor": "#000000"
       },
       "splash": {
         "backgroundColor": "#000000",
-        "image": "./assets/icon.png",
         "resizeMode": "contain"
       },
       "package": "com.sidewayz8.puper",
-      "versionCode": 36,
+      "versionCode": 38,
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",

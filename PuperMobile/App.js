@@ -140,19 +140,9 @@ export default function App() {
   const [interstitialLoaded, setInterstitialLoaded] = useState(false);
   const lastInterstitialTimeRef = useRef(0);
 
-  // Check if splash video has been shown before
+  // Show splash video on every app launch
   useEffect(() => {
-    (async () => {
-      try {
-        const hasShownSplash = await AsyncStorage.getItem('hasShownSplash_v2');
-        if (!hasShownSplash) {
-          setShowLaunchVideo(true);
-          await AsyncStorage.setItem('hasShownSplash_v2', 'true');
-        }
-      } catch (error) {
-        console.warn('Error checking splash status:', error);
-      }
-    })();
+    setShowLaunchVideo(true);
   }, []);
 
   // Load location and fetch nearby restrooms
@@ -1013,7 +1003,7 @@ export default function App() {
   // Main render function
   return (
     <>
-      {/* Launch Splash Video Overlay - Shows ONCE on first app launch */}
+      {/* Launch Splash Video Overlay - Shows on every app launch */}
       <Modal visible={showLaunchVideo} animationType="fade" presentationStyle="fullScreen">
         <View style={styles.launchVideoContainer}>
           <Video
