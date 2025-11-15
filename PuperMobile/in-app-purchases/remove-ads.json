@@ -1,18 +1,18 @@
 {
-  "productId": "Premium",
+  "productId": "com.sidewayz8.puper.ads",
   "type": "NON_CONSUMABLE",
   "priceTier": 5,
-  "displayName": "Remove Ads",
+  "displayName": "Remove Ads (One-time purchase)",
   "localizations": {
     "en-US": {
-      "name": "Remove Ads",
-      "description": "Permanently remove all ads, including interstitial and app-open ads, for a faster and uninterrupted experience.",
-      "promoText": "Enjoy Püper ad-free forever with a one-time purchase."
+      "name": "No Ad's",
+      "description": "Enjoy Püper without ads  a one-time purchase removes ads so you can keep finding your roll.",
+      "promoText": "Remove ads with a single purchase and enjoy an uninterrupted experience."
     }
   },
   "familySharing": true,
   "review": {
-    "screenshotHint": "Show paywall with 'Remove Ads — $4.99' button",
-    "notes": "This non-consumable purchase permanently removes interstitial and app-open ads throughout the app. A Restore Purchases button is available in Settings for re-installs and new devices."
+    "screenshotHint": "Show paywall with 'Remove Ads (One-time purchase)' button",
+    "notes": "This non-consumable purchase removes ads throughout the app. A Restore Purchases button is available in Settings for re-installs and new devices."
   }
 }

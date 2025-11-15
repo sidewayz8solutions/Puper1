@@ -13,14 +13,14 @@ Notes:
 
 - App price is managed entirely in App Store Connect; no code changes are needed to charge $2.99 for the download.
 
-## 2) Create the "Remove Ads" IAP ($9.99)
+## 2) Create the "No Ad's" IAP (Remove Ads – one-time)
 
 Create a non‑consumable IAP in App Store Connect:
 
 - App Store Connect → Your App → In‑App Purchases → + → Non‑Consumable
-- Reference Name: Remove Ads (Lifetime)
-- Product ID (example): `remove_ads_lifetime`
-- Price: $9.99
+- Reference Name: No Ad's
+- Product ID: `com.sidewayz8.puper.ads`
+- Price: one-time price tier you choose (e.g. $4.99)
 - Review Information: upload screenshots if requested by review
 - Add English (U.S.) display name and description
 - Submit for review (can be reviewed with your next binary)
@@ -41,7 +41,7 @@ Minimal code sketch (to integrate later):
 import * as InAppPurchases from 'expo-in-app-purchases';
 import * as SecureStore from 'expo-secure-store';
 
-const PRODUCT_IDS = ['remove_ads_lifetime'];
+const PRODUCT_IDS = ['com.sidewayz8.puper.ads'];
 
 async function initIAP(setAdsDisabled) {
   await InAppPurchases.connectAsync();

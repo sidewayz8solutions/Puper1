@@ -15,7 +15,7 @@
    - Look for "Tier 3" or "$2.99" in the price list
 6. Click **Save**
 
-## Step 2: Create Premium IAP (Remove Ads - $9.99)
+## Step 2: Create "No Ad's" IAP (Remove Ads – one-time)
 
 1. In App Store Connect, go to your app: **Püper**
 2. Navigate to **In-App Purchases** (in the left sidebar)
@@ -24,17 +24,17 @@
 5. Fill in the following:
 
    **Reference Name:**
-   - `Remove Ads (Lifetime)`
+   - `No Ad's`
 
    **Product ID:**
-   - `com.sidewayz8.puper.remove_ads_lifetime`
+   - `com.sidewayz8.puper.ads`
 
    **Price:**
-   - Select **$9.99** from the price tier list
+   - Choose your desired one-time price tier (for example $4.99)
 
    **Review Information:**
-   - **Display Name**: `Remove Ads (Lifetime)`
-   - **Description**: `Permanently remove all ads from Püper and enjoy an ad-free experience.`
+   - **Display Name**: `Remove Ads (One-time purchase)`
+   - **Description**: `Enjoy Püper without ads and keep finding your roll.`
 
 6. Click **Save**
 7. **Submit for Review** (can be reviewed with your app submission)
