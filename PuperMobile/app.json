@@ -2,14 +2,16 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-    "version": "1.7.8",
+    "version": "1.7.9",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "description": "Your guide to relief - Find clean, accessible public restrooms wherever you are",
     "splash": {
-      "backgroundColor": "#000000"
+      "backgroundColor": "#000000",
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain"
     },
     "ios": {
       "supportsTablet": true,
@@ -41,10 +43,11 @@
       },
       "splash": {
         "backgroundColor": "#000000",
-        "resizeMode": "contain"
+        "resizeMode": "contain",
+        "image": "./assets/splash-icon.png"
       },
       "package": "com.sidewayz8.puper",
-      "versionCode": 38,
+      "versionCode": 39,
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
