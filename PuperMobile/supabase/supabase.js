@@ -479,5 +479,24 @@ export const photoService = {
   }
 };
 
+// ---- IAP / receipt validation via Supabase Edge Functions ----
+
+export async function verifyIosReceiptWithSupabase(receiptData, userId) {
+  if (!receiptData) {
+    throw new Error('Missing receiptData');
+  }
+
+  const { data, error } = await supabase.functions.invoke('verify_ios_receipt', {
+    body: { receiptData, userId },
+  });
+
+  if (error) {
+    console.warn('[Supabase] verify_ios_receipt error', error);
+    throw error;
+  }
+
+  return data;
+}
+
 export default supabase;
 
