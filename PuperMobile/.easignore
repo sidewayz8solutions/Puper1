@@ -54,6 +54,8 @@ fastlane/test_output
 *.app.dSYM.zip
 abc.aab
 puper-*.aab
+My-build1.aab
+MyBuild.aab
 
 # Credentials & signing material (managed via EAS; exclude raw secrets)
 *.jks
@@ -68,6 +70,10 @@ credentials.json
 google-play-service-account.json
 credentials/
 app.json.backup
+1.jks
+2.jks
+buttondsidewayz.jks
+new-upload-key.pem
 
 # Removed / local JDK distributions
 oracleJdk-*.jdk/
@@ -93,6 +99,61 @@ playwright-report/
 .idea/
 *.swp
 *.swo
+.snapshots/
+
+# Distribution / deployment artifacts
+dist/
+.dist/
+
+# Documentation / guides (not needed for build)
+*.md
+!README.md
+ADS_PRIVACY_AND_SETUP.md
+APP_NAME_ALREADY_USED.md
+APP_NAME_TROUBLESHOOTING.md
+APP_STORE_CONNECT_API_KEY_GUIDE.md
+APP_STORE_DEPLOYMENT_CHECKLIST.md
+APP_STORE_PRICING_SETUP.md
+BUILD_AND_SUBMIT.md
+BUILD_STATUS.md
+BUILD_WITH_ORGANIZATION.sh
+COLOR_CUSTOMIZATION_GUIDE.md
+DELETED_app.config.js.note.txt
+DEPLOYMENT_GUIDE.md
+EXPO_CREDENTIALS_INFO.md
+FEATURES_ADDED.md
+FIND_EXPO_CREDENTIALS.md
+GITHUB_BUILD_FIX.md
+HOW_TO_GET_SCREENSHOTS.md
+LOGO_UPDATE_AND_SUBMISSION.md
+NO_XCODE_NEEDED.md
+PRICING_AND_IAP.md
+QUICK_SCREENSHOT_GUIDE.md
+QUICK_START.md
+QUICK_START_APP_STORE.md
+README_APP_STORE.md
+RESTROOM_IMPORT_SUCCESS.md
+SUPABASE_INTEGRATION.md
+SUPABASE_STORAGE_SETUP.md
+TEST_INSTRUCTIONS.md
+
+# Deployment scripts (not needed for build)
+*.sh
+deploy-app-store.sh
+deploy-cloud-build.sh
+deploy-ios.sh
+submit-build.sh
+BUILD_NOW.sh
+SUBMIT_TO_APP_STORE.sh
+
+# EAS example files
+eas.json.example
+
+# Ad-related config files (if not needed in bundle)
+app-ads.txt
+
+# Package manager artifacts
+package-lock.json
 
 # Environment & secrets (handled via EAS secrets, not source)
 .env
