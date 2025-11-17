@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-      "buildNumber": "42",
+      "buildNumber": "43",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
@@ -65,7 +65,6 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "./plugins/ios-receipt-reader",
       [
         "expo-location",
         {

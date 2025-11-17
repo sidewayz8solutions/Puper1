@@ -1,0 +1,8 @@
+{
+  "name": "react-native-receipt-reader",
+  "version": "1.0.0",
+  "description": "iOS Receipt Reader for React Native",
+  "main": "index.js",
+  "author": "",
+  "license": "MIT"
+}

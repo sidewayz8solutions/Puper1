@@ -4,7 +4,7 @@ import Constants from 'expo-constants';
 import * as RNIap from 'react-native-iap';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import productConfig from '../../in-app-purchases/remove-ads.json';
-import { verifyIosReceiptWithSupabase } from '../supabase';
+import { verifyIosReceiptWithSupabase } from '../../supabase/supabase';
 
 const PRODUCT_ID = productConfig.productId;
 const STORAGE_KEY = '@puper/removeAdsPurchased';
@@ -20,30 +20,31 @@ const RemoveAdsContext = createContext({
   clearLocalEntitlement: async () => {},
 });
 
-const validateReceiptAndSync = useCallback(
-  async (userId, receiptData) => {
-    if (Platform.OS !== 'ios') return;
-
-    try {
-      if (!receiptData) return;
-
-      const result = await verifyIosReceiptWithSupabase(receiptData, userId);
-      if (result?.valid && result?.hasRemoveAds) {
-        setRemoveAds(true);
-        await AsyncStorage.setItem(STORAGE_KEY, '1');
-      }
-    } catch (e) {
-      console.warn('validateReceiptAndSync failed', e);
-    }
-  },
-  []
-);
 export const RemoveAdsProvider = ({ children }) => {
   const [ready, setReady] = useState(false);
   const [removeAds, setRemoveAds] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [error, setError] = useState(null);
+
+  // Validate receipt with Apple and sync entitlement
+  const validateReceiptAndSync = useCallback(
+    async (receiptBase64) => {
+      if (Platform.OS !== 'ios' || !receiptBase64) return;
+
+      try {
+        // userId is optional - can be null for anonymous users
+        const result = await verifyIosReceiptWithSupabase(receiptBase64, null);
+        if (result?.valid && result?.hasRemoveAds) {
+          setRemoveAds(true);
+          await AsyncStorage.setItem(STORAGE_KEY, '1');
+        }
+      } catch (e) {
+        console.warn('[IAP] validateReceiptAndSync failed', e);
+      }
+    },
+    []
+  );
 
   const purchaseUpdateSubRef = useRef(null);
   const purchaseErrorSubRef = useRef(null);
@@ -65,6 +66,16 @@ export const RemoveAdsProvider = ({ children }) => {
       if (owned) {
         setRemoveAds(true);
         await AsyncStorage.setItem(STORAGE_KEY, '1');
+        
+        // Validate receipt with Apple for compliance using receipt from restored purchase
+        if (owned.transactionReceipt) {
+          try {
+            await validateReceiptAndSync(owned.transactionReceipt);
+          } catch (err) {
+            console.warn('[IAP] Receipt validation failed (non-fatal)', err);
+          }
+        }
+        
         return true;
       }
       // Not owned according to store: ensure local cache is cleared
@@ -75,7 +86,7 @@ export const RemoveAdsProvider = ({ children }) => {
       // Swallow errors; user might be offline
       return removeAds; // fall back to cached state
     }
-  }, [removeAds]);
+  }, [removeAds, validateReceiptAndSync]);
 
   useEffect(() => {
     let ended = false;
@@ -98,6 +109,13 @@ export const RemoveAdsProvider = ({ children }) => {
               await RNIap.finishTransaction({ purchase, isConsumable: false });
               setRemoveAds(true);
               await AsyncStorage.setItem(STORAGE_KEY, '1');
+              
+              // Validate receipt with Apple for compliance using the receipt from purchase
+              try {
+                await validateReceiptAndSync(purchase.transactionReceipt);
+              } catch (err) {
+                console.warn('[IAP] Receipt validation failed (non-fatal)', err);
+              }
             }
           } catch (finishErr) {
             // Ignore finish errors; will re-verify via restore path
