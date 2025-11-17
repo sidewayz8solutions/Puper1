@@ -60,7 +60,7 @@
           "apiKey": "AIzaSyD-M-ubj9bYSxgjIpn1rtZgXXEGw7nGKF4"
         }
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
