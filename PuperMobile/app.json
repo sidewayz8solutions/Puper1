@@ -2,7 +2,7 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-    "version": "1.7.9",
+    "version": "1.8.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -47,7 +47,7 @@
         "image": "./assets/splash-icon.png"
       },
       "package": "com.sidewayz8.puper",
-      "versionCode": 39,
+      "versionCode": 40,
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
@@ -57,7 +57,7 @@
       ],
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyD5l5VGgUMgtp_MnI6Ztd1SwqQsGp9mZ0w"
+          "apiKey": "AIzaSyD-M-ubj9bYSxgjIpn1rtZgXXEGw7nGKF4"
         }
       },
       "edgeToEdgeEnabled": true
