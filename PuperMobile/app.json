@@ -43,8 +43,7 @@
       },
       "splash": {
         "backgroundColor": "#000000",
-        "resizeMode": "contain",
-        "image": "./assets/splash-icon.png"
+        "resizeMode": "cover"
       },
       "package": "com.sidewayz8.puper",
       "versionCode": 40,
