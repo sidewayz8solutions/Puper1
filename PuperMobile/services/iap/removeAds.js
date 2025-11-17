@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import * as RNIap from 'react-native-iap';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import productConfig from '../../in-app-purchases/remove-ads.json';
+import { verifyIosReceiptWithSupabase } from '../supabase';
 
 const PRODUCT_ID = productConfig.productId;
 const STORAGE_KEY = '@puper/removeAdsPurchased';
@@ -19,6 +20,24 @@ const RemoveAdsContext = createContext({
   clearLocalEntitlement: async () => {},
 });
 
+const validateReceiptAndSync = useCallback(
+  async (userId, receiptData) => {
+    if (Platform.OS !== 'ios') return;
+
+    try {
+      if (!receiptData) return;
+
+      const result = await verifyIosReceiptWithSupabase(receiptData, userId);
+      if (result?.valid && result?.hasRemoveAds) {
+        setRemoveAds(true);
+        await AsyncStorage.setItem(STORAGE_KEY, '1');
+      }
+    } catch (e) {
+      console.warn('validateReceiptAndSync failed', e);
+    }
+  },
+  []
+);
 export const RemoveAdsProvider = ({ children }) => {
   const [ready, setReady] = useState(false);
   const [removeAds, setRemoveAds] = useState(false);

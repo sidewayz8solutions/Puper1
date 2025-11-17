@@ -65,6 +65,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "./plugins/ios-receipt-reader",
       [
         "expo-location",
         {

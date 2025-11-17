@@ -4,6 +4,8 @@ import React, {
   useRef,
 } from 'react';
 
+import { getIosReceiptBase64 } from './nativeReceipt';
+import { verifyIosReceiptWithSupabase } from '../supabase';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { StatusBar } from 'expo-status-bar';
@@ -1644,6 +1646,40 @@ export default function App() {
     </>
   );
 }
+
+const validateReceiptAndSync = useCallback(
+  async (userId) => {
+    if (Platform.OS !== 'ios') return;
+
+    try {
+      const receiptData = await getIosReceiptBase64();
+      const result = await verifyIosReceiptWithSupabase(receiptData, userId);
+
+      if (result?.valid && result?.hasRemoveAds) {
+        setRemoveAds(true);
+        await AsyncStorage.setItem(STORAGE_KEY, '1');
+      }
+    } catch (e) {
+      console.warn('validateReceiptAndSync failed', e);
+    }
+  },
+  []
+);
+
+purchaseUpdateSubRef.current = RNIap.purchaseUpdatedListener(async (purchase) => {
+  try {
+    if (purchase?.productId === PRODUCT_ID && purchase?.transactionReceipt) {
+      await RNIap.finishTransaction({ purchase, isConsumable: false });
+      setRemoveAds(true);
+      await AsyncStorage.setItem(STORAGE_KEY, '1');
+
+      // Validate with Supabase
+      await validateReceiptAndSync('current-user-id'); // replace with actual user ID
+    }
+  } catch (finishErr) {
+    // Ignore
+  }
+});
 
 const styles = StyleSheet.create({
   container: {
