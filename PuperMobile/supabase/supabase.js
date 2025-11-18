@@ -152,19 +152,28 @@ export const restroomService = {
             wheelchair_accessible,
             baby_changing,
             gender_neutral,
-            created_at
+            created_at,
+            reviews (
+              id,
+              rating
+            )
           `)
           .range(from, to);
         if (error) throw error;
         if (!data || data.length === 0) break;
 
         const base = (data || []).map((restroom) => {
+          const reviews = restroom.reviews || [];
+          const reviewCount = reviews.length;
+          const avgRating = reviewCount > 0
+            ? reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
+            : 0;
           const obj = {
             ...restroom,
             latitude: restroom.lat,
             longitude: restroom.lon || restroom.lng,
-            review_count: 0,
-            avg_rating: 0,
+            review_count: reviewCount,
+            avg_rating: avgRating,
           };
           if (
             userLat != null &&
@@ -181,29 +190,6 @@ export const restroomService = {
           }
           return obj;
         });
-
-        const ids = base.map((r) => r.id).filter(Boolean);
-        if (ids.length > 0) {
-          const { data: aggRows, error: aggError } = await supabase
-            .from('reviews')
-            .select('restroom_id, rating')
-            .in('restroom_id', ids);
-          if (!aggError && aggRows) {
-            const grouped = aggRows.reduce((acc, row) => {
-              if (!acc[row.restroom_id]) acc[row.restroom_id] = { sum: 0, count: 0 };
-              acc[row.restroom_id].sum += row.rating || 0;
-              acc[row.restroom_id].count += 1;
-              return acc;
-            }, {});
-            for (const r of base) {
-              const g = grouped[r.id];
-              if (g) {
-                r.review_count = g.count;
-                r.avg_rating = g.count > 0 ? g.sum / g.count : 0;
-              }
-            }
-          }
-        }
 
         all.push(...base);
         if (data.length < batchSize) break;
@@ -492,6 +478,27 @@ export async function verifyIosReceiptWithSupabase(receiptData, userId) {
 
   if (error) {
     console.warn('[Supabase] verify_ios_receipt error', error);
+    throw error;
+  }
+
+  return data;
+}
+
+export async function verifyAndroidReceiptWithSupabase(purchaseToken, productId, packageName) {
+  if (!purchaseToken) {
+    throw new Error('Missing purchaseToken');
+  }
+  const resolvedPackage = packageName || extras?.androidPackage || Constants?.expoConfig?.android?.package;
+  const { data, error } = await supabase.functions.invoke('verify_android_receipt', {
+    body: {
+      purchaseToken,
+      productId,
+      packageName: resolvedPackage,
+    },
+  });
+
+  if (error) {
+    console.warn('[Supabase] verify_android_receipt error', error);
     throw error;
   }
 

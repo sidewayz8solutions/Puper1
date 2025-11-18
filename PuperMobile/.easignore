@@ -178,6 +178,17 @@ auth/
 # Keep migrations
 !migrations/**
 
+# Exclude Supabase Edge Functions (TypeScript, deployed separately)
+supabase/functions/**
+
+# Keep only the Supabase client file, not functions
+!supabase/supabase.js
+
+# Exclude unused native module directories
+ios-native-modules/**
+modules/**
+plugins/**
+
 # Keep Supabase service files
 !services/**
 

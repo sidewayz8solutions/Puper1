@@ -4,8 +4,6 @@ import React, {
   useRef,
 } from 'react';
 
-import { getIosReceiptBase64 } from './nativeReceipt';
-import { verifyIosReceiptWithSupabase } from '../supabase';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { StatusBar } from 'expo-status-bar';
@@ -42,7 +40,7 @@ import Constants from 'expo-constants';
 import {
   photoService,
   restroomService,
-} from './services/supabase';
+} from './supabase/supabase';
 import { useRemoveAds } from './services/iap/removeAds';
 
 const { width, height } = Dimensions.get('window');
@@ -169,8 +167,8 @@ export default function App() {
       };
       setRegion(newRegion);
 
-      // Fetch nearby restrooms from Supabase
-      await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
+      // Fetch ALL nationally-rated restrooms on initial map open
+      await fetchAllRatedRestrooms(location.coords.latitude, location.coords.longitude);
     })();
   }, []);
 
@@ -260,6 +258,48 @@ export default function App() {
       console.error('Error fetching restrooms:', error);
       setErrorMsg('Failed to load restrooms');
       // Load seeded data as fallback
+      await loadInitialSeededData();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch ALL nationally-rated restrooms (with aggregates) and compute stats
+  const fetchAllRatedRestrooms = async (userLat = null, userLon = null) => {
+    setLoading(true);
+    try {
+      console.log('Fetching ALL restrooms nationwide...');
+      const all = await restroomService.getAllRestrooms(userLat, userLon);
+      // Filter to only restrooms that have at least one review ("anyone has rated")
+      const rated = (all || []).filter(r => (r.review_count || 0) > 0);
+      console.log(`Found ${rated.length} nationally-rated restrooms`);
+
+      if (rated.length === 0) {
+        console.log('No rated restrooms found, loading seeded data as fallback...');
+        await loadInitialSeededData();
+        return;
+      }
+
+      setRestrooms(rated);
+      setErrorMsg(null);
+
+      // Update stats
+      setStats({
+        totalRestrooms: rated.length,
+        averageRating:
+          rated.length > 0
+            ? (
+                rated.reduce(
+                  (sum, r) => sum + (r.avg_rating || r.rating || 0),
+                  0
+                ) / rated.length
+              ).toFixed(1)
+            : '0.0',
+        accessibleCount: rated.filter(r => r.wheelchair_accessible).length
+      });
+    } catch (error) {
+      console.error('Error fetching all restrooms:', error);
+      setErrorMsg('Failed to load restrooms');
       await loadInitialSeededData();
     } finally {
       setLoading(false);
@@ -442,9 +482,9 @@ export default function App() {
       setAddMode(false);
       setAddLocation(null);
 
-      // Refresh restrooms
+      // Refresh restrooms (national scope)
       if (location) {
-        await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
+        await fetchAllRatedRestrooms(location.coords.latitude, location.coords.longitude);
       }
 
       Alert.alert('Success', 'Restroom added successfully!');
@@ -531,9 +571,9 @@ export default function App() {
       setShowRatingModal(false);
       setSelectedRestroom(null);
 
-      // Refresh restrooms
+      // Refresh restrooms (national scope)
       if (location) {
-        await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
+        await fetchAllRatedRestrooms(location.coords.latitude, location.coords.longitude);
       }
 
       Alert.alert('Success', 'Review added successfully!');
@@ -654,9 +694,9 @@ export default function App() {
       setShowRatingModal(false);
       setSelectedRestroom(null);
 
-      // Refresh restrooms
+      // Refresh restrooms (national scope)
       if (location) {
-        await fetchNearbyRestrooms(location.coords.latitude, location.coords.longitude);
+        await fetchAllRatedRestrooms(location.coords.latitude, location.coords.longitude);
       }
 
       Alert.alert('Success', 'Rating added successfully!');
@@ -1646,40 +1686,6 @@ export default function App() {
     </>
   );
 }
-
-const validateReceiptAndSync = useCallback(
-  async (userId) => {
-    if (Platform.OS !== 'ios') return;
-
-    try {
-      const receiptData = await getIosReceiptBase64();
-      const result = await verifyIosReceiptWithSupabase(receiptData, userId);
-
-      if (result?.valid && result?.hasRemoveAds) {
-        setRemoveAds(true);
-        await AsyncStorage.setItem(STORAGE_KEY, '1');
-      }
-    } catch (e) {
-      console.warn('validateReceiptAndSync failed', e);
-    }
-  },
-  []
-);
-
-purchaseUpdateSubRef.current = RNIap.purchaseUpdatedListener(async (purchase) => {
-  try {
-    if (purchase?.productId === PRODUCT_ID && purchase?.transactionReceipt) {
-      await RNIap.finishTransaction({ purchase, isConsumable: false });
-      setRemoveAds(true);
-      await AsyncStorage.setItem(STORAGE_KEY, '1');
-
-      // Validate with Supabase
-      await validateReceiptAndSync('current-user-id'); // replace with actual user ID
-    }
-  } catch (finishErr) {
-    // Ignore
-  }
-});
 
 const styles = StyleSheet.create({
   container: {

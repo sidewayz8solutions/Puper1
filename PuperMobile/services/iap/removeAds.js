@@ -4,10 +4,25 @@ import Constants from 'expo-constants';
 import * as RNIap from 'react-native-iap';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import productConfig from '../../in-app-purchases/remove-ads.json';
-import { verifyIosReceiptWithSupabase } from '../../supabase/supabase';
+import { verifyIosReceiptWithSupabase, verifyAndroidReceiptWithSupabase } from '../../supabase/supabase';
 
 const PRODUCT_ID = productConfig.productId;
 const STORAGE_KEY = '@puper/removeAdsPurchased';
+
+const extractAndroidPurchaseToken = (purchase) => {
+  if (!purchase) return null;
+  if (purchase.purchaseToken) return purchase.purchaseToken;
+  if (purchase.token) return purchase.token;
+  if (purchase.transactionReceipt) {
+    try {
+      const parsed = JSON.parse(purchase.transactionReceipt);
+      return parsed?.purchaseToken || parsed?.token || null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
 
 const RemoveAdsContext = createContext({
   ready: false,
@@ -27,20 +42,29 @@ export const RemoveAdsProvider = ({ children }) => {
   const [restoring, setRestoring] = useState(false);
   const [error, setError] = useState(null);
 
-  // Validate receipt with Apple and sync entitlement
-  const validateReceiptAndSync = useCallback(
-    async (receiptBase64) => {
-      if (Platform.OS !== 'ios' || !receiptBase64) return;
-
+  // Validate receipt with Apple / Google and sync entitlement
+  const syncEntitlementWithBackend = useCallback(
+    async (purchase) => {
+      if (!purchase) return;
       try {
-        // userId is optional - can be null for anonymous users
-        const result = await verifyIosReceiptWithSupabase(receiptBase64, null);
-        if (result?.valid && result?.hasRemoveAds) {
-          setRemoveAds(true);
-          await AsyncStorage.setItem(STORAGE_KEY, '1');
+        if (Platform.OS === 'ios' && purchase.transactionReceipt) {
+          const result = await verifyIosReceiptWithSupabase(purchase.transactionReceipt, null);
+          if (result?.valid && result?.hasRemoveAds) {
+            setRemoveAds(true);
+            await AsyncStorage.setItem(STORAGE_KEY, '1');
+          }
+        } else if (Platform.OS === 'android') {
+          const token = extractAndroidPurchaseToken(purchase);
+          if (!token) return;
+          const pkg = Constants?.expoConfig?.android?.package;
+          const result = await verifyAndroidReceiptWithSupabase(token, purchase.productId || PRODUCT_ID, pkg);
+          if (result?.valid) {
+            setRemoveAds(true);
+            await AsyncStorage.setItem(STORAGE_KEY, '1');
+          }
         }
       } catch (e) {
-        console.warn('[IAP] validateReceiptAndSync failed', e);
+        console.warn('[IAP] syncEntitlementWithBackend failed', e);
       }
     },
     []
@@ -68,12 +92,10 @@ export const RemoveAdsProvider = ({ children }) => {
         await AsyncStorage.setItem(STORAGE_KEY, '1');
         
         // Validate receipt with Apple for compliance using receipt from restored purchase
-        if (owned.transactionReceipt) {
-          try {
-            await validateReceiptAndSync(owned.transactionReceipt);
-          } catch (err) {
-            console.warn('[IAP] Receipt validation failed (non-fatal)', err);
-          }
+        try {
+          await syncEntitlementWithBackend(owned);
+        } catch (err) {
+          console.warn('[IAP] Receipt validation failed (non-fatal)', err);
         }
         
         return true;
@@ -86,7 +108,7 @@ export const RemoveAdsProvider = ({ children }) => {
       // Swallow errors; user might be offline
       return removeAds; // fall back to cached state
     }
-  }, [removeAds, validateReceiptAndSync]);
+  }, [removeAds, syncEntitlementWithBackend]);
 
   useEffect(() => {
     let ended = false;
@@ -105,14 +127,13 @@ export const RemoveAdsProvider = ({ children }) => {
         // Subscribe to purchase updates
         purchaseUpdateSubRef.current = RNIap.purchaseUpdatedListener(async (purchase) => {
           try {
-            if (purchase?.productId === PRODUCT_ID && purchase?.transactionReceipt) {
+            if (purchase?.productId === PRODUCT_ID) {
               await RNIap.finishTransaction({ purchase, isConsumable: false });
               setRemoveAds(true);
               await AsyncStorage.setItem(STORAGE_KEY, '1');
               
-              // Validate receipt with Apple for compliance using the receipt from purchase
               try {
-                await validateReceiptAndSync(purchase.transactionReceipt);
+                await syncEntitlementWithBackend(purchase);
               } catch (err) {
                 console.warn('[IAP] Receipt validation failed (non-fatal)', err);
               }

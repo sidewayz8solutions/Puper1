@@ -1,7 +1,7 @@
-{
-  "name": "ReceiptReader",
-  "type": "modules",
-  "ios": {
-    "sourceFiles": "**/*.{h,m,mm,swift}"
-  }
-}
+module.exports = {
+  name: 'ReceiptReader',
+  type: 'modules',
+  ios: {
+    sourceFiles: '**/*.{h,m,mm,swift}',
+  },
+};
