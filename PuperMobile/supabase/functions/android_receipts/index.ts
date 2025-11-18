@@ -3,11 +3,12 @@
 // Expected POST body: { productId: string, purchaseToken: string, packageName?: string }
 // Secrets required: GOOGLE_SERVICE_ACCOUNT_JSON (service account JSON), optional ANDROID_PACKAGE_NAME
 
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.212.0/http/server.ts";
+// @deno-types="https://deno.land/x/jose@v5.2.0/dist/types/index.d.ts"
 import {
   importPKCS8,
   SignJWT,
-} from "https://deno.land/x/jose@v4.14.4/index.ts";
+} from "https://deno.land/x/jose@v5.2.0/index.ts";
 
 type VerifyRequest = {
   productId?: string;
@@ -45,23 +46,17 @@ async function getAccessTokenFromServiceAccount(saJson: Record<string, any>): Pr
   }
 
   const now = Math.floor(Date.now() / 1000);
-  const iat = now;
-  const exp = now + 3600; // 1 hour
-
-  // Import private key for RS256
   const alg = "RS256";
-  const pkcs8 = await importPKCS8(privateKey, alg);
-
   const assertion = await new SignJWT({
     scope: ANDROID_PUBLISHER_SCOPE,
   })
     .setProtectedHeader({ alg, typ: "JWT" })
-    .setIssuedAt(iat)
-    .setExpirationTime(exp)
+    .setIssuedAt(now)
+    .setExpirationTime(now + 3600)
     .setIssuer(clientEmail)
     .setSubject(clientEmail)
     .setAudience(GOOGLE_TOKEN_URL)
-    .sign(pkcs8);
+    .sign(await importPKCS8(privateKey, alg));
 
   const form = new URLSearchParams();
   form.set("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
@@ -73,11 +68,19 @@ async function getAccessTokenFromServiceAccount(saJson: Record<string, any>): Pr
     body: form.toString(),
   });
 
-  if (!resp.ok) {
-    const text = await resp.text().catch(() => "");
-    throw new Error(`Token exchange failed: ${resp.status} ${resp.statusText} ${text}`);
+  const text = await resp.text().catch(() => "");
+  let data: any = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    // ignore parse error, keep raw text
   }
-  const data = await resp.json();
+
+  if (!resp.ok) {
+    const errMsg = data?.error || text || resp.statusText;
+    throw new Error(`Token exchange failed: ${resp.status} ${resp.statusText} ${errMsg}`);
+  }
+
   const accessToken = data.access_token as string | undefined;
   if (!accessToken) throw new Error("No access_token in Google OAuth response");
   return accessToken;

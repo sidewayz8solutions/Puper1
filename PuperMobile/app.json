@@ -49,7 +49,7 @@
         "resizeMode": "cover"
       },
       "package": "com.sidewayz8.puper",
-  "versionCode": 41,
+  "versionCode": 42,
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",

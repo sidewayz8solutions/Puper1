@@ -41,6 +41,8 @@ export const RemoveAdsProvider = ({ children }) => {
   const [purchasing, setPurchasing] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [error, setError] = useState(null);
+  const [productReady, setProductReady] = useState(false);
+  const productCacheRef = useRef([]);
 
   // Validate receipt with Apple / Google and sync entitlement
   const syncEntitlementWithBackend = useCallback(
@@ -119,9 +121,23 @@ export const RemoveAdsProvider = ({ children }) => {
         if (Platform.OS === 'android' && RNIap.flushFailedPurchasesCachedAsPendingAndroid) {
           try { await RNIap.flushFailedPurchasesCachedAsPendingAndroid(); } catch {}
         }
-        // Prefetch product metadata (optional)
-        try { await RNIap.getProducts({ skus: [PRODUCT_ID] }); } catch (e1) {
-          try { await RNIap.getProducts([PRODUCT_ID]); } catch {}
+        // Prefetch product metadata (required on iOS or StoreKit throws "Missing purchase request configuration")
+        let fetchedProducts = [];
+        try {
+          fetchedProducts = await RNIap.getProducts({ skus: [PRODUCT_ID] });
+        } catch (e1) {
+          try {
+            fetchedProducts = await RNIap.getProducts([PRODUCT_ID]);
+          } catch (e2) {
+            console.warn('[IAP] getProducts failed', e1 || e2);
+          }
+        }
+        if (Array.isArray(fetchedProducts) && fetchedProducts.length > 0) {
+          productCacheRef.current = fetchedProducts;
+          setProductReady(true);
+        } else {
+          setProductReady(false);
+          setError('In-app purchase is temporarily unavailable. Please try again shortly.');
         }
 
         // Subscribe to purchase updates
@@ -172,15 +188,24 @@ export const RemoveAdsProvider = ({ children }) => {
       setError('Store not ready. Please try again in a moment.');
       return;
     }
+    if (!productReady) {
+      setError('Purchase configuration missing. Please pull to refresh and try again.');
+      return;
+    }
     setPurchasing(true);
     setError(null);
     try {
+      const productSku =
+        productCacheRef.current?.find?.((p) => p.productId === PRODUCT_ID)?.productId || PRODUCT_ID;
       // API variants exist across versions; try object form then fallback to legacy signature
       try {
-        await RNIap.requestPurchase({ sku: PRODUCT_ID });
+        await RNIap.requestPurchase({
+          sku: productSku,
+          andDangerouslyFinishTransactionAutomatically: false,
+        });
       } catch (e1) {
         try {
-          await RNIap.requestPurchase(PRODUCT_ID);
+          await RNIap.requestPurchase(productSku);
         } catch (e2) {
           throw e2 || e1;
         }

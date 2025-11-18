@@ -6,7 +6,7 @@ const APPLE_SANDBOX_URL = 'https://sandbox.itunes.apple.com/verifyReceipt';
 // Set this in Supabase → Project Settings → Functions → Secrets
 const APP_SHARED_SECRET = Deno.env.get('APPLE_SHARED_SECRET') || '';
 
-const REMOVE_ADS_PRODUCT_ID = 'com.sidewayz8.puper.remove_ads'; // put your actual productId here
+const REMOVE_ADS_PRODUCT_ID = 'com.sidewayz8.puper.ads';
 
 async function callApple(url: string, body: unknown) {
   const res = await fetch(url, {
@@ -64,7 +64,10 @@ Deno.serve(async (req: Request) => {
 
     const valid = appleResponse.status === 0;
     const receipt = appleResponse.receipt ?? {};
-    const inApp: any[] = receipt.in_app ?? [];
+    const inApp: any[] = [
+      ...(receipt.in_app ?? []),
+      ...(appleResponse.latest_receipt_info ?? []),
+    ];
 
     const hasRemoveAds = inApp.some(
       (item) => item.product_id === REMOVE_ADS_PRODUCT_ID

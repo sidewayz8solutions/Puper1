@@ -14,8 +14,9 @@
     "preview": "expo start --tunnel",
     "doctor": "expo doctor",
     "import-restrooms": "node scripts/import-public-restrooms.js",
-    "clean-db": "node scripts/import-public-restrooms.js",
-    "test-data": "node scripts/test-restroom-data.js"
+  "clean-db": "node scripts/import-public-restrooms.js",
+  "test-data": "node scripts/test-restroom-data.js",
+  "iap:check": "./scripts/run-iap-checks.sh"
   },
   "dependencies": {
     "@babel/core": "^7.28.4",
@@ -45,7 +46,7 @@
     "three": "^0.166.1"
   },
   "private": true,
-  "packageManager": "npm@latest",
+  "packageManager": "npm@10.8.1",
   "expo": {
     "install": {
       "exclude": [

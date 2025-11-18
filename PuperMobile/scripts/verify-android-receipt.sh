@@ -26,13 +26,20 @@ if [[ -z "${PRODUCT_ID:-}" || -z "${PURCHASE_TOKEN:-}" ]]; then
   exit 1
 fi
 
-FUNCTION_PATH="/functions/v1/android_receipts"
-URL="${SUPABASE_URL%/}${FUNCTION_PATH}"
+EFFECTIVE_PACKAGE="${PACKAGE_NAME:-${ANDROID_PACKAGE_NAME:-}}"
+if [[ -z "$EFFECTIVE_PACKAGE" ]]; then
+  echo "PACKAGE_NAME or ANDROID_PACKAGE_NAME must be set" >&2
+  exit 1
+fi
 
-payload='{
-  "productId": "'${PRODUCT_ID}'",
-  "purchaseToken": "'${PURCHASE_TOKEN}'"'${PACKAGE_NAME:+,\n  "packageName": "'${PACKAGE_NAME}'"}'
-}'
+FUNCTION_PATH="/functions/v1/android_receipts"
+URL="${VERIFY_ANDROID_ENDPOINT:-${SUPABASE_URL%/}${FUNCTION_PATH}}"
+
+payload=$(jq -n \
+  --arg productId "$PRODUCT_ID" \
+  --arg purchaseToken "$PURCHASE_TOKEN" \
+  --arg packageName "$EFFECTIVE_PACKAGE" \
+  '{ productId: $productId, purchaseToken: $purchaseToken } + (if $packageName != "" then { packageName: $packageName } else {} end)')
 
 echo "POST $URL" >&2
 
