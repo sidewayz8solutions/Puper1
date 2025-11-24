@@ -1,7 +1,6 @@
 import React, {
   useEffect,
   useState,
-  useRef,
 } from 'react';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -34,42 +33,16 @@ import MapView, {
   Marker,
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
-import mobileAds, { BannerAd, BannerAdSize, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
-import Constants from 'expo-constants';
 
 import {
   photoService,
   restroomService,
 } from './supabase/supabase';
-import { useRemoveAds } from './services/iap/removeAds';
 
 const { width, height } = Dimensions.get('window');
 
 export default function App() {
-  // Remove Ads IAP hook
-  const {
-    ready: iapReady,
-    removeAds,
-    purchasing,
-    restoring,
-    error: iapError,
-    buyRemoveAds,
-    restorePurchases
-  } = useRemoveAds();
-
-  // Show success message when ads are removed
-  const prevRemoveAds = useRef(removeAds);
-  useEffect(() => {
-    if (removeAds && !prevRemoveAds.current) {
-      // Ads were just removed
-      Alert.alert(
-        'Thank You!',
-        'Ads have been successfully removed. Enjoy your ad-free experience!',
-        [{ text: 'OK' }]
-      );
-    }
-    prevRemoveAds.current = removeAds;
-  }, [removeAds]);
+  // Ads & in-app purchases are temporarily disabled in version 1.8.7
 
   // Main navigation state
   const [currentScreen, setCurrentScreen] = useState('home'); // 'home', 'map', or 'ranking'
@@ -97,7 +70,7 @@ export default function App() {
   const [showFilters, setShowFilters] = useState(false);
   const [addMode, setAddMode] = useState(false);
   const [addLocation, setAddLocation] = useState(null);
-  const [showLaunchVideo, setShowLaunchVideo] = useState(false);
+  const [showLaunchVideo, setShowLaunchVideo] = useState(true);
 
 
   // Filters
@@ -134,11 +107,9 @@ export default function App() {
     averageRating: '0.0',
     accessibleCount: 0
   });
-  const [adsInitialized, setAdsInitialized] = useState(false);
-  // Interstitial ad state
-  const interstitialRef = useRef(null);
-  const [interstitialLoaded, setInterstitialLoaded] = useState(false);
-  const lastInterstitialTimeRef = useRef(0);
+  const [ratingModalTab, setRatingModalTab] = useState('rate'); // 'rate' or 'reviews'
+  const [selectedRestroomDetails, setSelectedRestroomDetails] = useState(null);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   // Show splash video on every app launch
   useEffect(() => {
@@ -172,61 +143,7 @@ export default function App() {
     })();
   }, []);
 
-  // Initialize ads SDK once
-  useEffect(() => {
-    mobileAds()
-      .initialize()
-      .then(() => setAdsInitialized(true))
-      .catch(err => console.warn('Ads initialization failed', err));
-  }, []);
-
-  // Prefer real AdMob unit IDs from app config (extra.admob.bannerUnitIdIos / interstitialUnitIdIos) with test fallback
-  const realBannerIdIos = Constants?.expoConfig?.extra?.admob?.bannerUnitIdIos;
-  const realInterstitialIdIos = Constants?.expoConfig?.extra?.admob?.interstitialUnitIdIos;
-  const bannerAdUnitId = Platform.select({
-    ios: realBannerIdIos || TestIds.BANNER,
-    android: TestIds.BANNER,
-    default: TestIds.BANNER,
-  });
-  const interstitialUnitId = Platform.select({
-    ios: realInterstitialIdIos || TestIds.INTERSTITIAL,
-    android: TestIds.INTERSTITIAL,
-    default: TestIds.INTERSTITIAL,
-  });
-
-  // Prepare and load an interstitial ad
-  useEffect(() => {
-    const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
-      requestNonPersonalizedAdsOnly: false,
-    });
-    interstitialRef.current = ad;
-    const onLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setInterstitialLoaded(true));
-    const onClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
-      setInterstitialLoaded(false);
-      // Preload next ad
-      ad.load();
-    });
-    const onError = ad.addAdEventListener(AdEventType.ERROR, () => setInterstitialLoaded(false));
-    ad.load();
-    return () => {
-      onLoaded();
-      onClosed();
-      onError();
-    };
-  }, [interstitialUnitId]);
-
-  const maybeShowInterstitial = () => {
-    try {
-      const now = Date.now();
-      // Cooldown to avoid spamming: 90 seconds
-      if (interstitialLoaded && interstitialRef.current && (now - lastInterstitialTimeRef.current > 90 * 1000)) {
-        interstitialRef.current.show();
-        lastInterstitialTimeRef.current = now;
-      }
-    } catch (e) {
-      console.warn('Interstitial show failed', e?.message);
-    }
-  };
+  // All ads (banner and interstitial) are disabled in version 1.8.7
 
   // Fetch nearby restrooms from Supabase
   const fetchNearbyRestrooms = async (lat, lon, radius = 5000) => {
@@ -452,6 +369,8 @@ export default function App() {
 
     // Show rating modal for this Google Place
     setSelectedRestroom(googlePlaceRestroom);
+    setRatingModalTab('rate');
+    setSelectedRestroomDetails(googlePlaceRestroom);
     setShowRatingModal(true);
   };
 
@@ -577,8 +496,6 @@ export default function App() {
       }
 
       Alert.alert('Success', 'Review added successfully!');
-  // Attempt to show an interstitial after adding a review (gentle frequency control handled in maybeShowInterstitial)
-  maybeShowInterstitial();
     } catch (error) {
       console.error('Error adding review:', error);
       Alert.alert('Error', `Failed to add review: ${error.message || 'Unknown error'}`);
@@ -700,8 +617,6 @@ export default function App() {
       }
 
       Alert.alert('Success', 'Rating added successfully!');
-  // Attempt to show an interstitial after adding a rating
-  maybeShowInterstitial();
     } catch (error) {
       console.error('Error adding rating:', error);
       console.error('Error details:', error.message);
@@ -727,6 +642,118 @@ export default function App() {
       return restroomService.calculateAverageRating(restroom.reviews);
     }
     return restroom.avg_rating || 3;
+  };
+
+  // Load full restroom details (including reviews) for the rating modal
+  const loadRestroomDetailsForModal = async (restroom) => {
+    if (!restroom) return;
+
+    // If this restroom already has reviews attached (seeded or fallback data),
+    // just use it directly.
+    if (restroom.reviews && restroom.reviews.length > 0) {
+      setSelectedRestroomDetails(restroom);
+      return;
+    }
+
+    // For seeded or Google Place restrooms that may not exist in Supabase,
+    // just fall back to the basic object.
+    if (!restroom.id || String(restroom.id).startsWith('seeded-') || restroom.isGooglePlace) {
+      setSelectedRestroomDetails(restroom);
+      return;
+    }
+
+    try {
+      setReviewsLoading(true);
+      const full = await restroomService.getById(restroom.id);
+      if (full) {
+        setSelectedRestroomDetails(full);
+      } else {
+        setSelectedRestroomDetails(restroom);
+      }
+    } catch (error) {
+      console.error('Error loading restroom details:', error);
+      setSelectedRestroomDetails(restroom);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const renderReviewsSection = () => {
+    const restroom = selectedRestroomDetails || selectedRestroom;
+    const reviews = (restroom && restroom.reviews) ? restroom.reviews : [];
+
+    if (reviewsLoading) {
+      return (
+        <View style={styles.reviewsLoadingContainer}>
+          <Text style={styles.reviewsLoadingText}>Loading reviews...</Text>
+        </View>
+      );
+    }
+
+    if (!restroom || reviews.length === 0) {
+      return (
+        <View style={styles.noReviewsContainer}>
+          <Text style={styles.noReviewsText}>No reviews yet. Be the first to leave one!</Text>
+        </View>
+      );
+    }
+
+    const avg = restroomService.calculateAverageRating(reviews);
+    const count = reviews.length;
+
+    return (
+      <ScrollView style={styles.reviewsContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.reviewsSummaryRow}>
+          <Text style={styles.reviewsSummaryText}>
+            Overall rating: {avg.toFixed(1)} {renderToiletRating(avg)}
+          </Text>
+          <Text style={styles.reviewsSummaryText}>
+            {count} review{count === 1 ? '' : 's'}
+          </Text>
+        </View>
+
+        {reviews.map((review) => (
+          <View
+            key={review.id || review.created_at || Math.random().toString()}
+            style={styles.reviewCard}
+          >
+            <View style={styles.reviewHeader}>
+              <Text style={styles.reviewRatingText}>
+                {renderToiletRating(review.rating || 0)}{' '}
+                {Number(review.rating || 0).toFixed(1)}
+              </Text>
+              {review.created_at && (
+                <Text style={styles.reviewDateText}>
+                  {new Date(review.created_at).toLocaleDateString()}
+                </Text>
+              )}
+            </View>
+
+            {(review.review_text || review.comment) && (
+              <Text style={styles.reviewText}>
+                {review.review_text || review.comment}
+              </Text>
+            )}
+
+            {Array.isArray(review.photos) && review.photos.length > 0 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.reviewPhotosRow}
+              >
+                {review.photos.map((url, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: url }}
+                    style={styles.reviewPhoto}
+                  />
+                ))}
+              </ScrollView>
+            )}
+          </View>
+        ))}
+      </ScrollView>
+    );
   };
 
   // Request camera and media library permissions
@@ -949,7 +976,25 @@ export default function App() {
 
   // Ranking Page Component
   const RankingPage = () => {
-    const sortedRestrooms = [...filteredRestrooms].sort((a, b) => {
+    const TWENTY_MILES_IN_METERS = 32186.88; // 20 miles = 32,186.88 meters
+
+    // Filter to only show restrooms within 20 miles
+    const nearbyRestrooms = filteredRestrooms.filter(restroom => {
+      // Calculate distance if not already present
+      let distance = restroom.distance;
+      if (distance == null && location && restroom.lat != null && restroom.lon != null) {
+        distance = restroomService.calculateDistance(
+          location.coords.latitude,
+          location.coords.longitude,
+          restroom.lat,
+          restroom.lon
+        );
+      }
+      // Only include if within 20 miles
+      return distance != null && distance <= TWENTY_MILES_IN_METERS;
+    });
+
+    const sortedRestrooms = [...nearbyRestrooms].sort((a, b) => {
       const ratingA = getAverageRating(a);
       const ratingB = getAverageRating(b);
       return ratingB - ratingA; // Highest rating first
@@ -982,11 +1027,12 @@ export default function App() {
         {/* Rankings List */}
         <ScrollView style={styles.rankingsList} showsVerticalScrollIndicator={false}>
           <Text style={styles.rankingsTitle}>🏆 Top Rated Restrooms</Text>
+          <Text style={styles.rankingsSubtitle}>Within 20 miles of your location</Text>
 
           {sortedRestrooms.length === 0 ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No restrooms found yet!</Text>
-              <Text style={styles.emptyStateSubtext}>Add some ratings to see rankings</Text>
+              <Text style={styles.emptyStateText}>No restrooms found within 20 miles!</Text>
+              <Text style={styles.emptyStateSubtext}>Try exploring other areas or add ratings to nearby restrooms</Text>
             </View>
           ) : (
             sortedRestrooms.map((restroom, index) => {
@@ -1001,6 +1047,9 @@ export default function App() {
                   style={styles.rankingItem}
                   onPress={() => {
                     setSelectedRestroom(restroom);
+                    setRatingModalTab('rate');
+                    setSelectedRestroomDetails(null);
+                    loadRestroomDetailsForModal(restroom);
                     setShowRatingModal(true);
                     setCurrentScreen('map');
                   }}
@@ -1027,6 +1076,9 @@ export default function App() {
                     style={styles.rateButton}
                     onPress={() => {
                       setSelectedRestroom(restroom);
+                      setRatingModalTab('rate');
+                      setSelectedRestroomDetails(null);
+                      loadRestroomDetailsForModal(restroom);
                       setShowRatingModal(true);
                       setCurrentScreen('map');
                     }}
@@ -1151,6 +1203,9 @@ export default function App() {
               description={`${renderToiletRating(avgRating)} ${distance ? `• ${distance}` : ''}`}
               onPress={() => {
                 setSelectedRestroom(restroom);
+                setRatingModalTab('rate');
+                setSelectedRestroomDetails(null);
+                loadRestroomDetailsForModal(restroom);
                 setShowRatingModal(true);
               }}
             >
@@ -1228,100 +1283,7 @@ export default function App() {
           </Text>
         </TouchableOpacity>
 
-        {/* Remove Ads Button - Only show if ads are not removed */}
-        {!removeAds && (
-          <>
-            <TouchableOpacity
-              style={[styles.removeAdsButton, (purchasing || !iapReady) && styles.buttonDisabled]}
-              onPress={async () => {
-                if (!iapReady) {
-                  Alert.alert('Not Ready', 'Store is initializing. Please wait a moment and try again.');
-                  return;
-                }
-                if (purchasing) {
-                  return; // Already processing
-                }
-                try {
-                  await buyRemoveAds();
-                  // Don't show alert here - the purchase listener will handle success
-                  // The button will show "Processing..." state
-                } catch (error) {
-                  console.error('Purchase error:', error);
-                  Alert.alert(
-                    'Purchase Error',
-                    error?.message || 'Failed to initiate purchase. Please try again.',
-                    [{ text: 'OK' }]
-                  );
-                }
-              }}
-              disabled={purchasing || !iapReady}
-              activeOpacity={0.7}
-            >
-              {purchasing ? (
-                <ActivityIndicator size="small" color="#FFF" style={{ marginRight: 8 }} />
-              ) : null}
-              <Text style={styles.removeAdsButtonText}>
-                {purchasing ? 'Processing...' : 'Remove Ads (One-time purchase)'}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Restore Purchases Button - Required by Apple */}
-            <TouchableOpacity
-              style={[styles.restoreButton, (restoring || !iapReady) && styles.buttonDisabled]}
-              onPress={async () => {
-                try {
-                  const restored = await restorePurchases();
-                  if (restored) {
-                    Alert.alert('Success', 'Your purchase has been restored!');
-                  } else {
-                    Alert.alert('No Purchases Found', 'No previous purchases were found to restore.');
-                  }
-                } catch (error) {
-                  Alert.alert(
-                    'Restore Error',
-                    error?.message || 'Failed to restore purchases. Please try again.',
-                    [{ text: 'OK' }]
-                  );
-                }
-              }}
-              disabled={restoring || !iapReady}
-            >
-              {restoring ? (
-                <ActivityIndicator size="small" color="#6B4423" style={{ marginRight: 8 }} />
-              ) : null}
-              <Text style={styles.restoreButtonText}>
-                {restoring ? 'Restoring...' : 'Restore Purchases'}
-              </Text>
-            </TouchableOpacity>
-          </>
-        )}
-
-        {/* Show success message if ads are removed */}
-        {removeAds && (
-          <View style={styles.adsRemovedContainer}>
-            <Text style={styles.adsRemovedText}>✅ Ads Removed - Thank you for your support!</Text>
-          </View>
-        )}
-
-        {/* Show IAP error if any */}
-        {iapError && !removeAds && (
-          <Text style={styles.iapErrorText}>⚠️ {iapError}</Text>
-        )}
-
-        {/* Banner Ad - Only show if ads are not removed */}
-        {!removeAds && (
-          <View style={styles.adWrapper}>
-            {adsInitialized ? (
-              <BannerAd
-                unitId={bannerAdUnitId}
-                size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-                onAdFailedToLoad={(e) => console.warn('Banner failed to load', e?.message)}
-              />
-            ) : (
-              <Text style={styles.adLoadingText}>Loading ad…</Text>
-            )}
-          </View>
-        )}
+        {/* Remove Ads Button - new simple IAP UI */}
       </View>
 
       {/* Menu Modal */}
@@ -1558,6 +1520,8 @@ export default function App() {
               <TouchableOpacity onPress={() => {
                 setShowRatingModal(false);
                 setSelectedRestroom(null);
+                setSelectedRestroomDetails(null);
+                setRatingModalTab('rate');
                 // Reset form when closing
                 setNewRating({
                   rating: 5,
@@ -1573,111 +1537,153 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.ratingContainer}>
-              <Text style={styles.ratingLabel}>Overall Rating</Text>
-              <StarRating
-                rating={newRating.rating}
-                onRatingChange={(rating) => setNewRating(prev => ({ ...prev, rating }))}
-                size={32}
-              />
+            <View style={styles.ratingTabs}>
+              <TouchableOpacity
+                style={[
+                  styles.ratingTabButton,
+                  ratingModalTab === 'rate' && styles.ratingTabButtonActive
+                ]}
+                onPress={() => setRatingModalTab('rate')}
+              >
+                <Text
+                  style={[
+                    styles.ratingTabText,
+                    ratingModalTab === 'rate' && styles.ratingTabTextActive
+                  ]}
+                >
+                  Rate
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.ratingTabButton,
+                  ratingModalTab === 'reviews' && styles.ratingTabButtonActive
+                ]}
+                onPress={() => setRatingModalTab('reviews')}
+              >
+                <Text
+                  style={[
+                    styles.ratingTabText,
+                    ratingModalTab === 'reviews' && styles.ratingTabTextActive
+                  ]}
+                >
+                  Reviews
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-              <Text style={styles.ratingLabel}>Cleanliness</Text>
-              <StarRating
-                rating={newRating.cleanliness_rating}
-                onRatingChange={(rating) => setNewRating(prev => ({ ...prev, cleanliness_rating: rating }))}
-              />
 
-              <Text style={styles.ratingLabel}>Stock Level</Text>
-              <StarRating
-                rating={newRating.stocked_rating}
-                onRatingChange={(rating) => setNewRating(prev => ({ ...prev, stocked_rating: rating }))}
-              />
+            {ratingModalTab === 'rate' ? (
+              <>
+                <ScrollView style={styles.ratingContainer}>
+                  <Text style={styles.ratingLabel}>Overall Rating</Text>
+                  <StarRating
+                    rating={newRating.rating}
+                    onRatingChange={(rating) => setNewRating(prev => ({ ...prev, rating }))}
+                    size={32}
+                  />
 
-              <Text style={styles.ratingLabel}>Availability Status</Text>
-              <View style={styles.availabilityOptions}>
-                {[
-                  { value: 'available', label: '🟢 Available', color: '#27AE60' },
-                  { value: 'busy', label: '🟡 Busy', color: '#F39C12' },
-                  { value: 'closed', label: '🔴 Closed', color: '#E74C3C' }
-                ].map(option => (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[
-                      styles.availabilityOption,
-                      {
-                        backgroundColor: newRating.availability_status === option.value ? option.color : 'rgba(26,26,26,0.5)',
-                        borderColor: option.color
-                      }
-                    ]}
-                    onPress={() => setNewRating(prev => ({ ...prev, availability_status: option.value }))}
-                  >
-                    <Text style={[
-                      styles.availabilityOptionText,
-                      { color: newRating.availability_status === option.value ? '#FFF' : option.color }
-                    ]}>
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+                  <Text style={styles.ratingLabel}>Cleanliness</Text>
+                  <StarRating
+                    rating={newRating.cleanliness_rating}
+                    onRatingChange={(rating) => setNewRating(prev => ({ ...prev, cleanliness_rating: rating }))}
+                  />
 
-              <Text style={styles.ratingLabel}>Write Your Review</Text>
-              <TextInput
-                style={[styles.textInputDark, styles.textArea]}
-                value={newRating.review_text}
-                onChangeText={(text) => setNewRating(prev => ({ ...prev, review_text: text }))}
-                placeholder="Share your experience... How was the cleanliness? What amenities were available? Any tips for other users?"
-                placeholderTextColor="#888"
-                multiline
-                numberOfLines={5}
-              />
+                  <Text style={styles.ratingLabel}>Stock Level</Text>
+                  <StarRating
+                    rating={newRating.stocked_rating}
+                    onRatingChange={(rating) => setNewRating(prev => ({ ...prev, stocked_rating: rating }))}
+                  />
 
-              {/* Photo Upload Section */}
-              <Text style={styles.ratingLabel}>Photos (Optional - Up to 3)</Text>
-              <View style={styles.photoContainer}>
-                {reviewPhotos.map((photo, index) => (
-                  <View key={index} style={styles.photoPreview}>
-                    <Image source={{ uri: photo.uri }} style={styles.photoImage} />
-                    <TouchableOpacity
-                      style={styles.removePhotoButton}
-                      onPress={() => removePhoto(index)}
-                    >
-                      <Text style={styles.removePhotoText}>✕</Text>
-                    </TouchableOpacity>
+                  <Text style={styles.ratingLabel}>Availability Status</Text>
+                  <View style={styles.availabilityOptions}>
+                    {[
+                      { value: 'available', label: '🟢 Available', color: '#27AE60' },
+                      { value: 'busy', label: '🟡 Busy', color: '#F39C12' },
+                      { value: 'closed', label: '🔴 Closed', color: '#E74C3C' }
+                    ].map(option => (
+                      <TouchableOpacity
+                        key={option.value}
+                        style={[
+                          styles.availabilityOption,
+                          {
+                            backgroundColor: newRating.availability_status === option.value ? option.color : 'rgba(26,26,26,0.5)',
+                            borderColor: option.color
+                          }
+                        ]}
+                        onPress={() => setNewRating(prev => ({ ...prev, availability_status: option.value }))}
+                      >
+                        <Text style={[
+                          styles.availabilityOptionText,
+                          { color: newRating.availability_status === option.value ? '#FFF' : option.color }
+                        ]}>
+                          {option.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                ))}
 
-                {reviewPhotos.length < 3 && (
-                  <TouchableOpacity
-                    style={styles.addPhotoButton}
-                    onPress={() => {
-                      Alert.alert(
-                        'Add Photo',
-                        'Choose photo source',
-                        [
-                          { text: 'Camera', onPress: () => pickImage('camera') },
-                          { text: 'Photo Library', onPress: () => pickImage('library') },
-                          { text: 'Cancel', style: 'cancel' }
-                        ]
-                      );
-                    }}
-                  >
-                    <Text style={styles.addPhotoText}>+</Text>
-                    <Text style={styles.addPhotoLabel}>Add Photo</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </ScrollView>
+                  <Text style={styles.ratingLabel}>Write Your Review</Text>
+                  <TextInput
+                    style={[styles.textInputDark, styles.textArea]}
+                    value={newRating.review_text}
+                    onChangeText={(text) => setNewRating(prev => ({ ...prev, review_text: text }))}
+                    placeholder="Share your experience... How was the cleanliness? What amenities were available? Any tips for other users?"
+                    placeholderTextColor="#888"
+                    multiline
+                    numberOfLines={5}
+                  />
 
-            <TouchableOpacity
-              style={styles.submitRatingButton}
-              onPress={handleAddRating}
-              disabled={loading}
-            >
-              <Text style={styles.submitRatingButtonText}>
-                {loading ? 'Submitting...' : 'Submit Rating'}
-              </Text>
-            </TouchableOpacity>
+                  {/* Photo Upload Section */}
+                  <Text style={styles.ratingLabel}>Photos (Optional - Up to 3)</Text>
+                  <View style={styles.photoContainer}>
+                    {reviewPhotos.map((photo, index) => (
+                      <View key={index} style={styles.photoPreview}>
+                        <Image source={{ uri: photo.uri }} style={styles.photoImage} />
+                        <TouchableOpacity
+                          style={styles.removePhotoButton}
+                          onPress={() => removePhoto(index)}
+                        >
+                          <Text style={styles.removePhotoText}>✕</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+
+                    {reviewPhotos.length < 3 && (
+                      <TouchableOpacity
+                        style={styles.addPhotoButton}
+                        onPress={() => {
+                          Alert.alert(
+                            'Add Photo',
+                            'Choose photo source',
+                            [
+                              { text: 'Camera', onPress: () => pickImage('camera') },
+                              { text: 'Photo Library', onPress: () => pickImage('library') },
+                              { text: 'Cancel', style: 'cancel' }
+                            ]
+                          );
+                        }}
+                      >
+                        <Text style={styles.addPhotoText}>+</Text>
+                        <Text style={styles.addPhotoLabel}>Add Photo</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </ScrollView>
+
+                <TouchableOpacity
+                  style={styles.submitRatingButton}
+                  onPress={handleAddRating}
+                  disabled={loading}
+                >
+                  <Text style={styles.submitRatingButtonText}>
+                    {loading ? 'Submitting...' : 'Submit Rating'}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              renderReviewsSection()
+            )}
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -2308,6 +2314,102 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+	  ratingTabs: {
+	    flexDirection: 'row',
+	    backgroundColor: '#1f1f1f',
+	    borderRadius: 999,
+	    padding: 4,
+	    marginBottom: 10,
+	    alignSelf: 'center',
+	  },
+	  ratingTabButton: {
+	    flex: 1,
+	    paddingVertical: 8,
+	    borderRadius: 999,
+	    alignItems: 'center',
+	  },
+	  ratingTabButtonActive: {
+	    backgroundColor: '#F5F5DC',
+	  },
+	  ratingTabText: {
+	    fontSize: 14,
+	    fontWeight: '600',
+	    color: '#F5F5DC',
+	  },
+	  ratingTabTextActive: {
+	    color: '#2C2C2C',
+	  },
+	  reviewsContainer: {
+	    maxHeight: 400,
+	  },
+	  reviewsSummaryRow: {
+	    flexDirection: 'row',
+	    justifyContent: 'space-between',
+	    marginBottom: 16,
+	  },
+	  reviewsSummaryText: {
+	    fontSize: 14,
+	    color: '#F5F5DC',
+	    fontWeight: '600',
+	  },
+	  reviewCard: {
+	    backgroundColor: '#1f1f1f',
+	    borderRadius: 12,
+	    padding: 12,
+	    marginBottom: 12,
+	  },
+	  reviewHeader: {
+	    flexDirection: 'row',
+	    justifyContent: 'space-between',
+	    alignItems: 'center',
+	    marginBottom: 6,
+	  },
+	  reviewRatingText: {
+	    fontSize: 14,
+	    color: '#F5F5DC',
+	    fontWeight: '600',
+	  },
+	  reviewDateText: {
+	    fontSize: 12,
+	    color: '#aaa',
+	  },
+	  reviewText: {
+	    fontSize: 14,
+	    color: '#F5F5DC',
+	    marginBottom: 8,
+	  },
+	  reviewPhotosRow: {
+	    marginTop: 4,
+	    flexDirection: 'row',
+	  },
+	  reviewPhoto: {
+	    width: 72,
+	    height: 72,
+	    borderRadius: 8,
+	    marginRight: 8,
+	    backgroundColor: '#333',
+	  },
+	  reviewsLoadingContainer: {
+	    height: 200,
+	    justifyContent: 'center',
+	    alignItems: 'center',
+	  },
+	  reviewsLoadingText: {
+	    color: '#F5F5DC',
+	    fontSize: 14,
+	  },
+	  noReviewsContainer: {
+	    height: 200,
+	    justifyContent: 'center',
+	    alignItems: 'center',
+	    paddingHorizontal: 20,
+	  },
+	  noReviewsText: {
+	    color: '#F5F5DC',
+	    fontSize: 14,
+	    textAlign: 'center',
+	  },
+
   // Availability status styles
   availabilityOptions: {
     flexDirection: 'row',
@@ -2402,6 +2504,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#6B4423',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  rankingsSubtitle: {
+    fontSize: 14,
+    color: '#666',
     textAlign: 'center',
     marginBottom: 20,
   },
