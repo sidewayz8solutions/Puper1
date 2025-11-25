@@ -96,7 +96,10 @@ export default function App() {
     stocked_rating: 5,
     review_text: '', // Changed from 'comment' to 'review_text' for clarity
     gender: 'unisex',
-    availability_status: 'available' // 'available', 'busy', 'closed'
+    availability_status: 'available', // 'available', 'busy', 'closed'
+    // Optional crowd-sourced accessibility info from the rating modal
+    wheelchair_accessible: null,
+    baby_changing: null,
   });
 
   // Review photos (up to 3)
@@ -598,6 +601,18 @@ export default function App() {
       // Add the review
       await restroomService.addReview(reviewData);
 
+      // Optionally update restroom accessibility flags based on this rating
+      if (typeof newRating.wheelchair_accessible === 'boolean' || typeof newRating.baby_changing === 'boolean') {
+        try {
+          await restroomService.updateAccessibilityFlags(selectedRestroom.id, {
+            wheelchair_accessible: newRating.wheelchair_accessible,
+            baby_changing: newRating.baby_changing,
+          });
+        } catch (err) {
+          console.warn('Failed to update restroom accessibility flags:', err?.message || err);
+        }
+      }
+
       // Reset rating form and photos
       setNewRating({
         rating: 5,
@@ -605,7 +620,9 @@ export default function App() {
         stocked_rating: 5,
         review_text: '',
         gender: 'unisex',
-        availability_status: 'available'
+        availability_status: 'available',
+        wheelchair_accessible: null,
+        baby_changing: null,
       });
       setReviewPhotos([]);
       setShowRatingModal(false);
@@ -1041,13 +1058,17 @@ export default function App() {
                 ? restroomService.formatDistance(restroom.distance)
                 : '';
 
+              const reviewCount = Array.isArray(restroom.reviews) ? restroom.reviews.length : 0;
+              const latestReview = reviewCount > 0 ? restroom.reviews[0] : null;
+
               return (
                 <TouchableOpacity
                   key={restroom.id}
                   style={styles.rankingItem}
                   onPress={() => {
                     setSelectedRestroom(restroom);
-                    setRatingModalTab('rate');
+                    // Default to Reviews tab if there are reviews, otherwise Rate tab
+                    setRatingModalTab(reviewCount > 0 ? 'reviews' : 'rate');
                     setSelectedRestroomDetails(null);
                     loadRestroomDetailsForModal(restroom);
                     setShowRatingModal(true);
@@ -1070,11 +1091,31 @@ export default function App() {
                       {restroom.baby_changing && '👶 '}
                       {restroom.gender_neutral && '🚻 '}
                     </Text>
+
+                    {/* Show review count and preview */}
+                    {reviewCount > 0 && (
+                      <View style={styles.reviewPreview}>
+                        <Text style={styles.reviewCountText}>
+                          📝 {reviewCount} review{reviewCount === 1 ? '' : 's'}
+                        </Text>
+                        {latestReview && (latestReview.review_text || latestReview.comment) && (
+                          <Text style={styles.reviewPreviewText} numberOfLines={2}>
+                            "{latestReview.review_text || latestReview.comment}"
+                          </Text>
+                        )}
+                        {latestReview && Array.isArray(latestReview.photos) && latestReview.photos.length > 0 && (
+                          <Text style={styles.reviewPhotosIndicator}>
+                            📷 {latestReview.photos.length} photo{latestReview.photos.length === 1 ? '' : 's'}
+                          </Text>
+                        )}
+                      </View>
+                    )}
                   </View>
 
                   <TouchableOpacity
                     style={styles.rateButton}
-                    onPress={() => {
+                    onPress={(e) => {
+                      e.stopPropagation();
                       setSelectedRestroom(restroom);
                       setRatingModalTab('rate');
                       setSelectedRestroomDetails(null);
@@ -1191,6 +1232,7 @@ export default function App() {
           const distance = restroom.distance
             ? restroomService.formatDistance(restroom.distance)
             : '';
+          const reviewCount = Array.isArray(restroom.reviews) ? restroom.reviews.length : 0;
 
           return (
             <Marker
@@ -1203,7 +1245,8 @@ export default function App() {
               description={`${renderToiletRating(avgRating)} ${distance ? `• ${distance}` : ''}`}
               onPress={() => {
                 setSelectedRestroom(restroom);
-                setRatingModalTab('rate');
+                // Default to Reviews tab if there are reviews, otherwise Rate tab
+                setRatingModalTab(reviewCount > 0 ? 'reviews' : 'rate');
                 setSelectedRestroomDetails(null);
                 loadRestroomDetailsForModal(restroom);
                 setShowRatingModal(true);
@@ -1529,7 +1572,9 @@ export default function App() {
                   stocked_rating: 5,
                   review_text: '',
                   gender: 'unisex',
-                  availability_status: 'available'
+                  availability_status: 'available',
+                  wheelchair_accessible: null,
+                  baby_changing: null,
                 });
                 setReviewPhotos([]);
               }}>
@@ -1623,6 +1668,68 @@ export default function App() {
                     ))}
                   </View>
 
+                  <Text style={styles.ratingLabel}>Changing Station</Text>
+                  <View style={styles.availabilityOptions}>
+                    {[
+                      { value: true, label: 'Yes', color: '#27AE60' },
+                      { value: false, label: 'No', color: '#E74C3C' }
+                    ].map(option => (
+                      <TouchableOpacity
+                        key={String(option.value)}
+                        style={[
+                          styles.availabilityOption,
+                          {
+                            backgroundColor: newRating.baby_changing === option.value ? option.color : 'rgba(26,26,26,0.5)',
+                            borderColor: option.color
+                          }
+                        ]}
+                        onPress={() => setNewRating(prev => ({ ...prev, baby_changing: option.value }))}
+                      >
+                        <Text
+                          style={[
+                            styles.availabilityOptionText,
+                            {
+                              color: newRating.baby_changing === option.value ? '#FFF' : '#F5F5DC'
+                            }
+                          ]}
+                        >
+                          {option.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  <Text style={styles.ratingLabel}>Handicap Accessible</Text>
+                  <View style={styles.availabilityOptions}>
+                    {[
+                      { value: true, label: 'Yes', color: '#27AE60' },
+                      { value: false, label: 'No', color: '#E74C3C' }
+                    ].map(option => (
+                      <TouchableOpacity
+                        key={String(option.value)}
+                        style={[
+                          styles.availabilityOption,
+                          {
+                            backgroundColor: newRating.wheelchair_accessible === option.value ? option.color : 'rgba(26,26,26,0.5)',
+                            borderColor: option.color
+                          }
+                        ]}
+                        onPress={() => setNewRating(prev => ({ ...prev, wheelchair_accessible: option.value }))}
+                      >
+                        <Text
+                          style={[
+                            styles.availabilityOptionText,
+                            {
+                              color: newRating.wheelchair_accessible === option.value ? '#FFF' : '#F5F5DC'
+                            }
+                          ]}
+                        >
+                          {option.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
                   <Text style={styles.ratingLabel}>Write Your Review</Text>
                   <TextInput
                     style={[styles.textInputDark, styles.textArea]}
@@ -1669,6 +1776,17 @@ export default function App() {
                       </TouchableOpacity>
                     )}
                   </View>
+
+                  {/* Quick shortcut so users can easily switch to reviews */}
+                  {((selectedRestroomDetails && Array.isArray(selectedRestroomDetails.reviews) && selectedRestroomDetails.reviews.length > 0) ||
+                    (selectedRestroom && Array.isArray(selectedRestroom.reviews) && selectedRestroom.reviews.length > 0)) && (
+                    <TouchableOpacity
+                      style={styles.viewReviewsButton}
+                      onPress={() => setRatingModalTab('reviews')}
+                    >
+                      <Text style={styles.viewReviewsButtonText}>View reviews & photos</Text>
+                    </TouchableOpacity>
+                  )}
                 </ScrollView>
 
                 <TouchableOpacity
