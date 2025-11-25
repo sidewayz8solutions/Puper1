@@ -1,7 +1,6 @@
 import React, {
   useEffect,
   useState,
-  useRef,
 } from 'react';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -1204,7 +1203,7 @@ export default function App() {
       {/* Map */}
       <MapView
         style={styles.map}
-        provider={PROVIDER_GOOGLE}
+        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
         region={region}
         showsUserLocation={true}
         showsMyLocationButton={true}
@@ -1888,7 +1887,7 @@ const styles = StyleSheet.create({
   // Features Section
   featuresSection: {
     padding: 30,
-    backgroundColor: '##797a7a',
+	    backgroundColor: '#797a7a',
   },
   sectionTitle: {
     fontSize: 28,

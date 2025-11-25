@@ -2,7 +2,7 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-  "version": "1.9.8",
+  "version": "2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,12 +15,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-  "buildNumber": "61",
+  "buildNumber": "70",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSCameraUsageDescription": "Püper needs camera access to take photos of restrooms.",
         "NSPhotoLibraryUsageDescription": "Püper needs photo library access to add photos to your reviews.",
+        "NSPhotoLibraryAddUsageDescription": "Püper needs permission to save photos you add to your reviews.",
         "ITSAppUsesNonExemptEncryption": false
       },
       "splash": {
