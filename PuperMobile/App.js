@@ -1,15 +1,12 @@
 import React, {
   useEffect,
   useState,
+  useRef,
 } from 'react';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { StatusBar } from 'expo-status-bar';
-import {
-  useVideoPlayer,
-  VideoView,
-} from 'expo-video';
 import { Video } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -113,13 +110,6 @@ export default function App() {
   const [ratingModalTab, setRatingModalTab] = useState('rate'); // 'rate' or 'reviews'
   const [selectedRestroomDetails, setSelectedRestroomDetails] = useState(null);
   const [reviewsLoading, setReviewsLoading] = useState(false);
-
-  // Video player for hero section - must be at top level of component
-  const heroVideoPlayer = useVideoPlayer(require('./assets/hero-video.mp4'), player => {
-    player.loop = true;
-    player.muted = true;
-    player.play();
-  });
 
   // Show splash video on every app launch
   useEffect(() => {
@@ -879,11 +869,13 @@ export default function App() {
 
         {/* Hero Section */}
         <View style={styles.heroSection}>
-          <VideoView
-            player={heroVideoPlayer}
+          <Video
+            source={require('./assets/hero-video.mp4')}
             style={styles.heroBackground}
-            contentFit="cover"
-            nativeControls={false}
+            resizeMode="cover"
+            shouldPlay
+            isLooping
+            isMuted
           />
           {/* Simple Map Button - Top Left */}
           <TouchableOpacity

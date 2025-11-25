@@ -2,11 +2,11 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-  "version": "1.9.6",
+  "version": "1.9.8",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "description": "Your guide to relief - Find clean, accessible public restrooms wherever you are",
     "splash": {
       "backgroundColor": "#000000",
@@ -15,20 +15,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-  "buildNumber": "59",
+  "buildNumber": "61",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSCameraUsageDescription": "Püper needs camera access to take photos of restrooms.",
         "NSPhotoLibraryUsageDescription": "Püper needs photo library access to add photos to your reviews.",
-        "ITSAppUsesNonExemptEncryption": false,
-        "NSUserTrackingUsageDescription": "This identifier will be used to deliver ads that help support the app.",
-        "GADApplicationIdentifier": "ca-app-pub-8579480495006676~6423147580",
-        "SKAdNetworkItems": [
-          {
-            "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
-          }
-        ]
+        "ITSAppUsesNonExemptEncryption": false
       },
       "splash": {
         "backgroundColor": "#000000",
@@ -74,21 +67,11 @@
           "locationAlwaysAndWhenInUsePermission": "Allow Püper to use your location to find nearby restrooms."
         }
       ],
-      "expo-video",
       "expo-asset"
     ],
     "extra": {
       "supabaseUrl": "https://qunaiicjcelvdunluwqh.supabase.co",
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bmFpaWNqY2VsdmR1bmx1d3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NjA4NjEsImV4cCI6MjA2OTMzNjg2MX0.rFXwY95lvcXZEds7f16KodwhfnGHQBp7GsV4WTFQHjI",
-      "admob": {
-        "appIdIos": "ca-app-pub-8579480495006676~6423147580",
-        "appOpenUnitIdIos": "ca-app-pub-8579480495006676/9033300373",
-        "bannerUnitIdIos": "ca-app-pub-8579480495006676/7646946952",
-        "interstitialUnitIdIos": "ca-app-pub-8579480495006676/6631881201"
-      },
-      "iap": {
-        "autoRestoreOnLaunch": false
-      },
       "eas": {
         "projectId": "ee7c255a-c7c7-4664-837e-c123d70e2105"
       }
