@@ -382,38 +382,37 @@ export const restroomService = {
 
 // Photo upload service
 export const photoService = {
-  // Upload review photo to Supabase Storage
+  // Upload review photo to Supabase Storage (React Native compatible)
   async uploadReviewPhoto(photoUri, identifier, photoIndex) {
     try {
-      console.log('[PhotoService] Starting upload for photo:', photoIndex);
+      console.log('[PhotoService] Starting upload for photo:', photoIndex, 'URI:', photoUri);
       
-      // Convert local URI to blob for upload
-      const response = await fetch(photoUri);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch local image: ${response.status}`);
-      }
-      const blob = await response.blob();
-      console.log('[PhotoService] Blob created, size:', blob.size, 'type:', blob.type);
-
-      // Generate unique filename using identifier (restroom ID + timestamp)
+      // Generate unique filename
       const timestamp = Date.now();
       const fileExt = photoUri.split('.').pop().split('?')[0] || 'jpg';
-      // Use flat path - no nested folders to avoid permission issues
       const fileName = `review-${identifier}-${photoIndex}-${timestamp}.${fileExt}`;
+      
+      console.log('[PhotoService] Uploading file:', fileName);
 
-      console.log('[PhotoService] Uploading to bucket: review-photos, file:', fileName);
+      // For React Native, we need to read the file and convert to base64
+      // Then decode it for upload
+      const response = await fetch(photoUri);
+      const arrayBuffer = await response.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      
+      console.log('[PhotoService] File size:', uint8Array.length, 'bytes');
 
-      // Upload to Supabase Storage
+      // Upload to Supabase Storage using Uint8Array
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('review-photos')
-        .upload(fileName, blob, {
-          contentType: blob.type || 'image/jpeg',
+        .upload(fileName, uint8Array, {
+          contentType: `image/${fileExt === 'png' ? 'png' : 'jpeg'}`,
           cacheControl: '3600',
-          upsert: true // Allow overwrite in case of retry
+          upsert: true
         });
 
       if (uploadError) {
-        console.error('[PhotoService] Upload error:', uploadError.message, uploadError);
+        console.error('[PhotoService] Upload error:', uploadError.message, JSON.stringify(uploadError));
         throw uploadError;
       }
 
