@@ -114,6 +114,13 @@ export default function App() {
   const [selectedRestroomDetails, setSelectedRestroomDetails] = useState(null);
   const [reviewsLoading, setReviewsLoading] = useState(false);
 
+  // Video player for hero section - must be at top level of component
+  const heroVideoPlayer = useVideoPlayer(require('./assets/hero-video.mp4'), player => {
+    player.loop = true;
+    player.muted = true;
+    player.play();
+  });
+
   // Show splash video on every app launch
   useEffect(() => {
     setShowLaunchVideo(true);
@@ -866,12 +873,6 @@ export default function App() {
 
   // HomePage Component (Landing Page)
   const HomePage = () => {
-    const player = useVideoPlayer(require('./assets/hero-video.mp4'), player => {
-      player.loop = true;
-      player.muted = true;
-      player.play();
-    });
-
     return (
       <ScrollView style={styles.homeContainer} showsVerticalScrollIndicator={false}>
         <StatusBar style="light" />
@@ -879,7 +880,7 @@ export default function App() {
         {/* Hero Section */}
         <View style={styles.heroSection}>
           <VideoView
-            player={player}
+            player={heroVideoPlayer}
             style={styles.heroBackground}
             contentFit="cover"
             nativeControls={false}
