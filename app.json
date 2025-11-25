@@ -4,6 +4,9 @@
       "eas": {
         "projectId": "fe45a1cd-13de-4325-8b27-ce22979c726c"
       }
+    },
+    "ios": {
+      "bundleIdentifier": "com.buttond.puper"
     }
   }
 }

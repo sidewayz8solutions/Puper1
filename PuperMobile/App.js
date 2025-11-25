@@ -665,13 +665,6 @@ export default function App() {
   const loadRestroomDetailsForModal = async (restroom) => {
     if (!restroom) return;
 
-    // If this restroom already has reviews attached (seeded or fallback data),
-    // just use it directly.
-    if (restroom.reviews && restroom.reviews.length > 0) {
-      setSelectedRestroomDetails(restroom);
-      return;
-    }
-
     // For seeded or Google Place restrooms that may not exist in Supabase,
     // just fall back to the basic object.
     if (!restroom.id || String(restroom.id).startsWith('seeded-') || restroom.isGooglePlace) {
@@ -681,7 +674,21 @@ export default function App() {
 
     try {
       setReviewsLoading(true);
+
+      // Always fetch the full restroom + reviews from Supabase so that
+      // written review text and photos are available, even if the list
+      // view only had partial review objects (rating only).
       const full = await restroomService.getById(restroom.id);
+
+      if (full && Array.isArray(full.reviews)) {
+        // Ensure reviews are in newest-first order for display
+        full.reviews = [...full.reviews].sort((a, b) => {
+          const aTime = a?.created_at ? new Date(a.created_at).getTime() : 0;
+          const bTime = b?.created_at ? new Date(b.created_at).getTime() : 0;
+          return bTime - aTime;
+        });
+      }
+
       if (full) {
         setSelectedRestroomDetails(full);
       } else {
@@ -2678,6 +2685,23 @@ const styles = StyleSheet.create({
   restroomDetails: {
     fontSize: 12,
     color: '#666',
+  },
+  reviewPreview: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  reviewCountText: {
+    fontSize: 12,
+    color: '#6B4423',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  reviewPreviewText: {
+    fontSize: 12,
+    color: '#666',
+    fontStyle: 'italic',
   },
   rateButton: {
     backgroundColor: '#6B4423',
