@@ -720,6 +720,11 @@ export default function App() {
 
     const avg = restroomService.calculateAverageRating(reviews);
     const count = reviews.length;
+    
+    // Count reviews that have written content or photos
+    const reviewsWithContent = reviews.filter(r => 
+      (r.review_text || r.comment) || (Array.isArray(r.photos) && r.photos.length > 0)
+    );
 
     return (
       <ScrollView style={styles.reviewsContainer} showsVerticalScrollIndicator={false}>
@@ -728,50 +733,68 @@ export default function App() {
             Overall rating: {avg.toFixed(1)} {renderToiletRating(avg)}
           </Text>
           <Text style={styles.reviewsSummaryText}>
-            {count} review{count === 1 ? '' : 's'}
+            {count} rating{count === 1 ? '' : 's'}
           </Text>
         </View>
 
-        {reviews.map((review) => (
-          <View
-            key={review.id || review.created_at || Math.random().toString()}
-            style={styles.reviewCard}
-          >
-            <View style={styles.reviewHeader}>
-              <Text style={styles.reviewRatingText}>
-                {renderToiletRating(review.rating || 0)}{' '}
-                {Number(review.rating || 0).toFixed(1)}
-              </Text>
+        {reviewsWithContent.length === 0 && (
+          <View style={styles.noReviewsContainer}>
+            <Text style={styles.noReviewsText}>
+              No written reviews yet. Be the first to share your experience!
+            </Text>
+          </View>
+        )}
+
+        {reviews.map((review) => {
+          // Only show reviews that have written text or photos
+          const hasText = review.review_text || review.comment;
+          const hasPhotos = Array.isArray(review.photos) && review.photos.length > 0;
+          
+          // Skip reviews that have no content to display (rating-only reviews)
+          if (!hasText && !hasPhotos) {
+            return null;
+          }
+          
+          return (
+            <View
+              key={review.id || review.created_at || Math.random().toString()}
+              style={styles.reviewCard}
+            >
+              {/* Date only - no individual ratings shown */}
               {review.created_at && (
-                <Text style={styles.reviewDateText}>
-                  {new Date(review.created_at).toLocaleDateString()}
+                <View style={styles.reviewHeader}>
+                  <Text style={styles.reviewDateText}>
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </Text>
+                </View>
+              )}
+
+              {/* Written review text */}
+              {hasText && (
+                <Text style={styles.reviewText}>
+                  {review.review_text || review.comment}
                 </Text>
               )}
+
+              {/* Photos for this review */}
+              {hasPhotos && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.reviewPhotosRow}
+                >
+                  {review.photos.map((url, index) => (
+                    <Image
+                      key={index}
+                      source={{ uri: url }}
+                      style={styles.reviewPhoto}
+                    />
+                  ))}
+                </ScrollView>
+              )}
             </View>
-
-            {(review.review_text || review.comment) && (
-              <Text style={styles.reviewText}>
-                {review.review_text || review.comment}
-              </Text>
-            )}
-
-            {Array.isArray(review.photos) && review.photos.length > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.reviewPhotosRow}
-              >
-                {review.photos.map((url, index) => (
-                  <Image
-                    key={index}
-                    source={{ uri: url }}
-                    style={styles.reviewPhoto}
-                  />
-                ))}
-              </ScrollView>
-            )}
-          </View>
-        ))}
+          );
+        })}
       </ScrollView>
     );
   };

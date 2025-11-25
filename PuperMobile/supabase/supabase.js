@@ -155,7 +155,13 @@ export const restroomService = {
             created_at,
             reviews (
               id,
-              rating
+              rating,
+              cleanliness_rating,
+              stocked_rating,
+              comment,
+              review_text,
+              photos,
+              created_at
             )
           `)
           .range(from, to);
@@ -379,38 +385,50 @@ export const photoService = {
   // Upload review photo to Supabase Storage
   async uploadReviewPhoto(photoUri, identifier, photoIndex) {
     try {
+      console.log('[PhotoService] Starting upload for photo:', photoIndex);
+      
       // Convert local URI to blob for upload
       const response = await fetch(photoUri);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch local image: ${response.status}`);
+      }
       const blob = await response.blob();
+      console.log('[PhotoService] Blob created, size:', blob.size, 'type:', blob.type);
 
       // Generate unique filename using identifier (restroom ID + timestamp)
       const timestamp = Date.now();
       const fileExt = photoUri.split('.').pop().split('?')[0] || 'jpg';
+      // Use flat path - no nested folders to avoid permission issues
       const fileName = `review-${identifier}-${photoIndex}-${timestamp}.${fileExt}`;
-      const filePath = `review-photos/${fileName}`;
+
+      console.log('[PhotoService] Uploading to bucket: review-photos, file:', fileName);
 
       // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('review-photos')
-        .upload(filePath, blob, {
+        .upload(fileName, blob, {
           contentType: blob.type || 'image/jpeg',
-          upsert: false
+          cacheControl: '3600',
+          upsert: true // Allow overwrite in case of retry
         });
 
       if (uploadError) {
-        console.error('Photo upload error:', uploadError);
+        console.error('[PhotoService] Upload error:', uploadError.message, uploadError);
         throw uploadError;
       }
+
+      console.log('[PhotoService] Upload successful:', uploadData);
 
       // Get public URL
       const { data } = supabase.storage
         .from('review-photos')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
+      console.log('[PhotoService] Public URL:', data.publicUrl);
       return { url: data.publicUrl, error: null };
     } catch (error) {
-      console.error('Error uploading review photo:', error);
-      return { url: null, error: error.message };
+      console.error('[PhotoService] Error uploading review photo:', error.message || error);
+      return { url: null, error: error.message || 'Upload failed' };
     }
   },
 
