@@ -15,6 +15,7 @@ import {
   Dimensions,
   Image,
   KeyboardAvoidingView,
+  Linking,
   Modal,
   Platform,
   ScrollView,
@@ -103,9 +104,13 @@ export default function App() {
 
   const [stats, setStats] = useState({
     totalRestrooms: 0,
-    averageRating: '0.0',
+    topRatedRestroom: null,
     accessibleCount: 0
   });
+
+  // Search/Navigation state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const [ratingModalTab, setRatingModalTab] = useState('rate'); // 'rate' or 'reviews'
   const [selectedRestroomDetails, setSelectedRestroomDetails] = useState(null);
   const [reviewsLoading, setReviewsLoading] = useState(false);
@@ -162,12 +167,18 @@ export default function App() {
       setRestrooms(data);
       setErrorMsg(null);
 
+      // Find top-rated restroom
+      const ratedRestrooms = data.filter(r => (r.avg_rating || r.rating || 0) > 0);
+      const topRated = ratedRestrooms.length > 0
+        ? ratedRestrooms.reduce((best, current) =>
+            (current.avg_rating || current.rating || 0) > (best.avg_rating || best.rating || 0) ? current : best
+          )
+        : null;
+
       // Update stats
       setStats({
         totalRestrooms: data.length,
-        averageRating: data.length > 0
-          ? (data.reduce((sum, r) => sum + (r.avg_rating || r.rating || 0), 0) / data.length).toFixed(1)
-          : '0.0',
+        topRatedRestroom: topRated,
         accessibleCount: data.filter(r => r.wheelchair_accessible).length
       });
     } catch (error) {
@@ -199,18 +210,17 @@ export default function App() {
       setRestrooms(rated);
       setErrorMsg(null);
 
+      // Find top-rated restroom
+      const topRated = rated.length > 0
+        ? rated.reduce((best, current) =>
+            (current.avg_rating || current.rating || 0) > (best.avg_rating || best.rating || 0) ? current : best
+          )
+        : null;
+
       // Update stats
       setStats({
         totalRestrooms: rated.length,
-        averageRating:
-          rated.length > 0
-            ? (
-                rated.reduce(
-                  (sum, r) => sum + (r.avg_rating || r.rating || 0),
-                  0
-                ) / rated.length
-              ).toFixed(1)
-            : '0.0',
+        topRatedRestroom: topRated,
         accessibleCount: rated.filter(r => r.wheelchair_accessible).length
       });
     } catch (error) {
@@ -297,10 +307,15 @@ export default function App() {
       setRestrooms(seededData);
       setErrorMsg(null);
 
+      // Find top-rated from seeded data
+      const topRated = seededData.reduce((best, current) =>
+        (current.avg_rating || 0) > (best.avg_rating || 0) ? current : best
+      );
+
       // Update stats for seeded data
       setStats({
         totalRestrooms: seededData.length,
-        averageRating: (seededData.reduce((sum, r) => sum + (r.avg_rating || 0), 0) / seededData.length).toFixed(1),
+        topRatedRestroom: topRated,
         accessibleCount: seededData.filter(r => r.wheelchair_accessible).length
       });
 
@@ -855,6 +870,57 @@ export default function App() {
     setReviewPhotos(reviewPhotos.filter((_, i) => i !== index));
   };
 
+  // Open navigation to a restroom using native maps app
+  const openDirections = (restroom) => {
+    if (!restroom) return;
+
+    const lat = restroom.lat || restroom.latitude;
+    const lng = restroom.lon || restroom.longitude;
+    const name = encodeURIComponent(restroom.name || 'Restroom');
+
+    // Use platform-specific maps URL
+    const url = Platform.select({
+      ios: `maps://app?daddr=${lat},${lng}&dirflg=d`,
+      android: `google.navigation:q=${lat},${lng}`,
+      default: `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+    });
+
+    Linking.canOpenURL(url).then((supported) => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        // Fallback to web URL
+        Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
+      }
+    }).catch((err) => {
+      console.error('Error opening maps:', err);
+      Alert.alert('Error', 'Could not open maps application');
+    });
+  };
+
+  // Navigate to top-rated restroom
+  const goToTopRated = () => {
+    if (!stats.topRatedRestroom) {
+      Alert.alert('No Ratings Yet', 'No restrooms have been rated in this area.');
+      return;
+    }
+
+    const restroom = stats.topRatedRestroom;
+    const lat = restroom.lat || restroom.latitude;
+    const lng = restroom.lon || restroom.longitude;
+
+    // Center map on the restroom
+    setRegion({
+      latitude: lat,
+      longitude: lng,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    });
+
+    // Select the restroom to show its info
+    setSelectedRestroom(restroom);
+  };
+
   // Filter restrooms based on current filters
   const filteredRestrooms = restrooms.filter(restroom => {
     if (filters.wheelchair_accessible && !restroom.wheelchair_accessible) return false;
@@ -1333,11 +1399,38 @@ export default function App() {
         {loading && (
           <ActivityIndicator size="small" color="#FFF" style={{ marginBottom: 10 }} />
         )}
-        <Text style={styles.infoText}>
-          {errorMsg
-            ? `⚠️ ${errorMsg}`
-            : `📍 ${stats.totalRestrooms} restrooms • ⭐ ${stats.averageRating} avg • ♿ ${stats.accessibleCount} accessible`}
-        </Text>
+
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{stats.totalRestrooms}</Text>
+            <Text style={styles.statLabel}>📍 Locations</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{stats.accessibleCount}</Text>
+            <Text style={styles.statLabel}>♿ Accessible</Text>
+          </View>
+          {stats.topRatedRestroom ? (
+            <TouchableOpacity style={styles.statItem} onPress={goToTopRated}>
+              <Text style={styles.statNumber}>
+                ⭐ {(stats.topRatedRestroom.avg_rating || stats.topRatedRestroom.rating || 0).toFixed(1)}
+              </Text>
+              <Text style={styles.statLabel} numberOfLines={1}>
+                🏆 {stats.topRatedRestroom.name?.substring(0, 12)}{stats.topRatedRestroom.name?.length > 12 ? '...' : ''}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>--</Text>
+              <Text style={styles.statLabel}>No Ratings</Text>
+            </View>
+          )}
+        </View>
+
+        {errorMsg && (
+          <Text style={styles.errorText}>⚠️ {errorMsg}</Text>
+        )}
+
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleFindNearby}
@@ -1603,6 +1696,16 @@ export default function App() {
                 <Text style={styles.closeButtonLight}>✕</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Get Directions Button */}
+            {selectedRestroom && (
+              <TouchableOpacity
+                style={styles.directionsButton}
+                onPress={() => openDirections(selectedRestroom)}
+              >
+                <Text style={styles.directionsButtonText}>🗺️ Get Directions</Text>
+              </TouchableOpacity>
+            )}
 
             <View style={styles.ratingTabs}>
               <TouchableOpacity
@@ -2159,8 +2262,36 @@ const styles = StyleSheet.create({
   },
   bottomInfo: {
     backgroundColor: '#6B4423',
-    padding: 20,
+    padding: 16,
     alignItems: 'center',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginBottom: 12,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+    paddingHorizontal: 4,
+  },
+  statNumber: {
+    color: '#F5F5DC',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  statLabel: {
+    color: '#FFF',
+    fontSize: 10,
+    marginTop: 2,
+    textAlign: 'center',
+  },
+  errorText: {
+    color: '#FFB6B6',
+    fontSize: 12,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   infoText: {
     color: '#FFF',
@@ -2296,6 +2427,18 @@ const styles = StyleSheet.create({
     width: '90%',
     maxWidth: 400,
     maxHeight: '80%',
+  },
+  directionsButton: {
+    backgroundColor: '#27AE60',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  directionsButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   modalHeader: {
     flexDirection: 'row',

@@ -4,7 +4,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   FaPlus, FaTimes, FaSearch, FaUsers,
   FaMapMarkerAlt, FaToilet, FaWifi,
-  FaChartLine, FaCrosshairs
+  FaChartLine, FaCrosshairs, FaWheelchair,
+  FaStar, FaRoute, FaDirections, FaCompass
 } from 'react-icons/fa';
 
 import { restroomService } from '../services/supabase';
@@ -118,12 +119,19 @@ const MapPage = () => {
   // Stats
   const [stats, setStats] = useState({
     totalRestrooms: 0,
-    averageRating: '0.0',
+    topRatedRestroom: null,
     recentlyAdded: 0,
     accessibleCount: 0,
     onlineUsers: 42,
     networkStatus: 'CONNECTING'
   });
+
+  // Navigation/Directions state
+  const [showDirections, setShowDirections] = useState(false);
+  const [destinationQuery, setDestinationQuery] = useState('');
+  const [directionsRenderer, setDirectionsRenderer] = useState(null);
+  const [activeRoute, setActiveRoute] = useState(null);
+  const [routeInfo, setRouteInfo] = useState(null);
 
   // Initialize Google Maps
   useEffect(() => {
@@ -879,12 +887,18 @@ const MapPage = () => {
       markersRef.current = newMarkers;
       setRestrooms(combinedRestrooms);
 
+      // Find the highest-rated restroom nearby
+      const ratedRestrooms = combinedRestrooms.filter(r => r.avg_rating && r.avg_rating > 0);
+      const topRated = ratedRestrooms.length > 0
+        ? ratedRestrooms.reduce((best, current) =>
+            (current.avg_rating || 0) > (best.avg_rating || 0) ? current : best
+          )
+        : null;
+
       // Update stats
       setStats({
         totalRestrooms: combinedRestrooms.length,
-        averageRating: combinedRestrooms.length > 0
-          ? (combinedRestrooms.reduce((sum, r) => sum + (r.avg_rating || 0), 0) / combinedRestrooms.length).toFixed(1)
-          : '0.0',
+        topRatedRestroom: topRated,
         recentlyAdded: combinedRestrooms.filter(r => {
           if (!r.created_at) return false;
           const createdDate = new Date(r.created_at);
@@ -1084,6 +1098,122 @@ const MapPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Navigation/Directions functionality
+  const getDirections = async (destination) => {
+    if (!userLocation) {
+      alert('Please enable location services to get directions');
+      return;
+    }
+
+    if (!destination) {
+      alert('Please enter a destination');
+      return;
+    }
+
+    try {
+      // Initialize directions service and renderer if not already done
+      if (!window.google || !window.google.maps) {
+        await initGoogleMaps();
+      }
+
+      const directionsService = new window.google.maps.DirectionsService();
+
+      // Create or reuse directions renderer
+      let renderer = directionsRenderer;
+      if (!renderer) {
+        renderer = new window.google.maps.DirectionsRenderer({
+          map: googleMapRef.current,
+          suppressMarkers: false,
+          polylineOptions: {
+            strokeColor: '#667eea',
+            strokeWeight: 5,
+            strokeOpacity: 0.8
+          }
+        });
+        setDirectionsRenderer(renderer);
+      }
+
+      // Clear previous route
+      renderer.setMap(googleMapRef.current);
+
+      const request = {
+        origin: new window.google.maps.LatLng(userLocation.lat, userLocation.lng),
+        destination: destination,
+        travelMode: window.google.maps.TravelMode.DRIVING
+      };
+
+      directionsService.route(request, (result, status) => {
+        if (status === window.google.maps.DirectionsStatus.OK) {
+          renderer.setDirections(result);
+          setActiveRoute(result);
+
+          // Extract route info
+          const route = result.routes[0];
+          const leg = route.legs[0];
+          setRouteInfo({
+            distance: leg.distance.text,
+            duration: leg.duration.text,
+            startAddress: leg.start_address,
+            endAddress: leg.end_address
+          });
+
+          console.log('✅ Directions calculated:', leg.distance.text, leg.duration.text);
+        } else {
+          console.error('❌ Directions request failed:', status);
+          alert(`Could not calculate directions: ${status}`);
+        }
+      });
+    } catch (error) {
+      console.error('❌ Error getting directions:', error);
+      alert('Failed to get directions. Please try again.');
+    }
+  };
+
+  // Get directions to a specific restroom
+  const getDirectionsToRestroom = (restroom) => {
+    if (!restroom) return;
+
+    const destination = restroom.address ||
+      `${restroom.lat},${restroom.lng || restroom.lon}`;
+
+    setDestinationQuery(restroom.name || destination);
+    getDirections(destination);
+  };
+
+  // Clear directions from map
+  const clearDirections = () => {
+    if (directionsRenderer) {
+      directionsRenderer.setMap(null);
+    }
+    setActiveRoute(null);
+    setRouteInfo(null);
+    setDestinationQuery('');
+  };
+
+  // Open external navigation (Google Maps, Apple Maps, etc.)
+  const openExternalNavigation = (restroom) => {
+    if (!restroom) return;
+
+    const lat = restroom.lat;
+    const lng = restroom.lng || restroom.lon;
+    const destination = restroom.address || `${lat},${lng}`;
+
+    // Detect platform and open appropriate maps app
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isMac = /Macintosh/.test(navigator.userAgent);
+
+    let mapsUrl;
+    if (isIOS || isMac) {
+      // Apple Maps for iOS/Mac
+      mapsUrl = `maps://maps.apple.com/?daddr=${encodeURIComponent(destination)}&dirflg=d`;
+    } else {
+      // Google Maps for Android/Web
+      mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+    }
+
+    window.open(mapsUrl, '_blank');
   };
 
   // Handle adding a restroom
@@ -1349,6 +1479,103 @@ const MapPage = () => {
               )}
             </div>
           </div>
+
+          {/* Navigation/Directions Panel */}
+          <div className="navigation-panel">
+            <div
+              className="navigation-header"
+              onClick={() => setShowDirections(!showDirections)}
+              style={{ cursor: 'pointer' }}
+            >
+              <FaRoute style={{ color: '#667eea' }} />
+              <span>Get Directions</span>
+              <FaCompass
+                style={{
+                  marginLeft: 'auto',
+                  transform: showDirections ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease'
+                }}
+              />
+            </div>
+            <AnimatePresence>
+              {showDirections && (
+                <motion.div
+                  className="navigation-content"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="navigation-input-wrapper">
+                    <FaDirections className="nav-icon" style={{ color: '#667eea' }} />
+                    <input
+                      type="text"
+                      value={destinationQuery}
+                      onChange={(e) => setDestinationQuery(e.target.value)}
+                      placeholder="Enter destination address..."
+                      className="navigation-input"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          getDirections(destinationQuery);
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="navigation-buttons">
+                    <motion.button
+                      className="get-directions-btn"
+                      onClick={() => getDirections(destinationQuery)}
+                      disabled={!destinationQuery.trim() || !userLocation}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <FaRoute />
+                      <span>Get Route</span>
+                    </motion.button>
+                    {activeRoute && (
+                      <motion.button
+                        className="clear-route-btn"
+                        onClick={clearDirections}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <FaTimes />
+                        <span>Clear</span>
+                      </motion.button>
+                    )}
+                  </div>
+                  {routeInfo && (
+                    <motion.div
+                      className="route-info"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <div className="route-detail">
+                        <span className="route-label">Distance:</span>
+                        <span className="route-value">{routeInfo.distance}</span>
+                      </div>
+                      <div className="route-detail">
+                        <span className="route-label">Duration:</span>
+                        <span className="route-value">{routeInfo.duration}</span>
+                      </div>
+                      <div className="route-detail destination-info">
+                        <span className="route-label">To:</span>
+                        <span className="route-value" style={{ fontSize: '0.75rem' }}>
+                          {routeInfo.endAddress?.substring(0, 40)}{routeInfo.endAddress?.length > 40 ? '...' : ''}
+                        </span>
+                      </div>
+                    </motion.div>
+                  )}
+                  {!userLocation && (
+                    <div className="navigation-warning">
+                      <span>⚠️ Enable location to get directions</span>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <div className="control-buttons">
             <motion.button
               className={`add-restroom-btn ${addMode ? 'active' : ''}`}
@@ -1438,15 +1665,41 @@ const MapPage = () => {
               <span className="stat-label">Locations</span>
             </div>
             <div className="stat-item">
-              <FaToilet />
-              <span className="stat-number">{stats.averageRating}</span>
-              <span className="stat-label">Avg Rating</span>
-            </div>
-            <div className="stat-item">
-              <FaUsers />
+              <FaWheelchair style={{ color: '#4299e1' }} />
               <span className="stat-number">{stats.accessibleCount}</span>
               <span className="stat-label">Accessible</span>
             </div>
+            {stats.topRatedRestroom ? (
+              <motion.div
+                className="stat-item top-rated-item"
+                onClick={() => {
+                  // Pan to the top-rated restroom
+                  if (googleMapRef.current && stats.topRatedRestroom) {
+                    googleMapRef.current.setCenter({
+                      lat: stats.topRatedRestroom.lat,
+                      lng: stats.topRatedRestroom.lng || stats.topRatedRestroom.lon
+                    });
+                    googleMapRef.current.setZoom(17);
+                    setSelectedRestroom(stats.topRatedRestroom);
+                    setShowDetailsModal(true);
+                  }
+                }}
+                whileHover={{ scale: 1.02, cursor: 'pointer' }}
+                style={{ cursor: 'pointer' }}
+              >
+                <FaStar style={{ color: '#f6e05e' }} />
+                <span className="stat-number">{(stats.topRatedRestroom.avg_rating || 0).toFixed(1)}</span>
+                <span className="stat-label" style={{ fontSize: '0.65rem' }}>
+                  Top Rated: {stats.topRatedRestroom.name?.substring(0, 15)}{stats.topRatedRestroom.name?.length > 15 ? '...' : ''}
+                </span>
+              </motion.div>
+            ) : (
+              <div className="stat-item">
+                <FaStar style={{ color: '#a0aec0' }} />
+                <span className="stat-number">--</span>
+                <span className="stat-label">No Ratings Yet</span>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>
@@ -2078,42 +2331,69 @@ const MapPage = () => {
                 {/* Action buttons */}
                 <div style={{
                   display: 'flex',
-                  gap: '1rem',
+                  flexWrap: 'wrap',
+                  gap: '0.75rem',
                   justifyContent: 'center',
                   marginTop: '2rem'
                 }}>
                   <button
                     onClick={() => {
-                      // Get directions
-                      const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedRestroom.lat},${selectedRestroom.lng}`;
-                      window.open(url, '_blank');
+                      // In-app directions
+                      getDirectionsToRestroom(selectedRestroom);
+                      setShowDetailsModal(false);
+                      setShowDirections(true);
                     }}
                     style={{
-                      padding: '0.75rem 1.5rem',
+                      padding: '0.75rem 1.25rem',
+                      background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                      border: 'none',
+                      borderRadius: '12px',
+                      color: '#fff',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <FaRoute /> Route on Map
+                  </button>
+
+                  <button
+                    onClick={() => openExternalNavigation(selectedRestroom)}
+                    style={{
+                      padding: '0.75rem 1.25rem',
                       background: 'linear-gradient(135deg, var(--psychedelic-lime), var(--psychedelic-cyan))',
                       border: 'none',
                       borderRadius: '12px',
                       color: 'black',
                       fontWeight: '600',
                       cursor: 'pointer',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
                     }}
                   >
-                    🗺️ Get Directions
+                    🗺️ Open in Maps
                   </button>
 
                   {selectedRestroom.type === 'establishment' && (
                     <button
                       onClick={addAndRateFromEstablishment}
                       style={{
-                        padding: '0.75rem 1.5rem',
-                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                        padding: '0.75rem 1.25rem',
+                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
                         border: 'none',
                         borderRadius: '12px',
                         color: '#fff',
                         fontWeight: '700',
                         cursor: 'pointer',
-                        transition: 'all 0.3s ease'
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
                       }}
                     >
                       🚽 Add & Rate Restroom
