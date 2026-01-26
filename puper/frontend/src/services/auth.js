@@ -117,20 +117,31 @@ class AuthService {
   // Create user profile in our users table
   async createUserProfile(user, additionalData = {}) {
     try {
+      // Use upsert so this works whether the profile row is created by:
+      //  - the auth trigger (OAuth / safety net)
+      //  - the client (email/password signup)
+      // and avoid duplicate key errors.
+      const profile = {
+        id: user.id,
+        email: user.email,
+        display_name: additionalData.displayName || user.user_metadata?.display_name || '',
+        bio: additionalData.bio || user.user_metadata?.bio || '',
+        avatar_url: additionalData.avatarUrl || user.user_metadata?.avatar_url || null,
+        // Provide a reasonable username fallback used by some UI joins
+        username: (additionalData.displayName || user.user_metadata?.display_name || user.email || 'user')
+          .toString()
+          .split('@')[0]
+          .trim(),
+        created_at: new Date().toISOString(),
+        level: 1,
+        points: 0,
+        reviews_count: 0,
+        restrooms_added: 0
+      };
+
       const { error } = await supabase
         .from('users')
-        .insert({
-          id: user.id,
-          email: user.email,
-          display_name: additionalData.displayName || user.user_metadata?.display_name || '',
-          bio: additionalData.bio || user.user_metadata?.bio || '',
-          avatar_url: additionalData.avatarUrl || user.user_metadata?.avatar_url || null,
-          created_at: new Date().toISOString(),
-          level: 1,
-          points: 0,
-          reviews_count: 0,
-          restrooms_added: 0
-        });
+        .upsert([profile], { onConflict: 'id' });
 
       if (error) throw error;
       return { error: null };

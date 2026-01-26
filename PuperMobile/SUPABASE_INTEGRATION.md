@@ -107,7 +107,7 @@ Display on Map with Toilet Markers
 
 ### Database Connection
 ```javascript
-const supabaseUrl = 'https://qunaiicjcelvdunluwqh.supabase.co';
+const supabaseUrl = 'https://pbyqkxhqrahjqjvnorwn.supabase.co';
 const supabaseAnonKey = 'eyJhbGci...'; // Your anon key
 ```
 

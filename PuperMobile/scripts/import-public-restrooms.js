@@ -11,9 +11,15 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase configuration (same as mobile app)
-const supabaseUrl = 'https://qunaiicjcelvdunluwqh.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bmFpaWNqY2VsdmR1bmx1d3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NjA4NjEsImV4cCI6MjA2OTMzNjg2MX0.rFXwY95lvcXZEds7f16KodwhfnGHQBp7GsV4WTFQHjI';
+// Supabase configuration
+// Prefer env vars to avoid hardcoding project refs/keys in scripts.
+const supabaseUrl = process.env.SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('[import-public-restrooms] Missing SUPABASE_URL / SUPABASE_ANON_KEY (or REACT_APP_SUPABASE_URL / REACT_APP_SUPABASE_ANON_KEY)');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 

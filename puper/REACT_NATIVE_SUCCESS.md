@@ -102,7 +102,7 @@ Add to `App.js`:
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  'https://qunaiicjcelvdunluwqh.supabase.co',
+  'https://pbyqkxhqrahjqjvnorwn.supabase.co',
   'YOUR_ANON_KEY'
 );
 

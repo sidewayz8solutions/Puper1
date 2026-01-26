@@ -1,0 +1,33 @@
+{
+  "identifier": "PuperStoreKit",
+  "description": "StoreKit configuration for the Remove Ads non-consumable",
+  "version": 1,
+  "platform": "ios",
+  "products": [
+    {
+      "referenceName": "Remove Ads",
+      "productId": "com.sidewayz8.puper.ads",
+      "type": "non-consumable",
+      "familyShareable": true,
+      "displayPrice": "9.99",
+      "price": 9.99,
+      "subscription": null,
+      "localizations": [
+        {
+          "locale": "en_US",
+          "title": "Remove Ads (One-time purchase)",
+          "description": "Enjoy Püper without ads — a one-time purchase removes ads on every device when you restore purchases."
+        }
+      ],
+      "metadata": {
+        "reviewNotes": "Matches App Store Connect product Remove Ads (One-time purchase)."
+      }
+    }
+  ],
+  "entitlements": [],
+  "subscriptionGroups": [],
+  "metadata": {}
+}
+
+
+

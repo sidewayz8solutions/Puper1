@@ -3,7 +3,7 @@
 ## 🚀 Quick Setup Steps
 
 ### 1. Enable PostGIS in Supabase
-1. Go to your Supabase dashboard: https://supabase.com/dashboard/project/qunaiicjcelvdunluwqh/sql
+1. Go to your Supabase dashboard: https://supabase.com/dashboard/project/pbyqkxhqrahjqjvnorwn/sql
 2. Navigate to **SQL Editor**
 3. Copy and paste the entire content from `supabase-geospatial-setup.sql`
 4. Click **Run** to execute all the setup commands

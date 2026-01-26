@@ -34,6 +34,7 @@ import {
   photoService,
   restroomService,
 } from './supabase/supabase';
+import { useRemoveAds } from './services/iap/removeAds';
 
 const { width, height } = Dimensions.get('window');
 
@@ -109,6 +110,17 @@ export default function App() {
   const [ratingModalTab, setRatingModalTab] = useState('rate'); // 'rate' or 'reviews'
   const [selectedRestroomDetails, setSelectedRestroomDetails] = useState(null);
   const [reviewsLoading, setReviewsLoading] = useState(false);
+
+  // Native IAP (StoreKit / Billing) state
+  const {
+    ready: iapReady,
+    removeAds: hasRemoveAdsEntitlement,
+    purchasing: purchasingRemoveAds,
+    restoring: restoringPurchases,
+    error: iapError,
+    buyRemoveAds,
+    restorePurchases,
+  } = useRemoveAds();
 
   // Show splash video on every app launch
   useEffect(() => {
@@ -557,15 +569,19 @@ export default function App() {
         // Generate a unique identifier for file naming (using restroom ID + timestamp)
         const fileIdentifier = `${selectedRestroom.id}-${Date.now()}`;
 
+        console.log('[App] Starting photo upload for', photoUris.length, 'photos');
         const uploadResult = await photoService.uploadReviewPhotos(photoUris, fileIdentifier);
 
         if (uploadResult.errors && uploadResult.errors.length > 0) {
           console.warn('Some photos failed to upload:', uploadResult.errors);
           // Continue with successful uploads, but warn user
           if (uploadResult.urls.length === 0) {
+            const errorMessages = uploadResult.errors
+              .map(err => err.error || err.message || String(err))
+              .join('\n');
             Alert.alert(
               'Photo Upload Failed',
-              'Photos could not be uploaded. Would you like to submit the review without photos?',
+              `Photos could not be uploaded:\n\n${errorMessages}\n\nWould you like to submit the review without photos?`,
               [
                 { text: 'Cancel', style: 'cancel', onPress: () => setLoading(false) },
                 { text: 'Submit Without Photos', onPress: () => {
@@ -578,6 +594,7 @@ export default function App() {
           }
         }
 
+        console.log('[App] Photo upload complete. URLs:', uploadResult.urls.length);
         photoUrls = uploadResult.urls;
       }
 
@@ -589,10 +606,17 @@ export default function App() {
         stocked_rating: newRating.stocked_rating,
         review_text: newRating.review_text, // Written review text
         comment: newRating.review_text, // Keep for backward compatibility
-        photos: photoUrls, // Array of photo URLs from Supabase Storage
+        photos: photoUrls && photoUrls.length > 0 ? photoUrls : [], // Array of photo URLs from Supabase Storage
         gender: newRating.gender,
         availability_status: newRating.availability_status
       };
+
+      console.log('[App] Submitting review with data:', {
+        restroom_id: reviewData.restroom_id,
+        rating: reviewData.rating,
+        photoCount: reviewData.photos.length,
+        hasReviewText: !!reviewData.review_text
+      });
 
       // Add the review
       await restroomService.addReview(reviewData);
@@ -1226,7 +1250,7 @@ export default function App() {
       {/* Map */}
       <MapView
         style={styles.map}
-        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+        provider={PROVIDER_GOOGLE}
         region={region}
         showsUserLocation={true}
         showsMyLocationButton={true}
@@ -1348,7 +1372,54 @@ export default function App() {
           </Text>
         </TouchableOpacity>
 
-        {/* Remove Ads Button - new simple IAP UI */}
+        <View style={styles.iapSection}>
+          {hasRemoveAdsEntitlement ? (
+            <View style={styles.adsRemovedContainer}>
+              <Text style={styles.adsRemovedText}>Ads removed — thank you!</Text>
+            </View>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={[
+                  styles.removeAdsButton,
+                  (!iapReady || purchasingRemoveAds) && styles.buttonDisabled
+                ]}
+                onPress={buyRemoveAds}
+                disabled={!iapReady || purchasingRemoveAds}
+              >
+                {purchasingRemoveAds ? (
+                  <ActivityIndicator color="#FFF" />
+                ) : (
+                  <Text style={styles.removeAdsButtonText}>Remove Ads · $9.99</Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.restoreButton,
+                  restoringPurchases && styles.buttonDisabled
+                ]}
+                onPress={restorePurchases}
+                disabled={restoringPurchases}
+              >
+                {restoringPurchases ? (
+                  <ActivityIndicator color="#6B4423" />
+                ) : (
+                  <Text style={styles.restoreButtonText}>Restore Purchase</Text>
+                )}
+              </TouchableOpacity>
+
+              {!iapReady && (
+                <Text style={styles.iapLoadingText}>
+                  Connecting to the App Store…
+                </Text>
+              )}
+              {iapError ? (
+                <Text style={styles.iapErrorText}>{iapError}</Text>
+              ) : null}
+            </>
+          )}
+        </View>
       </View>
 
       {/* Menu Modal */}
@@ -2198,6 +2269,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  iapSection: {
+    width: '100%',
+    marginTop: 12,
+    alignItems: 'center',
+  },
   removeAdsButton: {
     backgroundColor: '#4CAF50', // Green color for purchase button
     paddingVertical: 14,
@@ -2251,6 +2327,12 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  iapLoadingText: {
+    color: '#F5F5DC',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 6,
   },
   iapErrorText: {
     color: '#FF6B6B',

@@ -6,7 +6,7 @@ Real-time functionality is **essential** for the Püper app to show live restroo
 
 ### Step 1: Enable Real-time in Supabase Dashboard
 
-1. **Go to your Supabase Dashboard**: https://supabase.com/dashboard/project/qunaiicjcelvdunluwqh
+1. **Go to your Supabase Dashboard**: https://supabase.com/dashboard/project/pbyqkxhqrahjqjvnorwn
 2. **Navigate to Settings** → **API** 
 3. **Scroll down to "Real-time" section**
 4. **Enable Real-time** if it's not already enabled

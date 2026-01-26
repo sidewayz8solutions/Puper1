@@ -2,7 +2,7 @@
 # Simple test script for the Supabase Edge Function verify_ios_receipt
 # Verifies an Apple in-app purchase receipt blob (base64 string).
 # Usage:
-#   export SUPABASE_URL="https://qunaiicjcelvdunluwqh.supabase.co"
+#   export SUPABASE_URL="https://pbyqkxhqrahjqjvnorwn.supabase.co"
 #   export SUPABASE_ANON_KEY="<anon-or-service-role-key>"
 #   export RECEIPT_DATA="$(cat receipt.txt)"   # base64 string from Apple
 #   # Optional:

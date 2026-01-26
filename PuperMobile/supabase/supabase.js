@@ -386,21 +386,36 @@ export const photoService = {
   async uploadReviewPhoto(photoUri, identifier, photoIndex) {
     try {
       console.log('[PhotoService] Starting upload for photo:', photoIndex, 'URI:', photoUri);
-      
+
       // Generate unique filename
       const timestamp = Date.now();
       const fileExt = photoUri.split('.').pop().split('?')[0] || 'jpg';
       const fileName = `review-${identifier}-${photoIndex}-${timestamp}.${fileExt}`;
-      
+
       console.log('[PhotoService] Uploading file:', fileName);
 
       // For React Native, we need to read the file and convert to base64
       // Then decode it for upload
-      const response = await fetch(photoUri);
+      let response;
+      try {
+        response = await fetch(photoUri);
+      } catch (fetchError) {
+        console.error('[PhotoService] Fetch error:', fetchError.message);
+        throw new Error(`Failed to fetch image: ${fetchError.message}`);
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const arrayBuffer = await response.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
-      
+
       console.log('[PhotoService] File size:', uint8Array.length, 'bytes');
+
+      if (uint8Array.length === 0) {
+        throw new Error('Image file is empty');
+      }
 
       // Upload to Supabase Storage using Uint8Array
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -478,6 +493,27 @@ export const photoService = {
     } catch (error) {
       console.error('Error deleting review photo:', error);
       return { success: false, error: error.message };
+    }
+  },
+
+  // Test if storage bucket is accessible
+  async testBucketAccess() {
+    try {
+      console.log('[PhotoService] Testing bucket access...');
+      const { error } = await supabase.storage
+        .from('review-photos')
+        .list('', { limit: 1 });
+
+      if (error) {
+        console.error('[PhotoService] Bucket access test failed:', error.message);
+        return { accessible: false, error: error.message };
+      }
+
+      console.log('[PhotoService] Bucket access test successful');
+      return { accessible: true, error: null };
+    } catch (error) {
+      console.error('[PhotoService] Bucket access test error:', error.message);
+      return { accessible: false, error: error.message };
     }
   }
 };

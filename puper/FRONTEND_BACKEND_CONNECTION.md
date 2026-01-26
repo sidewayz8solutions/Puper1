@@ -69,7 +69,7 @@ puper/frontend/src/
 Make sure these are set in your `.env` file:
 
 ```env
-REACT_APP_SUPABASE_URL=https://qunaiicjcelvdunluwqh.supabase.co
+REACT_APP_SUPABASE_URL=https://pbyqkxhqrahjqjvnorwn.supabase.co
 REACT_APP_SUPABASE_ANON_KEY=your_supabase_key
 REACT_APP_GOOGLE_MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY_HERE
 REACT_APP_MAPBOX_ACCESS_TOKEN=your_mapbox_token

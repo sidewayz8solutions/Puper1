@@ -483,3 +483,4 @@ PuperNative/.build/
 PuperNative/build/
 *.xcworkspace
 *.xcodeproj
+.vscode/ntrsync

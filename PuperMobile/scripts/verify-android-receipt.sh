@@ -2,7 +2,7 @@
 # Simple test script for the Supabase Edge Function android_receipts
 # Verifies a Google Play in-app product purchase token.
 # Usage:
-#   export SUPABASE_URL="https://qunaiicjcelvdunluwqh.supabase.co"
+#   export SUPABASE_URL="https://pbyqkxhqrahjqjvnorwn.supabase.co"
 #   export SUPABASE_ANON_KEY="<anon-or-service-role-key>"
 #   export PRODUCT_ID="com.sidewayz8.puper.ads"
 #   export PURCHASE_TOKEN="<play_purchase_token>"
