@@ -419,6 +419,174 @@
   background: rgba(0,0,0,0.25);
 }
 
+/* Navigation Panel */
+.navigation-panel {
+  margin: 10px 14px 12px 14px;
+  padding: 10px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  color: #2d3748;
+}
+
+.navigation-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 4px 0;
+  color: #2d3748;
+}
+
+.navigation-header span {
+  flex: 1;
+}
+
+.navigation-content {
+  overflow: hidden;
+}
+
+.navigation-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.navigation-input-wrapper .nav-icon {
+  font-size: 1rem;
+}
+
+.navigation-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.9rem;
+  color: #2d3748;
+}
+
+.navigation-input::placeholder {
+  color: #a0aec0;
+}
+
+.navigation-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.get-directions-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.get-directions-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5a6fd6, #6a4199);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.get-directions-btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.clear-route-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clear-route-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.route-info {
+  margin-top: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.route-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.route-detail:not(:last-child) {
+  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.route-label {
+  font-size: 0.8rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.route-value {
+  font-size: 0.85rem;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.destination-info {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.navigation-warning {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(251, 191, 36, 0.15);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #b45309;
+  text-align: center;
+}
+
+/* Top Rated Item Styles */
+.top-rated-item {
+  background: rgba(246, 224, 94, 0.1);
+  border-color: rgba(246, 224, 94, 0.3);
+}
+
+.top-rated-item:hover {
+  background: rgba(246, 224, 94, 0.2);
+  border-color: rgba(246, 224, 94, 0.5);
+}
 
 .stats-header {
   display: flex;
