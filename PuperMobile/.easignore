@@ -153,7 +153,9 @@ eas.json.example
 app-ads.txt
 
 # Package manager artifacts
-package-lock.json
+# NOTE: Do NOT ignore package-lock.json — EAS uses it for deterministic installs.
+# Ignoring it can cause remote builds to resolve newer versions than you have locally.
+
 
 # Environment & secrets (handled via EAS secrets, not source)
 .env
@@ -184,10 +186,10 @@ supabase/functions/**
 # Keep only the Supabase client file, not functions
 !supabase/supabase.js
 
-# Exclude unused native module directories
-ios-native-modules/**
+# Native modules / plugins
+# NOTE: `plugins/` and `ios-native-modules/` are required for the iOS build
+# (Expo config plugin + native sources). Do not ignore them.
 modules/**
-plugins/**
 
 # Keep Supabase service files
 !services/**
@@ -198,5 +200,10 @@ plugins/**
 # Allow EAS config files
 !eas.json
 !app.json
+
+# Required Expo config plugin + native sources (used during EAS build)
+!plugins/withReceiptReader.cjs
+!plugins/ios-receipt-reader/**
+!ios-native-modules/**
 
 # End of file
