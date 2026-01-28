@@ -1,5 +1,6 @@
 import React, {
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
@@ -40,6 +41,9 @@ const { width, height } = Dimensions.get('window');
 
 export default function App() {
   // Ads & in-app purchases are temporarily disabled in version 1.8.7
+
+  // Prevent duplicate modal opens (e.g., POI click also firing a map press)
+  const lastOpenRatingModalAtRef = useRef(0);
 
   // Main navigation state
   const [currentScreen, setCurrentScreen] = useState('home'); // 'home', 'map', or 'ranking'
@@ -353,6 +357,14 @@ export default function App() {
 
   // Handle map press for adding restrooms
   const handleMapPress = (event) => {
+    // Some providers/platforms report POI taps via `onPress` instead of `onPoiClick`.
+    // If this was actually a POI tap, route it through the POI handler.
+    const action = event?.nativeEvent?.action;
+    if (typeof action === 'string' && action.toLowerCase().includes('poi')) {
+      handlePoiClick(event);
+      return;
+    }
+
     if (addMode) {
       const coordinate = event.nativeEvent.coordinate;
       setAddLocation(coordinate);
@@ -362,6 +374,10 @@ export default function App() {
 
   // Handle POI (Point of Interest) clicks - Google Places
   const handlePoiClick = (event) => {
+    const now = Date.now();
+    if (now - lastOpenRatingModalAtRef.current < 350) return;
+    lastOpenRatingModalAtRef.current = now;
+
     const { coordinate, placeId, name } = event.nativeEvent;
 
     // Create a temporary restroom object for the Google Place
@@ -1292,7 +1308,8 @@ export default function App() {
       {/* Map */}
       <MapView
         style={styles.map}
-        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+        // Use Google provider so taps on establishments/POIs can be handled consistently.
+        provider={PROVIDER_GOOGLE}
         region={region}
         showsUserLocation={true}
         showsMyLocationButton={true}
@@ -1332,6 +1349,10 @@ export default function App() {
               title={restroom.name || 'Restroom'}
               description={`${renderToiletRating(avgRating)} ${distance ? `• ${distance}` : ''}`}
               onPress={() => {
+                const now = Date.now();
+                if (now - lastOpenRatingModalAtRef.current < 350) return;
+                lastOpenRatingModalAtRef.current = now;
+
                 setSelectedRestroom(restroom);
                 // Default to Reviews tab if there are reviews, otherwise Rate tab
                 setRatingModalTab(reviewCount > 0 ? 'reviews' : 'rate');

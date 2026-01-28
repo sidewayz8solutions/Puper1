@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-			"buildNumber": "79",
+				"buildNumber": "80",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
