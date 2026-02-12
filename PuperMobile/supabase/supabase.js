@@ -220,7 +220,7 @@ export const restroomService = {
             id,
             rating,
             cleanliness_rating,
-            stock_rating,
+            stocked_rating,
             comment,
             review_text,
             photos,
@@ -274,6 +274,33 @@ export const restroomService = {
       return data;
     } catch (error) {
       console.error('Error adding review:', error);
+      throw error;
+    }
+  },
+
+  // Update restroom accessibility flags (crowd-sourced from ratings)
+  async updateAccessibilityFlags(restroomId, flags) {
+    try {
+      const updateData = {};
+      if (typeof flags.wheelchair_accessible === 'boolean') {
+        updateData.wheelchair_accessible = flags.wheelchair_accessible;
+      }
+      if (typeof flags.baby_changing === 'boolean') {
+        updateData.baby_changing = flags.baby_changing;
+      }
+      if (Object.keys(updateData).length === 0) return null;
+
+      const { data, error } = await supabase
+        .from('restrooms')
+        .update(updateData)
+        .eq('id', restroomId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error updating accessibility flags:', error);
       throw error;
     }
   },
