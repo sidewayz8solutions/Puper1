@@ -2,7 +2,7 @@
   "expo": {
     "name": "Püper - Find Your Roll",
     "slug": "puper-vcreojv8r7rd0d2ltwipn",
-		"version": "2.1.4",
+    "version": "2.1.6",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidewayz8.puper",
-				"buildNumber": "80",
+      "buildNumber": "84",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Püper needs your location to find nearby restrooms.",
@@ -68,12 +68,11 @@
           "locationAlwaysAndWhenInUsePermission": "Allow Püper to use your location to find nearby restrooms."
         }
       ],
-      "expo-asset",
-      "./plugins/withReceiptReader.cjs"
+      "expo-asset"
     ],
     "extra": {
-	      "supabaseUrl": "https://pbyqkxhqrahjqjvnorwn.supabase.co",
-	      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBieXFreGhxcmFoanFqdm5vcnduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0MDA1ODEsImV4cCI6MjA4NDk3NjU4MX0.s9so-Mbvdznh-q8bxJ5dR5l8wNhNL7ZDRDU20kRowFM",
+      "supabaseUrl": "https://qunaiicjcelvdunluwqh.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bmFpaWNqY2VsdmR1bmx1d3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NjA4NjEsImV4cCI6MjA2OTMzNjg2MX0.rFXwY95lvcXZEds7f16KodwhfnGHQBp7GsV4WTFQHjI",
       "eas": {
         "projectId": "ee7c255a-c7c7-4664-837e-c123d70e2105"
       }

@@ -43,3 +43,4 @@ yarn-error.*
 
 # Local Play service account key (do not commit)
 google-play-service-account.json
+.vscode/ntrsync
