@@ -115,6 +115,13 @@ export default function App() {
     setShowLaunchVideo(true);
   }, []);
 
+  // Try to submit any pending reviews saved due to network errors when app starts
+  useEffect(() => {
+    (async () => {
+      await flushPendingReviews();
+    })();
+  }, []);
+
   // Load location and fetch nearby restrooms
   useEffect(() => {
     (async () => {
@@ -646,12 +653,81 @@ export default function App() {
       console.error('Error adding rating:', error);
       console.error('Error details:', error.message);
       console.error('Selected restroom:', selectedRestroom);
-      Alert.alert(
-        'Error',
-        `Failed to add rating: ${error.message || 'Unknown error'}\n\nPlease check the console for details.`
-      );
+      // If this was a network failure, save the review locally for retry
+      const msg = error?.message || String(error);
+      if (msg.toLowerCase().includes('network')) {
+        try {
+          const pending = JSON.parse(await AsyncStorage.getItem('@puper/pendingReviews') || '[]');
+          const reviewToSave = {
+            restroom: selectedRestroom,
+            reviewData: {
+              restroom_id: selectedRestroom.id,
+              rating: newRating.rating,
+              cleanliness_rating: newRating.cleanliness_rating,
+              stocked_rating: newRating.stocked_rating,
+              review_text: newRating.review_text,
+              comment: newRating.review_text,
+              photos: reviewPhotos.map(p => p.uri || p),
+              gender: newRating.gender,
+              availability_status: newRating.availability_status,
+              created_at: new Date().toISOString()
+            }
+          };
+          pending.push(reviewToSave);
+          await AsyncStorage.setItem('@puper/pendingReviews', JSON.stringify(pending));
+          Alert.alert('Saved Locally', 'Network error - your review was saved and will be retried automatically when the app reconnects.');
+        } catch (saveErr) {
+          console.error('Failed to save pending review:', saveErr);
+          Alert.alert('Error', `Failed to add rating: ${msg}\nAlso failed to save locally: ${saveErr?.message || saveErr}`);
+        }
+      } else {
+        Alert.alert(
+          'Error',
+          `Failed to add rating: ${msg || 'Unknown error'}\n\nPlease check the console for details.`
+        );
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Attempt to flush pending reviews that were saved due to network errors
+  const flushPendingReviews = async () => {
+    try {
+      const raw = await AsyncStorage.getItem('@puper/pendingReviews');
+      const pending = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(pending) || pending.length === 0) return;
+
+      console.log('[App] Flushing', pending.length, 'pending reviews');
+      const toKeep = [];
+      for (const item of pending) {
+        try {
+          // If photos are present, try to upload them first
+          let photoUrls = [];
+          if (Array.isArray(item.reviewData.photos) && item.reviewData.photos.length > 0) {
+            const uploadResult = await photoService.uploadReviewPhotos(item.reviewData.photos, `${item.restroom?.id || 'pending'}-${Date.now()}`);
+            photoUrls = uploadResult.urls || [];
+          }
+
+          const reviewData = {
+            ...item.reviewData,
+            photos: photoUrls
+          };
+
+          await restroomService.addReview(reviewData);
+          console.log('[App] Successfully submitted pending review for', item.restroom?.name || item.reviewData.restroom_id);
+        } catch (err) {
+          console.warn('[App] Failed to submit pending review, keeping for retry:', err?.message || err);
+          toKeep.push(item);
+        }
+      }
+
+      await AsyncStorage.setItem('@puper/pendingReviews', JSON.stringify(toKeep));
+      if (toKeep.length === 0) {
+        console.log('[App] All pending reviews flushed successfully');
+      }
+    } catch (err) {
+      console.error('[App] Error while flushing pending reviews:', err);
     }
   };
 
