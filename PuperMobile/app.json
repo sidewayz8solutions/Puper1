@@ -43,7 +43,7 @@
         "resizeMode": "cover"
       },
       "package": "com.sidewayz8.puper",
-  "versionCode": 44,
+      "versionCode": 44,
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
@@ -69,7 +69,8 @@
         }
       ],
       "expo-asset",
-      "react-native-iap"
+      "react-native-iap",
+      "expo-video"
     ],
     "extra": {
       "supabaseUrl": "https://pbyqkxhqrahjqjvnorwn.supabase.co",
@@ -79,5 +80,4 @@
       }
     }
   }
-
 }
